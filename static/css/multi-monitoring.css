@@ -113,26 +113,7 @@
 
 
 
-/* COUNTER SECTION */
-    .agent-counter {
-    background-color: #111827; /* fond sombre */
-    color: #10b981; /* vert cyber */
-    padding: 12px 20px;
-    margin: 10px 0;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    width: fit-content;
-    box-shadow: 0 0 10px #10b98166;
-    border: 1px solid #10b98155;
-    transition: all 0.3s ease;
-    }
 
-  .agent-counter:hover {
-    background-color: #1f2937;
-    box-shadow: 0 0 15px #10b981aa;
-    transform: scale(1.02);
-    cursor: default;
-    }
+
 
 

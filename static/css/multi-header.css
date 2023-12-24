@@ -67,6 +67,7 @@ body {
         .menu-links {
             display: none;
             flex-direction: column;
+            font-size: 12px;
             background-color: #333;
             position: absolute;
             top: 50px;
@@ -74,6 +75,7 @@ body {
             padding: 10px;
             border-radius: 10px;
             z-index: 99;
+            width: 300px;
         }
 
         .menu-links.show {
@@ -132,45 +134,12 @@ ul li {
     margin-bottom: 5px;
 }
 
-@media (max-width: 1200px) {
-    .card {
-        width: 30%;
-    }
-    .card-for-column {
-        width: 30%;
-    }
-    .large-card {
-        width: 30%;
-    }
-}
 
-@media (max-width: 900px) {
-    .card {
-        width: 45%;
-    }
-    .card-for-column {
-        width: 45%;
-    }
-    .large-card {
-        width: 45%;
-    }
-}
+
+
 
 @media (max-width: 600px) {
-    .card {
-        width: 100%;
-        height: auto;
-    }
-    .large-card {
-        width: 100%;
-    }
 
-    .card-for-column {
-        width: 100%;
-    }
-    .column-card {
-        width: 100%;
-    }
     .container {
         padding: 20px;
     }
@@ -183,9 +152,7 @@ ul li {
         font-size: 10px;
     }
 
-    .alert {
-        font-size: 8px;
-    }
+
 }
 
 

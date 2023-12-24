@@ -172,7 +172,12 @@
             </h3>
             
             <input type="file" id="file-upload" />
-            <button onclick="scanFile()">Scan File</button>
+            <ul>
+                <li>Malicious</li>
+                <li>Undetected</li>
+                <li>Harmless</li>
+            </ul>
+            <button onclick="scanFile()" style="background-color: #00ff00;border-radius: 10%;">Scan File</button>
             <div id="scan-results"></div>
         </div>
 

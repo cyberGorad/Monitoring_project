@@ -259,13 +259,13 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
             if (data.total > 10000) {
                 // Affiche une alerte sur l'élément dos en rouge
             
-                dosElement.textContent = "Warning commander: ATTACK DETECTED !";
+                dosElement.textContent = "Alert High Traffic";
                 dosElement.style.color = 'red';
                 dosElement.style.fontSize = '15px';
                 playAudio('/static/flood.mp3');
             } else {
                 // Affiche normalement si le seuil de 7000 KB n'est pas dépassé
-                dosElement.textContent = " normal.";
+                dosElement.textContent = "Traffic Normal";
                 dosElement.style.color = 'green';  // Ou la couleur par défaut que vous souhaitez
             }
             break;

@@ -3,6 +3,10 @@ const content = document.querySelector('.content');
 const ws = new WebSocket('ws://localhost:9000');
 const dashboard = document.getElementById('dashboard');
 const agentCount = document.getElementById('agent-count');
+const noMachine = document.getElementById('no-machine');
+
+
+
 
 // Simuler un chargement de 4 secondes
 setTimeout(() => {
@@ -41,7 +45,15 @@ ws.onmessage = async (event) => {
     return;
   }
 
+
+    
+
+
+
   const hostname = data.local_ip || 'Inconnu';
+
+
+
 
   if (machines[hostname]) {
     // Création du HTML détaillé pour les ports ouverts
@@ -66,7 +78,7 @@ ws.onmessage = async (event) => {
     });
     outboundTrafficDetails += '</ul>';
 
-      // Création du HTML détaillé pour le statut de la batterie
+      // Création du HTML détaillé pour le statut de la batt-erie
     var batteryStatus =  `
     <strong>🔋 Batterie :</strong> ${data.battery_data.battery_percent}%<br>
     <strong>Statut de la batterie :</strong> ${data.battery_data.battery_status}<br>
@@ -148,6 +160,11 @@ setInterval(() => {
   }
 }, 2000);
 
+
+
+
+
+
 ws.onopen = () => console.log('✅ Connexion WebSocket ouverte');
-ws.onerror = (err) => console.error('❌ Erreur WebSocket :', err);
+ws.onerror = (err) => noMachine.textContent = "No machines";
 ws.onclose = () => console.warn('⚠️ Connexion WebSocket fermée');
