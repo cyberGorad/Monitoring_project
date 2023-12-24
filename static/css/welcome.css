@@ -2,7 +2,7 @@
  
 
     body {
-        background-image: url(/static/globe.jpeg);
+        /*  background-image: url(/static/globe.jpeg);*/
         background-size: cover;
         color: #00ff00;
         font-family: 'Courier New', Courier, monospace;

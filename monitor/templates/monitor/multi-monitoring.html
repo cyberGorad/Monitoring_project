@@ -4,9 +4,48 @@
   <meta charset="UTF-8">
   <title>Multi Monitoring | GORADMONITOR</title>
   <link rel="stylesheet" href="/static/css/multi-monitoring.css">
+  <link rel="stylesheet" href="/static/css/multi-header.css">
   
 </head>
 <body>
+
+  <header>
+    <div class="header w3-card-4" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+        <!-- Logo à gauche -->
+        <i class="fas fa-shield-alt" style="font-size: 30px; margin-right: 15px; margin-top: 5px; margin-left: 15px;"></i>
+
+        <!-- === Commande vocale === -->
+        <span id="status" style="color:white; flex-grow: 1;"></span> 
+
+
+
+        <div class="menu-container">
+            
+
+            <div class="burger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <div class="menu-links" id="menuLinks">
+                <span id="machine-id"></span>
+                <a id="home_btn" href="{% url 'index' %}">Home</a>
+                <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
+            </div>
+
+            <img src="/static/IA.jpeg" alt="gora" class="menu-avatar">
+        </div>
+
+        <script>
+            function toggleMenu() {
+                document.getElementById("menuLinks").classList.toggle("show");
+            }
+        </script>
+
+        </div>
+</header>
+
 
   <div class="loader-container">
     <div class="loader"></div>

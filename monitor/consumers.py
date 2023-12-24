@@ -251,6 +251,9 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
             ram_usage = psutil.virtual_memory().percent
             uptime_seconds = time.time() - psutil.boot_time()
             uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
+            #battery section
+            #battery = psutil.sensors_battery()
+            #battery_percent = battery.percent()
 
             await self.send(json.dumps({
                 "type": "cpu",

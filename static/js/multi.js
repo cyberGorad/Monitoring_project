@@ -45,14 +45,14 @@ ws.onmessage = async (event) => {
 
   if (machines[hostname]) {
     // Création du HTML détaillé pour les ports ouverts
-    let openPortsDetails = '<ul>';
+    var openPortsDetails = '<ul>';
     data.open_ports.forEach(p => {
       openPortsDetails += `<li>Port: ${p.port} | PID: ${p.pid ?? "N/A"} | Processus: ${p.process}</li>`;
     });
     openPortsDetails += '</ul>';
 
       // 🔁 Construction HTML pour les disques
-    let diskDetails = '<ul>';
+    var diskDetails = '<ul>';
     for (const [mount, percent] of Object.entries(data.disk)) {
       diskDetails += `<li>${mount} : ${percent}% utilisé</li>`;
     }
@@ -60,14 +60,14 @@ ws.onmessage = async (event) => {
 
   
     // Création du HTML détaillé pour le trafic sortant
-    let outboundTrafficDetails = '<ul>';
+    var outboundTrafficDetails = '<ul>';
     data.outbound_traffic.forEach(c => {
       outboundTrafficDetails += `<li>Local: ${c.local} → Remote: ${c.remote} | Processus: ${c.process}</li>`;
     });
     outboundTrafficDetails += '</ul>';
 
       // Création du HTML détaillé pour le statut de la batterie
-    let batteryStatus =  `
+    var batteryStatus =  `
     <strong>🔋 Batterie :</strong> ${data.battery_data.battery_percent}%<br>
     <strong>Statut de la batterie :</strong> ${data.battery_data.battery_status}<br>
   `;
@@ -106,16 +106,25 @@ ws.onmessage = async (event) => {
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
-      <strong>state:</strong> ${data.system_state}<br>
-      <strong>system:</strong>${data.os}<br>  
-      <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
-      <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
-      <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
-      <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>
-      <strong>📶 Bande passante :</strong> ${data.bandwidth.sent_kb} Ko envoyés, ${data.bandwidth.received_kb} Ko reçus<br>
-      <span class="section-title">⏲️ Cron Jobs :</span><br>${data.cron_jobs}<br>
-      <span class="section-title">📜 Journaux système :</span><br>${data.logs}<br>
-      <span class="section-title">📡 Trafic sortant :</span><br>${data.outbound_traffic.length} connexions sortantes
+    <strong>System status:</strong> ${data.system_state}<br>
+    <strong>System:</strong> ${data.os}<br> 
+    <strong>INTERNET STATUS:</strong> ${data.internet_status}<br>
+    <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
+    <strong>🖥️ Temp :</strong> ${data.temperature}<br>
+    <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
+    <strong>⚙️ RAM :</strong> ${data.ram ?? 'N/A'} %<br>
+    <strong>⚙️ DISQUES :</strong><br>${diskDetails}
+    ${batteryStatus}
+    <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
+    <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>
+    ${openPortsDetails}
+    <strong>📶 Bande passante :</strong> ${data.bandwidth.sent_kb} Ko envoyés, ${data.bandwidth.received_kb} Ko reçus<br>
+    <span class="section-title">⏲️ Cron Jobs :</span><br>${data.cron_jobs}<br>
+    <span class="section-title">📜 Journaux système :</span><br>${data.logs}<br>
+    
+    <span class="section-title">📡 Trafic sortant :</span><br>${data.outbound_traffic.length} connexions sortantes<br>
+    
+    ${outboundTrafficDetails}
     `;
     dashboard.appendChild(card);
     machines[hostname] = {

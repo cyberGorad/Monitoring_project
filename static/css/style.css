@@ -177,6 +177,23 @@
         transition: all 0.3s ease;  /* Transition douce pour les effets */
     }
 
+    .full-card {
+        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+        width: 98%;
+        padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+        border: 1px solid #444444;  /* Bordure plus discrète */
+        text-align: center;
+        box-sizing: border-box;
+        height: 220px;
+        overflow-y: auto;
+        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        font-family: 'Inter', sans-serif;
+
+        transition: all 0.3s ease;  /* Transition douce pour les effets */
+    }
+
     .card:hover {
         background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
         border-color: #00ff00;
@@ -193,6 +210,13 @@
         transition: all 0.3s ease-in-out;
     }
     .column-card:hover {
+        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+        border-color: #00ff00;
+        box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
+        transform: scale(1.05);
+        transition: all 0.3s ease-in-out;
+    }
+    .full-card:hover {
         background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
         border-color: #00ff00;
         box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);

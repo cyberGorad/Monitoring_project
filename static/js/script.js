@@ -133,9 +133,12 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
             case "connections":
                 const connectionsList = document.getElementById('connections-list');
                 const machineIdElement = document.getElementById('machine-id');
-
+                if (data.machine_id) {
                 // Mettre à jour le machine_id
                 machineIdElement.innerHTML = `<i class="fas fa-server"></i> Server address: ${data.machine_id}`;
+                } else {
+                machineIdElement.innerHTML = '<p>Offline</p>';
+                }
 
                 
                 // Nettoyer la liste des connexions

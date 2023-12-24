@@ -55,9 +55,7 @@
             
                     <!-- === Commande vocale === -->
                     <span id="status" style="color:white; flex-grow: 1;"></span> 
-            
-
-
+        
                     <div class="menu-container">
                         
 
@@ -92,7 +90,7 @@
     
         <div class="container content">
 
-            <div class="card-for-column">
+            <div class="card-for-column" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
                 <!-- CPU Container -->
                 <div id="cpu-container" class="column-card">
                     
@@ -102,7 +100,7 @@
                 </div>
 
                 <!-- Disk Container -->
-                <div id="disk-container" class="column-card">
+                <div id="disk-container" class="column-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
 
                     <span id="disk-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
                         loading data ...
@@ -189,7 +187,7 @@
 
 
         <div id="cron-jobs-list" class="card">
-            <h3>Cron Monitor <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+            <h3>Tasks Scheduled <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
         </div>
 
 
@@ -209,8 +207,13 @@
             <h2><i class="fas fa-rocket"></i> Infos au Démarrage</h2>
             <div id="startup-details"></div>
         </div>
-        
 
+        <!-- FULL CARD  -->
+        
+        <div id="startup-info" class="full-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
+            <h2><i class="fas fa-rocket"></i> full card</h2>
+            <div id="startup-details"></div>
+        </div>
 
 
         <!-- Fenêtre modale pour afficher la réponse Gemini -->
@@ -232,10 +235,12 @@
 
 
 
- 
-
-    
-
-
+    <!-- Lien vers le JS de AOS -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialiser AOS
+        AOS.init();
+    </script>
     </body>
         </html>
