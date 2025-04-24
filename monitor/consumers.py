@@ -121,7 +121,7 @@ def get_windows_startup_info():
         "startup_folder": run_command("dir \"%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" /b"),
         "scheduled_tasks": run_command("schtasks /Query /FO LIST /V")
     }
-
+"""END STARTUP SERVICES """
 
 
 
@@ -308,32 +308,57 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+
     async def monitor_cron_jobs(self):
-        """Surveille les modifications dans les cron jobs."""
-        cron_file_path = "/var/spool/cron/crontabs/root"  # Exemple pour l'utilisateur root, ajustez en fonction des besoins
-        if not os.path.exists(cron_file_path):
-            return  # Si le fichier n'existe pas, ne pas continuer
-        
-        last_mod_time = os.path.getmtime(cron_file_path)  # Obtient l'heure de la dernière modification
+        """Surveille les cron jobs sous Linux ou les tâches planifiées sous Windows."""
 
-        while True:
-            await asyncio.sleep(5)  # Vérification toutes les 5 secondes
-            
-            # Vérifie si le fichier a été modifié
-            current_mod_time = os.path.getmtime(cron_file_path)
-            if current_mod_time != last_mod_time:
-                last_mod_time = current_mod_time  # Met à jour l'heure de modification
-                cron_content = run_command("crontab -l")  # Récupère le contenu actuel des cron jobs
-                
-                if cron_content:
+        if platform.system().lower() == "linux":
+            cron_dir = "/var/spool/cron/crontabs"
+            if not os.path.exists(cron_dir):
+                return  # Si le dossier n'existe pas, on skip
+
+            last_mod_times = {}
+            for user_cron in os.listdir(cron_dir):
+                path = os.path.join(cron_dir, user_cron)
+                if os.path.isfile(path):
+                    last_mod_times[user_cron] = os.path.getmtime(path)
+
+            while True:
+                await asyncio.sleep(5)
+                for user_cron in os.listdir(cron_dir):
+                    path = os.path.join(cron_dir, user_cron)
+                    if not os.path.isfile(path):
+                        continue
+
+                    current_mtime = os.path.getmtime(path)
+                    if user_cron not in last_mod_times or current_mtime != last_mod_times[user_cron]:
+                        last_mod_times[user_cron] = current_mtime
+                        cron_content = run_command(f"crontab -l -u {user_cron}")
+                        if cron_content:
+                            alert_message = {
+                                "type": "cron_modification",
+                                "os": "linux",
+                                "user": user_cron,
+                                "message": f"Modification detected in cron jobs for user '{user_cron}'",
+                                "details": cron_content.strip()
+                            }
+                            await self.send(json.dumps(alert_message))
+
+        elif platform.system().lower() == "windows":
+            previous_output = ""
+            while True:
+                await asyncio.sleep(5)
+                current_output = run_command("schtasks /Query /FO LIST /V")
+                if current_output and current_output.strip() != previous_output.strip():
+                    previous_output = current_output
                     alert_message = {
-                        "type": "cron_modification",
-                        "message": "Modification detected in cron jobs",
-                        "details": cron_content.strip()  # Contenu des cron jobs modifiés
+                        "type": "scheduled_task_modification",
+                        "os": "windows",
+                        "message": "Modification detected in scheduled tasks",
+                        "details": current_output.strip()
                     }
+                    await self.send(json.dumps(alert_message))
 
-                    # Envoie uniquement la dernière alerte, sans supprimer les anciennes
-                    await self.send(json.dumps(alert_message)) 
 
 
 
