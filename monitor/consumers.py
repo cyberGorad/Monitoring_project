@@ -223,9 +223,11 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         while True:
             cpu_usage = psutil.cpu_percent(interval=1)
             disk_usage = psutil.disk_usage('/').percent
+            ram_usage = psutil.virtual_memory().percent
 
             await self.send(json.dumps({
                 "type": "cpu",
+                "ram_usage": ram_usage,
                 "disk_usage": disk_usage,
                 "cpu_usage": cpu_usage,
             }))

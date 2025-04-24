@@ -14,10 +14,13 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                     // Sélection de l'élément HTML où afficher l'utilisation du CPU
                 const cpuTextElement = document.getElementById('cpu-text');
                 const diskTextElement = document.getElementById('disk-text');
+                const ramTextElement = document.getElementById('ram-text');
                 const cpuUsage = data.cpu_usage;
                 const diskUsage = data.disk_usage;
+                const ramUsage = data.ram_usage;
                 cpuTextElement.textContent = `CPU : ${cpuUsage}%`;
                 diskTextElement.textContent = `Disque: ${diskUsage}%`;
+                ramTextElement.textContent = `RAM: ${ramUsage}%`;
                 
 
                 if (cpuUsage > 80) {
@@ -31,6 +34,12 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                     diskTextElement.style.color = "red";
                 } else {
                     diskTextElement.style.color = "green";
+                }
+                if (ramUsage > 80) {
+                    ramTextElement.style.color = "red";
+
+                } else {
+                    ramTextElement.style.color = "green";
                 }
 
                 break;
