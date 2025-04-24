@@ -1,0 +1,204 @@
+<!-- GORADMONITOR -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GORADMONITOR</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/js/music-background.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <!-- W3 CSS -->
+    <link rel="stylesheet" href="/static/css/w3.css">
+    <!-- WEBSOCKET SCRIPT -->
+    <script src="/static/js/script.js"></script>
+    <script src="/static/js/welcome.js"></script>
+
+    <!-- VOCAL COMMAND JS -->
+    <script src="/static/js/vocal_command.js"></script>
+
+
+    <script>  
+        // Fonction qui sera déclenchée à chaque pression sur une touche
+        window.addEventListener('keydown', function(event) {
+          // Vérifie si la touche pressée est la barre d'espace (code 32)
+          if (event.code === 'Space') {
+            event.preventDefault();
+            startVoice(); // Démarre la voix si c'est la barre d'espace
+          }
+        });
+      </script>
+
+
+     <!-- Lien vers la bibliothèque Font Awesome -->
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+     <link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+    <body >
+        <!-- LOADER SECTION -->
+        <div id="loader" class="loader-container">
+            <div class="loader">
+                <span></span>
+            </div>
+        </div>
+            <!-- LOADER END -->
+
+
+
+            <header>
+                <div class="header w3-card-4" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+                    <!-- Logo à gauche -->
+                    <i class="fas fa-shield-alt" style="font-size: 30px; margin-right: 15px; margin-top: 5px; margin-left: 15px;"></i>
+            
+                    <!-- === Commande vocale === -->
+                    <span id="status" style="color:white; flex-grow: 1;"></span> 
+            
+
+
+                    <div class="menu-container">
+                        
+
+                        <div class="burger" onclick="toggleMenu()">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="menu-links" id="menuLinks">
+                            <span id="machine-id"></span>
+                            <a id="home_btn" href="{% url 'index' %}">Home</a>
+                            <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
+                        </div>
+
+                        <img src="/static/IA.jpeg" alt="gora" class="menu-avatar">
+                    </div>
+
+                    <script>
+                        function toggleMenu() {
+                            document.getElementById("menuLinks").classList.toggle("show");
+                        }
+                    </script>
+
+                    </div>
+            </header>
+            
+
+
+
+  
+    
+        <div class="container content">
+
+            <div class="card-for-column" style="display: flex;flex-direction: column;">
+                <!-- CPU Container -->
+                <div id="cpu-container" class="column-card">
+                    <h3>
+                        CPU USAGE
+                        <i class="fas fa-microchip" style=" font-size: 24px; color: #00ff00;margin-bottom: 1px;margin-top: 2px;"></i>
+                    </h3>
+                    
+                    <span id="cpu-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
+                        loading data ...
+                    </span>
+                </div>
+
+                <!-- Disk Container -->
+                <div id="disk-container" class="column-card">
+                    <h3>
+                        DISK USAGE
+                        <i class="fas fa-hdd" style=" font-size: 24px; color: #00ff00;margin-bottom: 1px;margin-top: 2px;"></i>
+                    </h3>
+                    <span id="disk-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
+                        loading data ...
+                    </span>
+                </div>
+            </div>
+
+
+
+
+
+
+
+        <div id="ports-container" class="card">
+            <h3>
+                Open Ports
+                <i class="fas fa-plug" style="float: right; font-size: 24px; color: #00ff00;"></i>
+            </h3>
+            
+            
+            <ul id="open-ports"></ul>
+            <h4 style="color:white; text-transform:uppercase;">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 10px; font-size: 24px;"></i> 
+                Alerts
+            </h4>
+
+            <audio id="alert-sound" src="/static/alerte.mp3" preload="auto">audio</audio>
+
+
+            <ul id="unauthorized-ports"></ul>
+        </div>
+
+
+        <div id="connections-container" class="card">
+            <h3>
+                Established
+                <i class="fas fa-network-wired" style="float: right; font-size: 24px; color: #00ff00;"></i>
+            </h3>
+
+            <ul id="connections-list"></ul>
+        </div>
+
+
+        <div id="file-scan-container" class="card">
+            <h3>
+                File Scan
+                <i class="fas fa-search" style="float: right; font-size: 24px; color: #00ff00;"></i>
+            </h3>
+            
+            <input type="file" id="file-upload" />
+            <button onclick="scanFile()">Scan File</button>
+            <div id="scan-results"></div>
+        </div>
+
+
+        <div id="bandwidth-container" class="card">
+            <h3>Bandwidth Usage <i class="fas fa-tachometer-alt" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
+
+            <p id="bandwidth-info">Loading...</p>
+            <p id="dos"></p>
+        </div>
+
+
+
+        <div id="cron-jobs-list" class="card">
+            <h3>Cron Monitor <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+        </div>
+
+
+        <div id="outbound-container" class="large-card">
+            <h3>Outbound Traffic <i class="fas fa-arrow-right" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
+
+            <p>Loading data...</p>
+        </div>
+        <div class="chart-container" style="height: 400px;" class="card">
+            <canvas id="outbound-chart"></canvas>
+        </div>
+
+
+        <!-- Fenêtre modale pour afficher la réponse Gemini -->
+        <div id="gemini-modal" class="modal">
+            <div class="modal-content">
+                <span id="close-modal" class="close-btn">&times;</span>
+                <h3>===> GORA :</h3><img src="/static/IA.jpeg" width="50px" height="50px"  alt="GORA_DETAILS">
+                <p id="gemini-response-text" style="margin-top: 50px;"></p>
+            </div>
+        </div>      
+    </div>
+
+
+    </body>
+        </html>

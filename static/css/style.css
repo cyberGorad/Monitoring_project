@@ -1,0 +1,476 @@
+
+    body {
+        font-family: 'JetBrains Mono', monospace;
+        margin: 0;
+        padding: 0;
+        background-color: #444040;
+        color: #00ff00;
+        overflow-x: hidden;
+        
+    }
+
+
+    /*NAVBAR SECTIOn*/
+
+        .menu-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .menu-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-links a {
+            color: green;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 10px;
+            margin-right: 10px;
+        }
+        .menu-links a:hover{
+            background-color: white;
+        }
+
+        .menu-avatar {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 40px;
+        }
+
+        .burger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .burger span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 4px 0;
+            border-radius: 3px;
+        }
+
+        #machine-id {
+            color: white;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .menu-links {
+                display: none;
+                flex-direction: column;
+                background-color: #333;
+                position: absolute;
+                top: 50px;
+                right: 0;
+                padding: 10px;
+                border-radius: 10px;
+                z-index: 99;
+            }
+
+            .menu-links.show {
+                display: flex;
+            }
+
+            .burger {
+                display: flex;
+            }
+
+            .menu-avatar {
+                margin-left: 10px;
+            }
+            #machine-id {
+                color: white;
+                margin-right: 15px;
+                font: 12px;
+            }
+        }
+        /* NAVBAR END SECTION */
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 15px;
+        margin: 10px;
+    }
+
+    .card {
+        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+        width: 22%;
+        padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+        border: 1px solid #444444;  /* Bordure plus discrète */
+        text-align: center;
+        box-sizing: border-box;
+        height: 220px;
+        overflow-y: auto;
+        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        font-family: 'Inter', sans-serif;
+
+        transition: all 0.3s ease;  /* Transition douce pour les effets */
+    }
+
+    .card-for-column {
+
+        border-radius: 8px;
+        justify-content: space-around;
+        width: 22%;
+        padding: 0px;  /* Un peu plus d'espace interne pour une meilleure aération */
+        text-align: center;
+        box-sizing: border-box;
+        height: 220px;
+        overflow-y: auto;
+        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        font-family: 'Inter', sans-serif;
+
+        transition: all 0.3s ease;  /* Transition douce pour les effets */
+    }
+    .column-card {
+        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+        width: 100%;
+        border: 1px solid #444444;  /* Bordure plus discrète */
+        text-align: center;
+        box-sizing: border-box;
+        height: 110px;
+        overflow-y: auto;
+        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        font-family: 'Inter', sans-serif;
+
+        transition: all 0.3s ease;  /* Transition douce pour les effets */
+        margin-top: 2px;
+    }
+
+    .large-card {
+        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+        width: 47%;
+        padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+        border: 1px solid #444444;  /* Bordure plus discrète */
+        text-align: center;
+        box-sizing: border-box;
+        height: 220px;
+        overflow-y: auto;
+        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        font-family: 'Inter', sans-serif;
+
+        transition: all 0.3s ease;  /* Transition douce pour les effets */
+    }
+
+    .card:hover {
+        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+        border-color: #00ff00;
+        box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
+        transform: scale(1.05);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .large-card:hover {
+        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+        border-color: #00ff00;
+        box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
+        transform: scale(1.05);
+        transition: all 0.3s ease-in-out;
+    }
+    .column-card:hover {
+        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+        border-color: #00ff00;
+        box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
+        transform: scale(1.05);
+        transition: all 0.3s ease-in-out;
+    }
+
+
+
+    @keyframes hacker-glow {
+        0% {
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5), 0 0 20px rgba(0, 255, 0, 0.2);
+        }
+        100% {
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.8), 0 0 40px rgba(0, 255, 0, 0.4);
+        }
+    }
+
+
+
+    .card h3 {
+        margin-top: 0;
+        font-size: 16px;
+        color: #00ff00;
+        text-transform: uppercase;
+        border-bottom: 1px solid #00ff00;
+        padding-bottom: 8px;
+        font-family: 'Inter', sans-serif;
+
+    }
+
+    .column-card h3 {
+        margin-top: 2px;
+        text-align: center;
+        font-size: 16px;
+        color: #00ff00;
+        text-transform: uppercase;
+        border-bottom: 1px solid #00ff00;
+        padding-bottom: 8px;
+    }
+
+    canvas {
+        margin-top: 10px;
+        max-height: 150px;
+    }
+
+    .alert {
+        background-color: #ff3d3d;
+        color: white;
+        padding: 5px;
+        border-radius: 5px;
+        margin: 5px 0;
+        font-size: 10px;
+        text-align: left;
+    }
+
+    #unauthorized-ports {
+        color: red;
+    }
+    .header {
+        text-align: right;
+        background-color: #333;
+        font-size: 10px;
+        color: white;
+        text-shadow: 0 0 10px #00ff00;
+        margin-bottom: 20px;
+        margin-top: 2px;
+        box-shadow: 0 5px 5px #00ff00; /* Ombre verte uniquement en bas */
+    }
+
+
+
+    #home_btn:hover {
+        transform: scaleY(20px);
+    }
+
+    ul {
+        font-size: 12px;
+        padding-left: 0;
+    }
+
+    ul li {
+        list-style-type: none;
+        margin-bottom: 5px;
+    }
+
+    @media (max-width: 1200px) {
+        .card {
+            width: 30%;
+        }
+        .card-for-column {
+            width: 30%;
+        }
+        .large-card {
+            width: 30%;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .card {
+            width: 45%;
+        }
+        .card-for-column {
+            width: 45%;
+        }
+        .large-card {
+            width: 45%;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .card {
+            width: 100%;
+            height: auto;
+        }
+        .large-card {
+            width: 100%;
+        }
+
+        .card-for-column {
+            width: 100%;
+        }
+        .column-card {
+            width: 100%;
+        }
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            font-size: 1.2em;
+        }
+
+        ul {
+            font-size: 10px;
+        }
+
+        .alert {
+            font-size: 8px;
+        }
+    }
+
+
+
+
+    /* Style de la fenêtre modale */
+    .modal {
+    display: none; /* Cacher par défaut */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    overflow: scroll;
+    }
+
+    /* Contenu de la modale */
+    .modal-content {
+    background-color: black;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    overflow: scroll;
+    }
+
+    /* Bouton de fermeture */
+    .close-btn {
+    color: green;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    }
+
+
+    /* Loader container */
+    .loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 1); /* Fond noir */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Assure que le loader est au-dessus de tout */
+    color: white; /* Couleur pour un message éventuel */
+    }
+
+    /* Loader principale */
+    .loader {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    background: transparent;
+    border-radius: 50%;
+    box-shadow: 0px 0px 15px 5px rgba(0, 255, 0, 0.4); /* Effet lumineux */
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    animation: glow 2s infinite alternate; /* Animation de glow */
+    }
+
+    /* Contour intérieur */
+    .loader::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    background: transparent;
+    border: 1px dashed #444;
+    border-radius: 50%;
+    box-shadow: inset -5px -5px 25px rgba(0, 0, 0, 0.25),
+                inset 5px 5px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Cercle interne */
+    .loader::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px dashed #444;
+    box-shadow: inset -5px -5px 25px rgba(0, 0, 0, 0.25),
+                inset 5px 5px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Radar animant */
+    .loader span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    background: green;
+    transform-origin: top left;
+    animation: radar 2s linear infinite;
+    border-top: 1px dashed #fff;
+
+    }
+
+    /* Lumière du radar */
+    .loader span::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: seagreen;
+    transform-origin: top left;
+    transform: rotate(-55deg);
+    filter: blur(30px) drop-shadow(20px 20px 20px seagreen);
+    }
+
+    /* Animation radar */
+    @keyframes radar {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+        }
+
+        /* Animation glow */
+        @keyframes glow {
+        from {
+            box-shadow: 0px 0px 10px 3px rgba(0, 255, 0, 0.2);
+        }
+        to {
+            box-shadow: 0px 0px 20px 8px rgba(0, 255, 0, 0.5);
+        }
+    }

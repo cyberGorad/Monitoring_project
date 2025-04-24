@@ -1,0 +1,379 @@
+import asyncio
+import json
+import subprocess
+import psutil
+import socket
+import os
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+# executer commande et recupere sortie
+def run_command(command):
+    try:
+        result = subprocess.check_output(command, shell=True, text=True)
+        return result
+    except subprocess.CalledProcessError as e:
+        print(f"Erreur lors de l'exécution de la commande {command}: {e}")
+        return None
+
+# nslookup du IP
+def resolve_ip(ip):
+    try:
+        host = socket.gethostbyaddr(ip)
+        return host[0]
+    except socket.herror:
+        return None
+
+# Fonction pour obtenir les connexions établies
+def get_established_connections():
+    netstat_command = "netstat -tunp"
+    netstat_output = run_command(netstat_command)
+
+    if not netstat_output:
+        return []
+
+    established_connections = []
+    for line in netstat_output.splitlines():
+        if "ESTABLISHED" in line:
+            parts = line.split()
+            ip_address = parts[4].split(":")[0]  # L'adresse IP distante est à la 5ème colonne
+
+            # Exclure localhost (127.0.0.1)
+            if ip_address == "127.0.0.1":
+                continue
+
+            # Résoudre l'adresse IP en nom d'hôte
+            hostname = resolve_ip(ip_address)
+            established_connections.append({
+                'ip': ip_address,
+                'hostname': hostname if hostname else 'Inconnu'
+            })
+
+    return established_connections
+
+# Fonction pour convertir les octets en unités lisibles
+def bytes_to_human(bytes_value):
+    symbols = ['B', 'KB', 'MB', 'GB', 'TB']
+    step = 1024
+    index = 0
+    while bytes_value >= step and index < len(symbols) - 1:
+        bytes_value /= step
+        index += 1
+    return f"{bytes_value:.2f} {symbols[index]}"
+
+
+
+
+
+def get_machine_id():
+    # Obtenir toutes les interfaces réseau
+    for interface, addrs in psutil.net_if_addrs().items():
+        for addr in addrs:
+            # Vérifier si l'adresse n'est pas une adresse de loopback
+            if addr.family == socket.AF_INET and addr.address != '127.0.0.1':
+                return addr.address
+    return "offline"
+
+
+
+
+
+
+
+def run_curl_command():
+    # Commande curl pour appeler l'API Gemini
+    curl_command = [
+        "curl", 
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg", 
+        "-H", "Content-Type: application/json", 
+        "-X", "POST", 
+        "-d", json.dumps({
+            "contents": [{
+                "parts": [{"text": "hello gemini"}]
+            }]
+        })
+    ]
+    
+    try:
+        # Exécution de la commande curl
+        result = subprocess.check_output(curl_command, text=True)
+        print(f"Réponse de l'API Gemini :\n{result}")  # Affiche le résultat dans le terminal
+        return result
+    except subprocess.CalledProcessError as e:
+        print(f"Erreur lors de l'exécution de la commande curl: {e}")
+        return None
+
+
+
+
+
+class MultiMonitorConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        
+        from .models import OpenPort, CPUUsage, EstablishedConnection, BandwidthUsage
+        
+        await self.accept()
+        
+        # Crée des tâches pour les scripts de surveillacnce
+        
+        self.port_monitor_task = asyncio.create_task(self.monitor_ports())
+        self.system_monitor_task = asyncio.create_task(self.monitor_system())
+        self.connection_monitor_task = asyncio.create_task(self.monitor_connections())
+        self.network_monitor_task = asyncio.create_task(self.monitor_bandwidth())  
+        self.cron_monitor_task = asyncio.create_task(self.monitor_cron_jobs())
+        self.log_monitor_task = asyncio.create_task(self.monitor_logs())
+        self.outbound_traffic_task = asyncio.create_task(self.monitor_outbound_traffic())
+
+
+    async def disconnect(self, close_code):
+        # Annule les tâches
+        self.port_monitor_task.cancel()
+        self.system_monitor_task.cancel()
+        self.connection_monitor_task.cancel()
+        self.network_monitor_task.cancel()
+        self.cron_monitor_task.cancel()
+        self.outbound_traffic_task.cancel()
+
+
+
+
+
+    async def monitor_ports(self):
+        from .models import OpenPort  # Import localisé
+
+        authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716]
+        reported_ports = set()  # Ensemble pour suivre les ports déjà signalés
+        alert_responses = []  # Liste pour stocker les réponses de Gemini
+
+        while True:
+            open_ports = []
+            for conn in psutil.net_connections(kind='inet'):
+                if conn.status == psutil.CONN_LISTEN:
+                    process_name = psutil.Process(conn.pid).name() if conn.pid else "Inconnu"
+                    open_ports.append({"port": conn.laddr.port, "pid": conn.pid, "process": process_name})
+
+            # Identifie les ports non autorisés
+            unauthorized_ports = [
+                port
+                for port in open_ports
+                if port["port"] not in authorized_ports
+            ]
+
+            # Vérifie les alertes pour chaque port non autorisé
+            for port in unauthorized_ports:
+                if port["port"] not in reported_ports:
+                    reported_ports.add(port["port"])  # Marque le port comme signalé
+
+                    # Texte de l'alerte pour le port non autorisé
+                    alert_text = (
+                        f"Alerte : Port non autorisé détecté - "
+                        f"Port: {port['port']}, Processus: {port['process']}"
+                    )
+                    print(alert_text)
+
+                    # Appelle la fonction run_command() pour envoyer l'alerte
+                    alert_response = run_command(
+                        f"""
+                        curl -H "Content-Type: application/json" -X POST -d '{json.dumps({
+                            "contents": [{
+                                "parts": [{"text": alert_text}]
+                            }]
+                        })}' https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg
+                        """
+                    )
+                    # Gestion de la réponse et extraction du contenu
+                    if alert_response:
+                        try:
+                            response_data = json.loads(alert_response)
+                            response_content = (
+                                response_data.get("candidates", [{}])[0]
+                                .get("content", {})
+                                .get("parts", [{}])[0]
+                                .get("text", "Aucun contenu trouvé.")
+                            )
+                            print(f"Contenu de l'alerte : {response_content}")
+
+                            # Ajoute la réponse à la liste des alertes
+                            alert_responses.append({
+                                "port": port["port"],
+                                "response": response_content
+                            })
+                        except json.JSONDecodeError:
+                            print("Erreur : Réponse JSON invalide reçue.")
+                            alert_responses.append({
+                                "port": port["port"],
+                                "response": "Erreur : Réponse JSON invalide."
+                            })
+
+            # Envoie les données via WebSocket
+            await self.send(json.dumps({
+                "type": "ports",
+                "open_ports": open_ports,
+                "alerts": unauthorized_ports,
+                "alert_responses": alert_responses,  # Ajout des réponses Gemini
+            }))
+
+            # Pause avant la prochaine vérification
+            await asyncio.sleep(5)
+
+
+
+
+
+    async def monitor_system(self):
+        while True:
+            cpu_usage = psutil.cpu_percent(interval=1)
+            disk_usage = psutil.disk_usage('/').percent
+
+            await self.send(json.dumps({
+                "type": "cpu",
+                "disk_usage": disk_usage,
+                "cpu_usage": cpu_usage,
+            }))
+            await asyncio.sleep(1)
+
+
+
+    async def monitor_connections(self):
+
+        while True:
+            connections = get_established_connections()
+            await self.send(json.dumps({
+                "machine_id": get_machine_id(), 
+                "type": "connections",
+                "connections": connections,
+            }))
+            await asyncio.sleep(5)
+
+
+
+
+    async def monitor_bandwidth(self):
+        """Surveille la bande passante réseau ."""
+        old_data = psutil.net_io_counters()
+        while True:
+            await asyncio.sleep(1)  # Intervalle de surveillance
+            new_data = psutil.net_io_counters()
+
+            # Calculer les octets envoyés et reçus
+            sent_bytes = new_data.bytes_sent - old_data.bytes_sent
+            recv_bytes = new_data.bytes_recv - old_data.bytes_recv
+            total_bytes = sent_bytes + recv_bytes
+
+            # Mettre à jour les anciennes données
+            old_data = new_data
+
+            # Convertir les octets en kilooctets (KB) sous forme de float
+            sent_kb = sent_bytes / 1024.0  #  obtenir KB
+            recv_kb = recv_bytes / 1024.0
+            total_kb = total_bytes / 1024.0
+
+            # Envoyer les données au client via WebSocket en valeurs float
+            await self.send(json.dumps({
+                "type": "bandwidth",
+                "sent": sent_kb,
+                "received": recv_kb,
+                "total": total_kb,
+            }))
+
+
+
+
+    async def monitor_cron_jobs(self):
+        """Surveille les modifications dans les cron jobs."""
+        cron_file_path = "/var/spool/cron/crontabs/root"  # Exemple pour l'utilisateur root, ajustez en fonction des besoins
+        if not os.path.exists(cron_file_path):
+            return  # Si le fichier n'existe pas, ne pas continuer
+        
+        last_mod_time = os.path.getmtime(cron_file_path)  # Obtient l'heure de la dernière modification
+
+        while True:
+            await asyncio.sleep(5)  # Vérification toutes les 5 secondes
+            
+            # Vérifie si le fichier a été modifié
+            current_mod_time = os.path.getmtime(cron_file_path)
+            if current_mod_time != last_mod_time:
+                last_mod_time = current_mod_time  # Met à jour l'heure de modification
+                cron_content = run_command("crontab -l")  # Récupère le contenu actuel des cron jobs
+                
+                if cron_content:
+                    alert_message = {
+                        "type": "cron_modification",
+                        "message": "Modification detected in cron jobs",
+                        "details": cron_content.strip()  # Contenu des cron jobs modifiés
+                    }
+
+                    # Envoie uniquement la dernière alerte, sans supprimer les anciennes
+                    await self.send(json.dumps(alert_message)) 
+
+
+
+
+
+
+
+
+
+    async def monitor_logs(self):
+        log_file_path = '/var/log/log_system' 
+        try:
+            with open(log_file_path, 'r') as log_file:
+                log_file.seek(0, 2) 
+
+                while True:
+                    line = log_file.readline()
+                    if line:
+                 
+                        await self.send(text_data=json.dumps({
+                            'type': 'log',
+                            'message': line.strip()
+                        }))
+                    else:
+                        await asyncio.sleep(3)  #intervalle
+
+        except Exception as e:
+            print(f"Erreur de lecture du fichier de log: {e}")
+
+
+
+
+
+
+    async def monitor_outbound_traffic(self):
+        """
+        Surveille le trafic réseau sortant et l'envoie au tableau de bord.
+        """
+        while True:
+            connections = []
+            for conn in psutil.net_connections(kind='inet'):
+                if conn.raddr:  # Vérifie que la connexion a une adresse distante
+                    try:
+                        pid = conn.pid
+                        process = psutil.Process(pid) if pid else None
+                        name = process.name() if process else "Unknown"
+
+                        # Collecte des informations sur les paquets
+                        net_io = psutil.net_io_counters(pernic=False)
+                        sent = net_io.bytes_sent
+                        recv = net_io.bytes_recv
+
+                        connections.append({
+                            'local_address': f"{conn.laddr.ip}:{conn.laddr.port}",
+                            'remote_address': f"{conn.raddr.ip}:{conn.raddr.port}",
+                            'remote_port': conn.raddr.port,
+                            'process': name,
+                            'packets_sent': sent,
+                            'packets_received': recv,
+                        })
+                    except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
+                        pass
+
+            # Envoi des connexions via WebSocket
+            await self.send(json.dumps({
+                "type": "outbound_traffic",
+                "connections": connections,
+            }))
+            await asyncio.sleep(5)  # Intervalle de surveillance    
+
+                
+
+

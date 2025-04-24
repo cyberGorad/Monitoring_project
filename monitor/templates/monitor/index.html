@@ -1,0 +1,89 @@
+
+
+<!-- CYBERGORAD -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/welcome.css">
+    <title>Home</title>
+</head>
+  <body  data-dashboard-url="{% url 'dashboard' %}">
+    <script src="/static/js/vocal_command.js"></script>
+
+
+    <script>  
+      // Fonction qui sera déclenchée à chaque pression sur une touche
+      window.addEventListener('keydown', function(event) {
+        // Vérifie si la touche pressée est la barre d'espace (code 32)
+        if (event.code === 'Space') {
+          event.preventDefault();
+          startVoice(); // Démarre la voix si c'est la barre d'espace
+        }
+      });
+    </script>
+
+
+      <h1>Welcome, Commander</h1>
+    
+
+      <video autoplay muted loop id="bg-video">
+        <source src="/static/back.mp4" type="video/mp4">
+        Ton navigateur ne supporte pas la vidéo HTML5.
+      </video>
+      
+      <style>
+        #bg-video {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          min-width: 100%;
+          min-height: 100%;
+          width: auto;
+          height: auto;
+          transform: translate(-50%, -50%);
+          z-index: -1;
+          }
+        body, html {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          overflow: hidden; /* optionnel */
+          font-family: monospace;
+
+        }
+      
+        h1, a, button {
+          z-index: 1;
+          position: relative;
+        }
+      </style>
+      
+      
+  <div style="padding: 20px;">
+          <button style="text-align: center;">
+            <span id="rightArrow" class="arrow"></span>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <span id="leftArrow" class="arrow"></span>
+          </button><br><br><br>
+
+          <a href="{% url 'multi' %}" style="text-align: center;">Monitor All</a>
+      <br><br>
+  </div>
+
+
+
+      <!-- === Commande vocale === -->
+  <div class="status" style="background:transparent; color:lime; padding:10px; margin-bottom:10px; border-radius:5px;text-align:center;width:100%">
+    <span id="status" style="color:white"> 🎙️ Commande vocale inactive</span>
+    <button onclick="startVoice()" class="btn btn-sm btn-outline-light">Activer</button>
+  </div>
+
+
+
+
+
+
+</body>
+</html>

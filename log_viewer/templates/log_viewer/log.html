@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GORADMONITOR</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #00ff00;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: block;  /* Mise en forme pour un seul conteneur */
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+
+        }
+
+        .card {
+            background-color: #1b1b1b;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 255, 0, 0.3);
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            text-align: center;
+            box-sizing: border-box;
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #00ff00;
+            text-transform: uppercase;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 8px;
+        }
+
+
+   
+
+
+        .header {
+            text-align: right;
+            font-size: 10px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 20px;
+            margin-top: 2px;
+        }
+
+        #home_btn:hover {
+            transform: scaleY(20px);
+        }
+
+        ul {
+            font-size: 12px;
+            padding-left: 0;
+        }
+
+        ul li {
+            list-style-type: none;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                height: auto;
+            }
+
+            .header {
+                font-size: 1.2em;
+            }
+
+            ul {
+                font-size: 10px;
+            }
+
+            .alert {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">SYSTEM DETAILS | CHECKING BACKDOOR ATTACKS | VERSION:1.0.0 <a id="home_btn" href="{% url 'index'%}" style="color: green;background-color: white;text-decoration: none;padding: 10px;border-radius: 10px;">home</a> <a id="home_btn" href="{% url 'log'%}" style="color: green;background-color: black;text-decoration: none;padding: 10px;border-radius: 10px;">Log viewer</a></div>
+    
+    <div class="container">
+        <div id="logs-container" class="card">
+            <h3>Logs</h3>
+            <ul id="logs-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket initialization
+        const socket = new WebSocket('ws://localhost:8000/ws/monitor/');
+
+        // WebSocket message handling
+        socket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+
+            switch (data.type) {
+                case "log":
+                    const logMessage = data.message;
+
+                    // Ajoute chaque ligne de log dans la zone de logs
+                    const logContainer = document.getElementById('logs-container');
+                    const logElement = document.createElement('div');
+                    logElement.textContent = logMessage;  // Affiche le message de log
+                    logContainer.appendChild(logElement);
+
+                    // Défile automatiquement vers le bas pour afficher les nouveaux logs
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                    break;
+
+                default:
+                    console.error('Unknown data type:', data.type);
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+introduction
+ -pourquoi c'est important
+ - c est quoi le backdoor
+
+
+fonction sur python 
+- Presentation du bibliotheque python utilisé : SCAPY , WEBSOCKET
+- temps reele asynchrone 
+- programmation des paquet 
+
+
+fonctionnalite du IDS
+	- surveillance CPU , PORT , SCAN 
+	- Mode automatique , manuelle
+	- Rapppport detaile
+
+demo:
+	- presentation du IDS
+
+conclusion
+- point clé a retenir sur la realisation du projet 

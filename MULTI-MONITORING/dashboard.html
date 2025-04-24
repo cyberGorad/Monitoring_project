@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Réseau</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+    }
+    .card {
+      background: #ffffff;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tableau de bord réseau</h1>
+  <div id="dashboard">
+    <p>En attente de données...</p>
+  </div>
+
+  <script>
+    const ws = new WebSocket('ws://localhost:9000');
+    const dashboard = document.getElementById('dashboard');
+
+    const machines = {}; // { hostname: { card, lastSeen } }
+    const TIMEOUT = 10000; // 10 secondes d'inactivité avant suppression
+
+    ws.onmessage = async (event) => {
+      let textData = '';
+
+      if (event.data instanceof Blob) {
+        textData = await event.data.text();
+      } else {
+        textData = event.data;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(textData);
+      } catch (e) {
+        console.warn("❌ Message non-JSON :", textData);
+        dashboard.innerHTML += `
+          <div class="card error">
+            Message non reconnu : ${textData}
+          </div>
+        `;
+        return;
+      }
+
+      const hostname = data.hostname || 'Inconnu';
+
+      // S'il existe déjà une carte pour cette machine
+      if (machines[hostname]) {
+        machines[hostname].card.innerHTML = `
+          <strong>🖥️ Machine :</strong> ${hostname}<br>
+          <strong>🌐 IP :</strong> ${data.ip || 'N/A'}<br>
+          <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
+          <strong>🧠 RAM :</strong> ${data.ram ?? 'N/A'} %
+        `;
+        machines[hostname].lastSeen = Date.now();
+      } else {
+        // Nouvelle machine : créer une carte
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <strong>🖥️ Machine :</strong> ${hostname}<br>
+          <strong>🌐 IP :</strong> ${data.ip || 'N/A'}<br>
+          <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
+          <strong>🧠 RAM :</strong> ${data.ram ?? 'N/A'} %
+        `;
+        dashboard.appendChild(card);
+        machines[hostname] = {
+          card,
+          lastSeen: Date.now()
+        };
+      }
+    };
+
+    // Vérifie périodiquement si des machines sont inactives
+    setInterval(() => {
+      const now = Date.now();
+      for (const [hostname, machine] of Object.entries(machines)) {
+        if (now - machine.lastSeen > TIMEOUT) {
+          // Supprimer la carte du DOM et du tableau
+          dashboard.removeChild(machine.card);
+          delete machines[hostname];
+          console.log(`❌ Machine "${hostname}" retirée pour inactivité`);
+        }
+      }
+    }, 2000); // Vérifie toutes les 2 secondes
+
+    ws.onopen = () => console.log('✅ Connexion WebSocket ouverte');
+    ws.onerror = (err) => console.error('❌ Erreur WebSocket :', err);
+    ws.onclose = () => console.warn('⚠️ Connexion WebSocket fermée');
+  </script>
+</body>
+</html>
