@@ -155,6 +155,32 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 break;
 
 
+                
+                case "startup_info":
+                    const startupContainer = document.getElementById('startup-info');
+                    startupContainer.innerHTML = ''; // Reset le container à chaque update
+                
+                    // Ajoute l'OS détecté
+                    const osHeader = document.createElement('h3');
+                    osHeader.innerHTML = `<i class="fas fa-desktop"></i> Système : ${data.os}`;
+                    startupContainer.appendChild(osHeader);
+                
+                    const dataList = document.createElement('ul');
+                    for (const key in data.data) {
+                        const item = document.createElement('li');
+                
+                        // Formatage lisible
+                        const formattedKey = key.replace(/_/g, ' ').toUpperCase();
+                
+                        item.innerHTML = `<strong>${formattedKey}:</strong><pre>${data.data[key]}</pre>`;
+                        dataList.appendChild(item);
+                    }
+                
+                    startupContainer.appendChild(dataList);
+                    break;
+                
+
+
 
 
 
@@ -224,171 +250,64 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
 
 
-
-
-        case "outbound_traffic":
-            const outboundContainer = document.getElementById('outbound-container');
-            outboundContainer.innerHTML = ""; // Réinitialise le contenu avant d'afficher les nouvelles données
-
-            if (!window.outboundChart) {
-                const chartContainer = document.getElementById('outbound-chart');
-                const ctx = chartContainer.getContext('2d');
-
-                // Configuration initiale du graphique
-                window.outboundChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: [], // Étiquettes des connexions (tous les processus)
-                        datasets: [{
-                            label: 'Total Traffic (bytes)',
-                            data: [],
-                            backgroundColor: 'rgba(0, 255, 0, 0.7)', // Vert néon avec transparence
-                            borderColor: 'rgba(0, 255, 0, 1)',       // Bordure vert néon
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#00ff00', // Légendes en vert
-                                    font: {
-                                        size: 14,
-                                        family: "'Courier New', Courier, monospace" // Police "hacker"
-                                    }
-                                }
+            case "outbound_traffic":
+                const outboundContainer = document.getElementById('outbound-container');
+                outboundContainer.innerHTML = ""; // Nettoie avant de réafficher
+            
+                if (data.connections && data.connections.length > 0) {
+                    data.connections.forEach((connection, index) => {
+                        const totalTraffic = connection.packets_sent + connection.packets_received;
+            
+                        const connectionDiv = document.createElement('div');
+                        connectionDiv.classList.add('connection-item');
+            
+                        connectionDiv.innerHTML = `
+                            <div class="connection-row">
+                                <span><strong class="connection-title">${index + 1} </strong></span>
+                                <span><i class="fas fa-cogs"></i> ${connection.process}</span>
+                                <span><i class="fas fa-globe"></i> Dest: ${connection.remote_address}</span>
+                                <span><i class="fas fa-exchange-alt"></i> Proto: ${connection.protocol}</span>
+                            </div>
+                            <hr>
+                        `;
+            
+                        // Style en ligne pour les rows
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            .connection-row {
+                                display: flex;
+                                justify-content: space-between;
+                                flex-wrap: wrap;
+                                margin-bottom: 10px;
+                                font-size: 14px;
+                                color: #ffffff;
                             }
-                        },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    color: '#00ff00', // Texte des axes en vert
-                                    font: {
-                                        size: 12,
-                                        family: "'Courier New', Courier, monospace"
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 255, 0, 0.2)' // Ligne de grille légèrement visible
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    color: '#00ff00', // Texte des axes en vert
-                                    font: {
-                                        size: 12,
-                                        family: "'Courier New', Courier, monospace"
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 255, 0, 0.2)' // Ligne de grille légèrement visible
-                                }
+                            .connection-title {
+                                color: #00ff00;
+                                font-weight: bold;
                             }
-                        },
-                        layout: {
-                            padding: 10 // Espacement autour du graphique
-                        },
-                        animation: {
-                            duration: 500, // Transition fluide pour un effet dynamique
-                            easing: 'easeInOutQuart'
-                        },
-                        elements: {
-                            bar: {
-                                borderWidth: 2,
-                                borderRadius: 4 // Coins arrondis pour les barres
+                            .connection-row span {
+                                margin-right: 20px;
+                                text-align: left;
                             }
-                        },
-                        backgroundColor: '#000000', // Fond noir pour un thème sombre
-                    }
-                });
-            }
-
-            if (data.connections && data.connections.length > 0) {
-                const connectionTraffic = []; // Pour stocker les données pour le graphique
-
-                data.connections.forEach((connection) => {
-                    const totalTraffic = connection.packets_sent + connection.packets_received;
-                    connectionTraffic.push({
-                        label: `${connection.process} (${connection.remote_address})`,
-                        total: totalTraffic,
-                        packets_sent: connection.packets_sent,
-                        packets_received: connection.packets_received
+                            .connection-row i {
+                                margin-right: 5px;
+                                color: #00ff00;
+                            }
+                            hr {
+                                margin-top: 10px;
+                                border-top: 1px solid #444444;
+                            }
+                        `;
+                        document.head.appendChild(style);
+            
+                        outboundContainer.appendChild(connectionDiv);
                     });
-                });
-
-                connectionTraffic.sort((a, b) => b.total - a.total);
-
-                const allLabels = connectionTraffic.map(item => item.label);
-                const allData = connectionTraffic.map(item => item.total);
-
-                const topConnections = connectionTraffic.slice(0, 10);
-                const topLabels = topConnections.map(item => item.label);
-                const topData = topConnections.map(item => item.total);
-
-                window.outboundChart.data.labels = topLabels; // Affiche les 10 connexions avec le plus de trafic
-                window.outboundChart.data.datasets[0].data = topData;
-                window.outboundChart.update();
-
-                // Affichage dans la liste HTML avec les informations sur les paquets
-                connectionTraffic.forEach((connection, index) => {
-                    const connectionDiv = document.createElement('div');
-                    connectionDiv.classList.add('connection-item');
-
-                    connectionDiv.innerHTML = `
-            <div class="connection-row">
-                <span><strong class="connection-title">${index + 1}: </strong></span>
-                <span><i class="fas fa-cogs"></i> ${connection.label.split(' ')[0]}</span>
-                <span><i class="fas fa-globe"></i> Dest: ${connection.label.split('(')[1].replace(')', '')}</span>
-
-            </div>
-            <hr>
-        `;
-
-        // Style pour formater les lignes en une seule ligne (tableau)
-        const style = document.createElement('style');
-        style.innerHTML = `
-            .connection-row {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 10px;
-                font-size: 14px;
-                color: #ffffff; /* Couleur du texte pour tout le bloc */
-            }
-            .connection-title {
-                color: #00ff00;  /* Titre en vert pour plus de visibilité */
-                font-weight: bold;
-            }
-            .connection-row span {
-                margin-right: 20px;
-                text-align: left;
-            }
-            .connection-row i {
-                margin-right: 5px;  /* Espacement entre l'icône et le texte */
-                color: #00ff00;  /* Icônes en vert pour uniformité */
-            }
-            hr {
-                margin-top: 10px;
-                border-top: 1px solid #444444;
-            }
-        `;
-        document.head.appendChild(style);
-
-
-                    outboundContainer.appendChild(connectionDiv);
-                });
-            } else {
-                outboundContainer.innerHTML = "<p>No outbound traffic detected.</p>";
-
-                // Réinitialise le graphique si aucune connexion n'est détectée
-                window.outboundChart.data.labels = [];
-                window.outboundChart.data.datasets[0].data = [];
-                window.outboundChart.update();
-            }
-            break;
-
+                } else {
+                    outboundContainer.innerHTML = "<p>No outbound traffic detected.</p>";
+                }
+                break;
+            
 
 
 

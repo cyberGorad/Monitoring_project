@@ -5,7 +5,10 @@ import psutil
 import socket
 import datetime
 import time
+import platform
 import os
+from scapy.all import sniff, IP, TCP
+from collections import defaultdict
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 # executer commande et recupere sortie
@@ -104,6 +107,22 @@ def run_curl_command():
         print(f"Erreur lors de l'exécution de la commande curl: {e}")
         return None
 
+""" GET STARTUP APPS AND SERVICES """
+def get_linux_startup_info():
+    return {
+        "systemd_enabled_services": run_command("systemctl list-unit-files --type=service --state=enabled"),
+        """autostart_files": run_command("cat ~/.config/autostart/*.desktop 2>/dev/null || echo 'Aucun .desktop'"),"""
+        "cron_reboot_entries": run_command("crontab -l | grep '@reboot' || echo 'Aucun cron @reboot'")
+    }
+def get_windows_startup_info():
+    return {
+        "startup_registry_current_user": run_command("reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+        "startup_registry_all_users": run_command("reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+        "startup_folder": run_command("dir \"%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" /b"),
+        "scheduled_tasks": run_command("schtasks /Query /FO LIST /V")
+    }
+
+
 
 
 
@@ -124,6 +143,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.cron_monitor_task = asyncio.create_task(self.monitor_cron_jobs())
         self.log_monitor_task = asyncio.create_task(self.monitor_logs())
         self.outbound_traffic_task = asyncio.create_task(self.monitor_outbound_traffic())
+        self.monitor_startup_info_task = asyncio.create_task(self.monitor_startup_info())
 
 
     async def disconnect(self, close_code):
@@ -134,6 +154,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.network_monitor_task.cancel()
         self.cron_monitor_task.cancel()
         self.outbound_traffic_task.cancel()
+        self.monitor_startup_info_task.cancel()
 
 
 
@@ -142,7 +163,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
     async def monitor_ports(self):
         from .models import OpenPort  # Import localisé
 
-        authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716]
+        authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293]
         reported_ports = set()  # Ensemble pour suivre les ports déjà signalés
         alert_responses = []  # Liste pour stocker les réponses de Gemini
 
@@ -254,6 +275,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+
+
     async def monitor_bandwidth(self):
         """Surveille la bande passante réseau ."""
         old_data = psutil.net_io_counters()
@@ -314,7 +337,26 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+    async def monitor_startup_info(self):
+        """Surveille et envoie les apps/services de démarrage selon l'OS détecté."""
+        os_type = platform.system()
 
+        if os_type == "Linux":
+            startup_info = get_linux_startup_info()
+        elif os_type == "Windows":
+            startup_info = get_windows_startup_info()
+        else:
+            startup_info = {"error": f"Système d'exploitation {os_type} non pris en charge"}
+
+        # Envoie les données via WebSocket
+        await self.send(json.dumps({
+            "type": "startup_info",
+            "os": os_type,
+            "data": startup_info
+        }))
+
+        # Pause (tu peux mettre ça dans une boucle si tu veux des checks récurrents)
+        await asyncio.sleep(5)
 
 
 
@@ -345,6 +387,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+
+
     async def monitor_outbound_traffic(self):
         """
         Surveille le trafic réseau sortant et l'envoie au tableau de bord.
@@ -352,13 +396,19 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         while True:
             connections = []
             for conn in psutil.net_connections(kind='inet'):
-                if conn.raddr:  # Vérifie que la connexion a une adresse distante
+                if conn.raddr:  # Connexion vers l’extérieur
                     try:
                         pid = conn.pid
                         process = psutil.Process(pid) if pid else None
                         name = process.name() if process else "Unknown"
 
-                        # Collecte des informations sur les paquets
+                        # Protocole utilisé
+                        proto = {
+                            socket.SOCK_STREAM: "TCP",
+                            socket.SOCK_DGRAM: "UDP"
+                        }.get(conn.type, "Unknown")
+
+                        # Stat réseau globale
                         net_io = psutil.net_io_counters(pernic=False)
                         sent = net_io.bytes_sent
                         recv = net_io.bytes_recv
@@ -368,18 +418,20 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                             'remote_address': f"{conn.raddr.ip}:{conn.raddr.port}",
                             'remote_port': conn.raddr.port,
                             'process': name,
+                            'protocol': proto,
                             'packets_sent': sent,
                             'packets_received': recv,
                         })
                     except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
                         pass
 
-            # Envoi des connexions via WebSocket
+            # Envoi via WebSocket
             await self.send(json.dumps({
                 "type": "outbound_traffic",
                 "connections": connections,
             }))
-            await asyncio.sleep(5)  # Intervalle de surveillance    
+            await asyncio.sleep(5)
+    
 
                 
 
