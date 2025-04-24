@@ -15,13 +15,15 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 const cpuTextElement = document.getElementById('cpu-text');
                 const diskTextElement = document.getElementById('disk-text');
                 const ramTextElement = document.getElementById('ram-text');
+                const uptimeTextElement = document.getElementById('uptime-text');
                 const cpuUsage = data.cpu_usage;
                 const diskUsage = data.disk_usage;
                 const ramUsage = data.ram_usage;
+                const uptime = data.uptime;
                 cpuTextElement.textContent = `CPU : ${cpuUsage}%`;
                 diskTextElement.textContent = `Disque: ${diskUsage}%`;
                 ramTextElement.textContent = `RAM: ${ramUsage}%`;
-                
+                uptimeTextElement.textContent = `UPTIME: ${uptime}`;
 
                 if (cpuUsage > 80) {
                     cpuTextElement.style.color = "red";
