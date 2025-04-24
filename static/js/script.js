@@ -20,10 +20,10 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 const diskUsage = data.disk_usage;
                 const ramUsage = data.ram_usage;
                 const uptime = data.uptime;
-                cpuTextElement.textContent = `CPU : ${cpuUsage}%`;
-                diskTextElement.textContent = `Disque: ${diskUsage}%`;
-                ramTextElement.textContent = `RAM: ${ramUsage}%`;
-                uptimeTextElement.textContent = `UPTIME: ${uptime}`;
+                cpuTextElement.textContent = `CPU  ${cpuUsage}%`;
+                diskTextElement.textContent = `Disk ${diskUsage}%`;
+                ramTextElement.textContent = `RAM ${ramUsage}%`;
+                uptimeTextElement.textContent = `UPTIME ${uptime}`;
 
                 if (cpuUsage > 80) {
                     cpuTextElement.style.color = "red";
@@ -162,22 +162,43 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 
                     // Ajoute l'OS détecté
                     const osHeader = document.createElement('h3');
-                    osHeader.innerHTML = `<i class="fas fa-desktop"></i> Système : ${data.os}`;
+                    osHeader.innerHTML = `<i class="fas fa-desktop"></i> System : ${data.os}`;
+                    osHeader.style.cssText = `
+                        color: #00ffcc;
+                        font-family: 'Courier New', Courier, monospace;
+                        margin-bottom: 10px;
+                        text-shadow: 0 0 5px #00ffcc;
+                    `;
                     startupContainer.appendChild(osHeader);
                 
                     const dataList = document.createElement('ul');
+                    dataList.style.cssText = `
+                        list-style: none;
+                        padding: 0;
+                        font-family: 'Courier New', Courier, monospace;
+                        background-color: #111;
+                        border: 1px solid #333;
+                        border-radius: 10px;
+                        padding: 15px;
+                        color: #00ff00;
+                        box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+                    `;
+                
                     for (const key in data.data) {
                         const item = document.createElement('li');
+                        item.style.cssText = `
+                            margin-bottom: 10px;
+                        `;
                 
-                        // Formatage lisible
                         const formattedKey = key.replace(/_/g, ' ').toUpperCase();
                 
-                        item.innerHTML = `<strong>${formattedKey}:</strong><pre>${data.data[key]}</pre>`;
+                        item.innerHTML = `<strong style="color:#00ff00">${formattedKey}:</strong><pre style="margin:5px 0 0;padding:5px;background-color:#222;color:#0f0;border-radius:5px;overflow:auto;">${data.data[key]}</pre>`;
                         dataList.appendChild(item);
                     }
                 
                     startupContainer.appendChild(dataList);
                     break;
+                
                 
 
 
