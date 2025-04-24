@@ -120,37 +120,45 @@
         transition: all 0.3s ease;  /* Transition douce pour les effets */
     }
 
+
+
+
     .card-for-column {
-
-        border-radius: 8px;
-        justify-content: space-around;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 2px;
         width: 22%;
-        padding: 0px;  /* Un peu plus d'espace interne pour une meilleure aération */
-        text-align: center;
+        padding: 2px;
         box-sizing: border-box;
-        height: 220px;
-        overflow-y: auto;
-        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        color: #ffffff;
         font-family: 'Inter', sans-serif;
-
-        transition: all 0.3s ease;  /* Transition douce pour les effets */
     }
+    
     .column-card {
-        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        background-color: #1d1b1b;
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
-        width: 100%;
-        border: 1px solid #444444;  /* Bordure plus discrète */
-        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        border: 1px solid #444444;
         box-sizing: border-box;
+        width: calc(50% - 10px);
         height: 110px;
-        overflow-y: auto;
-        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        padding: 10px;
+    
+        /* Centrage du contenu */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    
+        color: #ffffff;
         font-family: 'Inter', sans-serif;
-
-        transition: all 0.3s ease;  /* Transition douce pour les effets */
-        margin-top: 2px;
+        text-align: center;
+        transition: all 0.3s ease;
     }
+    
+
+
 
     .large-card {
         background-color: #1d1b1b;  /* Gris foncé plus neutre */
