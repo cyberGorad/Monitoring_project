@@ -43,27 +43,62 @@ ws.onmessage = async (event) => {
 
   const hostname = data.local_ip || 'Inconnu';
 
-  // Machine déjà connue ?
   if (machines[hostname]) {
+    // Création du HTML détaillé pour les ports ouverts
+    let openPortsDetails = '<ul>';
+    data.open_ports.forEach(p => {
+      openPortsDetails += `<li>Port: ${p.port} | PID: ${p.pid ?? "N/A"} | Processus: ${p.process}</li>`;
+    });
+    openPortsDetails += '</ul>';
+  
+    // Création du HTML détaillé pour le trafic sortant
+    let outboundTrafficDetails = '<ul>';
+    data.outbound_traffic.forEach(c => {
+      outboundTrafficDetails += `<li>Local: ${c.local} → Remote: ${c.remote} | Processus: ${c.process}</li>`;
+    });
+    outboundTrafficDetails += '</ul>';
+
+      // Création du HTML détaillé pour le statut de la batterie
+    let batteryStatus =  `
+    <strong>🔋 Batterie :</strong> ${data.battery_data.battery_percent}%<br>
+    <strong>Statut de la batterie :</strong> ${data.battery_data.battery_status}<br>
+  `;
+
+  
+    // Contenu final de la carte machine
     machines[hostname].card.innerHTML = `
-      <strong>system:</strong>${data.os}<br> 
+      <strong>System status:</strong> ${data.system_state}<br>
+      <strong>System:</strong> ${data.os}<br> 
+      <strong>INTERNET STATUS:</strong> ${data.internet_status}<br>
       <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
+      <strong>🖥️ Temp :</strong> ${data.temperature}<br>
       <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
       <strong>⚙️ RAM :</strong> ${data.ram ?? 'N/A'} %<br>
       <strong>⚙️ DISK :</strong> ${data.disk ?? 'N/A'} %<br>
+      ${batteryStatus}
       <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
       <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>
+      ${openPortsDetails}
       <strong>📶 Bande passante :</strong> ${data.bandwidth.sent_kb} Ko envoyés, ${data.bandwidth.received_kb} Ko reçus<br>
       <span class="section-title">⏲️ Cron Jobs :</span><br>${data.cron_jobs}<br>
       <span class="section-title">📜 Journaux système :</span><br>${data.logs}<br>
-      <span class="section-title">📡 Trafic sortant :</span><br>${data.outbound_traffic.length} connexions sortantes
+      
+      <span class="section-title">📡 Trafic sortant :</span><br>${data.outbound_traffic.length} connexions sortantes<br>
+      
+      ${outboundTrafficDetails}
+      
     `;
+  
+  
+  
+  
     machines[hostname].lastSeen = Date.now();
   } else {
     // Nouvelle machine, création de carte
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
+      <strong>state:</strong> ${data.system_state}<br>
       <strong>system:</strong>${data.os}<br>  
       <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
       <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>

@@ -8,6 +8,7 @@ import socket
 import os
 import websockets
 
+
 SERVER_URL = "ws://192.168.10.221:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
@@ -21,6 +22,56 @@ def get_local_ip():
 
 def get_os():
     return platform.platform()
+
+
+def evaluate_system_state(cpu, ram, disk, bandwidth):
+    """
+    Évalue l'état général de la machine en se basant sur l'utilisation CPU, RAM, Disque, et Bande Passante.
+    Renvoie : Good, Medium ou Critical.
+    """
+    score = 0
+
+    # Analyse CPU
+    if cpu < 50:
+        score += 1
+    elif cpu < 80:
+        score += 0.5
+    else:
+        score -= 1
+
+    # Analyse RAM
+    if ram < 50:
+        score += 1
+    elif ram < 80:
+        score += 0.5
+    else:
+        score -= 1
+
+    # Analyse Disque
+    if disk < 70:
+        score += 1
+    elif disk < 90:
+        score += 0.5
+    else:
+        score -= 1
+
+    # Analyse Bande passante (en KB/s)
+    if bandwidth["sent_kb"] < 100 and bandwidth["received_kb"] < 100:
+        score += 1
+    elif bandwidth["sent_kb"] < 500 and bandwidth["received_kb"] < 500:
+        score += 0.5
+    else:
+        score -= 1
+
+    # Définir l'état global en fonction du score
+    if score >= 3:
+        return "Good"
+    elif 1.5 <= score < 3:
+        return "Medium"
+    else:
+        return "Critical"
+
+
 
 async def run_command(command):
     try:
@@ -62,11 +113,14 @@ async def get_open_ports():
     for conn in psutil.net_connections(kind='inet'):
         if conn.status == psutil.CONN_LISTEN:
             process_name = psutil.Process(conn.pid).name() if conn.pid else "Unknown"
-            open_ports.append({"port": conn.laddr.port, "pid": conn.pid, "process": process_name})
+            open_ports.append({
+                "port": conn.laddr.port,
+                "pid": conn.pid,
+                "process": process_name
+            })
     return open_ports
 
     """ MONITORING SYSTEM INFORMATION """
-
 async def get_cpu_usage():
     return psutil.cpu_percent(interval=1)
 async def get_ram_usage():
@@ -84,11 +138,70 @@ async def get_bandwidth_usage():
         "received_kb": (new_data.bytes_recv - old_data.bytes_recv) / 1024.0,
     }
 
+
+
 async def get_cron_jobs():
-    cron_path = "/var/spool/cron/crontabs/root"
-    if os.path.exists(cron_path):
-        return await run_command("crontab -l")
-    return "No cron jobs found."
+    if platform.system().lower() == "windows":
+        # Pour Windows, utilise 'schtasks' pour lister les tâches planifiées
+        return await run_command("schtasks /query /fo LIST /v")
+    else:
+        # Pour Linux (et Unix-like), utilise crontab
+        cron_path = "/var/spool/cron/crontabs/root"
+        if os.path.exists(cron_path):
+            return await run_command("crontab -l")
+        else:
+            return "Aucune tâche cron trouvée pour root"
+
+
+async def get_battery_status():
+    battery = psutil.sensors_battery()
+    if battery is None:
+        return {"battery_status": "No battery info available"}
+    
+    # Pourcentage de batterie
+    percent = battery.percent
+    
+    # Si l'appareil est sur secteur ou non
+    on_ac_power = battery.power_plugged
+    
+    # Indication de l'état
+    status = "On AC power" if on_ac_power else "Running on battery"
+
+    return {
+        "battery_percent": percent,
+        "battery_status": status
+    }
+
+
+
+async def check_internet_connection():
+    try:
+        # Ping Google DNS (8.8.8.8) pour vérifier la connexion internet
+        result = subprocess.run(["ping", "-c", "1", "8.8.8.8"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode == 0:
+            return "Up"
+        else:
+            return "Down"
+    except Exception as e:
+        return "Down"
+
+async def get_temperature():
+    # Vérification si le système supporte la récupération de la température
+    sensors = psutil.sensors_temperatures()
+    
+    # If there are no sensors available
+    if not sensors:
+        return "Temperature not available"
+
+    # Loop through all the sensors
+    for sensor_name, sensor_list in sensors.items():
+        for sensor in sensor_list:
+            # If a sensor is named 'coretemp' or a similar CPU-related name
+            if 'cpu' in sensor_name.lower():
+                return f"CPU Temperature: {sensor.current}°C"
+
+    return "CPU Temperature not available"
+
 
 async def get_system_logs():
     log_path = "/var/log/syslog"
@@ -119,8 +232,15 @@ async def send_data():
                 # Récupération de l'adresse IP locale de la machine
                 local_ip = get_local_ip()
                 os_name = platform.platform()
+
+                cpu = await get_cpu_usage()
+                ram = await get_ram_usage()
+                disk = await get_disk_usage()
+                bandwidth = await get_bandwidth_usage()
+                system_state = evaluate_system_state(cpu, ram, disk, bandwidth) #Etat du système
                 
                 data = {
+                    "system_state":system_state,
                     "local_ip": local_ip,  # Ajout de l'adresse IP de la machine dans les données envoyées
                     "cpu": await get_cpu_usage(),
                     "ram": await get_ram_usage(),
@@ -131,6 +251,9 @@ async def send_data():
                     "cron_jobs": await get_cron_jobs(),
                     "logs": await get_system_logs(),
                     "outbound_traffic": await get_outbound_traffic(),
+                    "battery_data": await get_battery_status(),
+                    "internet_status": await check_internet_connection(),
+                    "temperature": await get_temperature(),
                     "os": get_os(),
                     
                 }
