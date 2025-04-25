@@ -50,6 +50,14 @@ ws.onmessage = async (event) => {
       openPortsDetails += `<li>Port: ${p.port} | PID: ${p.pid ?? "N/A"} | Processus: ${p.process}</li>`;
     });
     openPortsDetails += '</ul>';
+
+      // 🔁 Construction HTML pour les disques
+    let diskDetails = '<ul>';
+    for (const [mount, percent] of Object.entries(data.disk)) {
+      diskDetails += `<li>${mount} : ${percent}% utilisé</li>`;
+    }
+    diskDetails += '</ul>';
+
   
     // Création du HTML détaillé pour le trafic sortant
     let outboundTrafficDetails = '<ul>';
@@ -74,7 +82,7 @@ ws.onmessage = async (event) => {
       <strong>🖥️ Temp :</strong> ${data.temperature}<br>
       <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
       <strong>⚙️ RAM :</strong> ${data.ram ?? 'N/A'} %<br>
-      <strong>⚙️ DISK :</strong> ${data.disk ?? 'N/A'} %<br>
+      <strong>⚙️ DISQUES :</strong><br>${diskDetails}
       ${batteryStatus}
       <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
       <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>

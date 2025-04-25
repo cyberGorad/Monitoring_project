@@ -9,7 +9,7 @@ import os
 import websockets
 
 
-SERVER_URL = "ws://192.168.10.221:9000"
+SERVER_URL = "ws://192.168.43.225:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
@@ -24,7 +24,7 @@ def get_os():
     return platform.platform()
 
 
-def evaluate_system_state(cpu, ram, disk, bandwidth):
+def evaluate_system_state(cpu, ram, disks:dict, bandwidth):
     """
     Évalue l'état général de la machine en se basant sur l'utilisation CPU, RAM, Disque, et Bande Passante.
     Renvoie : Good, Medium ou Critical.
@@ -47,13 +47,19 @@ def evaluate_system_state(cpu, ram, disk, bandwidth):
     else:
         score -= 1
 
-    # Analyse Disque
-    if disk < 70:
-        score += 1
-    elif disk < 90:
-        score += 0.5
+    # DISKS (analyse moyenne ou max selon ton besoin)
+    if isinstance(disks, dict) and disks:
+        average_disk_usage = sum(disks.values()) / len(disks)
+        if average_disk_usage < 50:
+            score += 1
+        elif average_disk_usage < 80:
+            score += 0.5
+        else:
+            score -= 1
     else:
-        score -= 1
+        score -= 1  # Penalise si on ne reçoit rien
+
+
 
     # Analyse Bande passante (en KB/s)
     if bandwidth["sent_kb"] < 100 and bandwidth["received_kb"] < 100:
@@ -126,7 +132,19 @@ async def get_cpu_usage():
 async def get_ram_usage():
     return psutil.virtual_memory().percent
 async def get_disk_usage():
-    return psutil.disk_usage('/').percent# a mettre a jour sur les machines windows 
+    usage = {}
+
+    for part in psutil.disk_partitions(all=False):
+        try:
+            mountpoint = part.mountpoint
+            percent = psutil.disk_usage(mountpoint).percent
+            usage[mountpoint] = percent
+        except PermissionError:
+            # Ignore les volumes inaccessibles
+            continue
+
+    return usage
+
 
 
 async def get_bandwidth_usage():
