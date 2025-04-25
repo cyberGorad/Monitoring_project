@@ -11,6 +11,8 @@ from scapy.all import sniff, IP, TCP
 from collections import defaultdict
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+
+
 # executer commande et recupere sortie
 def run_command(command):
     try:

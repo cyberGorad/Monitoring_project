@@ -1,0 +1,18 @@
+<script>
+function speakRobot(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.pitch = 0.3;   // Grave
+    utterance.rate = 0.7;    // Lent
+    utterance.volume = 1;
+
+    // Essaie de choisir une voix plus synthétique si dispo
+    speechSynthesis.onvoiceschanged = () => {
+        const voices = speechSynthesis.getVoices();
+        const robotVoice = voices.find(v => v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("google"));
+        if (robotVoice) utterance.voice = robotVoice;
+        speechSynthesis.speak(utterance);
+    };
+}
+</script>
+
+<button onclick="speakRobot('Intrusion détectée. Système en alerte.')">🔊 Parle comme un robot</button>

@@ -2,12 +2,13 @@
 import asyncio
 import json
 import subprocess
+import platform
 import psutil
 import socket
 import os
 import websockets
 
-SERVER_URL = "ws://192.168.43.225:9000"
+SERVER_URL = "ws://192.168.10.221:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
@@ -17,6 +18,9 @@ def get_local_ip():
             if addr.family == socket.AF_INET and not addr.address.startswith("127"):
                 return addr.address
     return "127.0.0.1"  # Retourner localhost si aucune IP valide n'est trouvée
+
+def get_os():
+    return platform.platform()
 
 async def run_command(command):
     try:
@@ -38,6 +42,8 @@ async def resolve_ip(ip):
         print(f"Erreur lors de la résolution de l'IP {ip}: {e}")
         return None
 
+
+
 async def get_established_connections():
     connections = []
     for conn in psutil.net_connections(kind='inet'):
@@ -50,6 +56,7 @@ async def get_established_connections():
             })
     return connections
 
+
 async def get_open_ports():
     open_ports = []
     for conn in psutil.net_connections(kind='inet'):
@@ -58,8 +65,15 @@ async def get_open_ports():
             open_ports.append({"port": conn.laddr.port, "pid": conn.pid, "process": process_name})
     return open_ports
 
+    """ MONITORING SYSTEM INFORMATION """
+
 async def get_cpu_usage():
     return psutil.cpu_percent(interval=1)
+async def get_ram_usage():
+    return psutil.virtual_memory().percent
+async def get_disk_usage():
+    return psutil.disk_usage('/').percent# a mettre a jour sur les machines windows 
+
 
 async def get_bandwidth_usage():
     old_data = psutil.net_io_counters()
@@ -104,16 +118,21 @@ async def send_data():
             async with websockets.connect(SERVER_URL) as websocket:
                 # Récupération de l'adresse IP locale de la machine
                 local_ip = get_local_ip()
+                os_name = platform.platform()
                 
                 data = {
                     "local_ip": local_ip,  # Ajout de l'adresse IP de la machine dans les données envoyées
                     "cpu": await get_cpu_usage(),
+                    "ram": await get_ram_usage(),
+                    "disk": await get_disk_usage(),
                     "open_ports": await get_open_ports(),
                     "connections": await get_established_connections(),
                     "bandwidth": await get_bandwidth_usage(),
                     "cron_jobs": await get_cron_jobs(),
                     "logs": await get_system_logs(),
                     "outbound_traffic": await get_outbound_traffic(),
+                    "os": get_os(),
+                    
                 }
                 await websocket.send(json.dumps(data))
                 await asyncio.sleep(2)  # Envoi des données toutes les 5 secondes

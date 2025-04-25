@@ -46,8 +46,11 @@ ws.onmessage = async (event) => {
   // Machine déjà connue ?
   if (machines[hostname]) {
     machines[hostname].card.innerHTML = `
+      <strong>system:</strong>${data.os}<br> 
       <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
       <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
+      <strong>⚙️ RAM :</strong> ${data.ram ?? 'N/A'} %<br>
+      <strong>⚙️ DISK :</strong> ${data.disk ?? 'N/A'} %<br>
       <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
       <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>
       <strong>📶 Bande passante :</strong> ${data.bandwidth.sent_kb} Ko envoyés, ${data.bandwidth.received_kb} Ko reçus<br>
@@ -61,6 +64,7 @@ ws.onmessage = async (event) => {
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
+      <strong>system:</strong>${data.os}<br>  
       <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
       <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
       <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
