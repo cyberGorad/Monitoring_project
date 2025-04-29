@@ -20,6 +20,7 @@
     <script src="/static/js/vocal_command.js"></script>
 
 
+
     <script>  
         // Fonction qui sera déclenchée à chaque pression sur une touche
         window.addEventListener('keydown', function(event) {
@@ -40,11 +41,53 @@
     <body >
         <!-- LOADER SECTION -->
         <div id="loader" class="loader-container">
-            <div class="loader">
-                <span></span>
+            <div class="loader-terminal">
+            <pre id="terminalText"></pre>
             </div>
         </div>
-            <!-- LOADER END -->
+        <!-- LOADER END -->
+        <script>
+  const terminals = document.getElementById("terminalText");
+  const messages = [
+    "[✓] Initializing system...",
+    "[✓] Loading modules...",
+    "[✓] Checking environment...",
+    "[✓] Connecting to server...",
+    "[✓] Server connected successfully...",
+    "[✓] Loading Data...",
+    "[✓] Alls data Ready is Ready",
+    "[✓] Launching Cybergorad System..."
+  ];
+
+  let indexe = 0;
+
+  function typeNextLine() {
+    if (indexe < messages.length) {
+      terminals.textContent += messages[indexe] + "\n";
+      indexe++;
+      setTimeout(typeNextLine, 1000); // délai entre les lignes
+    } else {
+      // Fin du loader après 1 seconde
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+      }, 1000);
+    }
+  }
+
+  // Lancer le loader
+  window.addEventListener("load", () => {
+    typeNextLine();
+  });
+
+        </script>
+
+
+
+
+
+
+
+        
 
 
 
@@ -215,7 +258,7 @@
 
         <!-- FULL CARD  -->
         
-        <div id="startup-info" class="full-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
+        <div id="startup-info" class="full-card" data-aos="zoom-in" data-aos-duration="200" data-aos-delay="0">
             <h2><i class="fas fa-rocket"></i> full card</h2>
             <div id="startup-details"></div>
         </div>
