@@ -1,10 +1,11 @@
 const terminals = document.getElementById("terminalText");
 const messages = [
   "[✓] Initializing system...",
+  "[✓] Connecting to server...",
   "[✓] Server connected successfully...",
   "[✓] Loading Data...",
   "[✓] Alls data Ready is Ready",
-  "[✓] Launching Gorad System..."
+  "[✓] Launching Cybergorad System..."
 ];
 
 let indexe = 0;
