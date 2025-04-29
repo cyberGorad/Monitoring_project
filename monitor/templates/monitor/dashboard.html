@@ -9,12 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/static/js/music-background.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
 
     <!-- W3 CSS -->
     <link rel="stylesheet" href="/static/css/w3.css">
     <!-- WEBSOCKET SCRIPT -->
     <script src="/static/js/script.js"></script>
     <script src="/static/js/welcome.js"></script>
+
+    
 
     <!-- VOCAL COMMAND JS -->
     <script src="/static/js/vocal_command.js"></script>
@@ -39,55 +42,18 @@
 
 </head>
     <body >
+        
+
         <!-- LOADER SECTION -->
         <div id="loader" class="loader-container">
             <div class="loader-terminal">
             <pre id="terminalText"></pre>
             </div>
         </div>
+        <script src="/static/js/loader.js"></script>
         <!-- LOADER END -->
-        <script>
-  const terminals = document.getElementById("terminalText");
-  const messages = [
-    "[✓] Initializing system...",
-    "[✓] Loading modules...",
-    "[✓] Checking environment...",
-    "[✓] Connecting to server...",
-    "[✓] Server connected successfully...",
-    "[✓] Loading Data...",
-    "[✓] Alls data Ready is Ready",
-    "[✓] Launching Cybergorad System..."
-  ];
-
-  let indexe = 0;
-
-  function typeNextLine() {
-    if (indexe < messages.length) {
-      terminals.textContent += messages[indexe] + "\n";
-      indexe++;
-      setTimeout(typeNextLine, 1000); // délai entre les lignes
-    } else {
-      // Fin du loader après 1 seconde
-      setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-      }, 1000);
-    }
-  }
-
-  // Lancer le loader
-  window.addEventListener("load", () => {
-    typeNextLine();
-  });
-
-        </script>
 
 
-
-
-
-
-
-        
 
 
 
@@ -215,11 +181,7 @@
             </h3>
             
             <input type="file" id="file-upload" />
-            <ul>
-                <li>Malicious</li>
-                <li>Undetected</li>
-                <li>Harmless</li>
-            </ul>
+
             <button onclick="scanFile()" style="background-color: #00ff00;border-radius: 10%;">Scan File</button>
             <div id="scan-results"></div>
         </div>
@@ -258,7 +220,7 @@
 
         <!-- FULL CARD  -->
         
-        <div id="startup-info" class="full-card" data-aos="zoom-in" data-aos-duration="200" data-aos-delay="0">
+        <div id="startup-info" class="full-card" data-aos="zoom-out" data-aos-duration="200" data-aos-delay="0">
             <h2><i class="fas fa-rocket"></i> full card</h2>
             <div id="startup-details"></div>
         </div>
