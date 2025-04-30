@@ -8,8 +8,7 @@ import socket
 import os
 import websockets
 
-
-SERVER_URL = "ws://localhost:9000"
+SERVER_URL = "ws://192.168.10.206:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
@@ -176,7 +175,7 @@ async def get_battery_status():
     if battery is None:
         return {"battery_status": "No battery info available"}
     
-    # Pourcentage de batterie
+    # Pourcentage de batteries
     percent = battery.percent
     
     # Si l'appareil est sur secteur ou non
