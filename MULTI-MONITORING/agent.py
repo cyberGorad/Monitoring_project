@@ -8,7 +8,7 @@ import socket
 import os
 import websockets
 
-SERVER_URL = "ws://192.168.10.206:9000"
+SERVER_URL = "ws://192.168.43.225:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
@@ -275,7 +275,7 @@ async def send_data():
                     
                 }
                 await websocket.send(json.dumps(data))
-                await asyncio.sleep(2)  # Envoi des données toutes les 5 secondes
+                await asyncio.sleep(5)  # Envoi des données toutes les 5 secondes
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"Erreur de connexion: {e}. Tentative de reconnexion...")
             await asyncio.sleep(2)  # Attente avant de réessayer la connexion

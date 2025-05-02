@@ -15,7 +15,7 @@ setTimeout(() => {
 }, 4000);
 
 const machines = {}; // { hostname: { card, lastSeen } }
-const TIMEOUT = 10000; // 10 secondes d'inactivité avant suppression
+const TIMEOUT = 30000; // 10 secondes d'inactivité avant suppression
 
 // Met à jour le nombre d'agents connectés
 function updateAgentCount() {

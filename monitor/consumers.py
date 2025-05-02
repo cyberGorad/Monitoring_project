@@ -128,6 +128,64 @@ def get_windows_startup_info():
 
 
 
+""" WINDOWS CODE A TESTER """
+""" def parse_registry_output(output):
+    lines = output.splitlines()
+    entries = {}
+    for line in lines:
+        parts = re.split(r'\s{2,}', line.strip())
+        if len(parts) >= 3:
+            name, _, path = parts[0], parts[1], parts[2]
+            entries[name] = path
+    return entries
+
+def parse_startup_folder(output):
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+def parse_schtasks(output):
+    tasks = []
+    current = {}
+    for line in output.splitlines():
+        if not line.strip():
+            if all(k in current for k in ('TaskName', 'Task To Run')):
+                tasks.append({
+                    "TaskName": current.get("TaskName"),
+                    "Command": current.get("Task To Run"),
+                    "Status": current.get("Status", "N/A"),
+                    "NextRunTime": current.get("Next Run Time", "N/A"),
+                    "LastRunTime": current.get("Last Run Time", "N/A"),
+                    "Author": current.get("Author", "Unknown")
+                })
+            current = {}
+        else:
+            key_value = line.split(":", 1)
+            if len(key_value) == 2:
+                key, value = key_value
+                current[key.strip()] = value.strip()
+    return tasks
+
+def get_windows_startup_info():
+    return {
+        "Startup_Registry_Current_User": parse_registry_output(
+            run_command("reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run")
+        ),
+        "Startup_Registry_All_Users": parse_registry_output(
+            run_command("reg query HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run")
+        ),
+        "Startup_Folder_Items": parse_startup_folder(
+            run_command("dir \"%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\" /b")
+        ),
+        "Scheduled_Tasks": parse_schtasks(
+            run_command("schtasks /Query /FO LIST /V")
+        )
+    } """
+
+
+
+
+
+
+
 
 class MultiMonitorConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -387,6 +445,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
         # Pause (tu peux mettre ça dans une boucle si tu veux des checks récurrents)
         await asyncio.sleep(5)
+
+
 
 
 
