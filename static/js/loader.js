@@ -17,7 +17,7 @@ function typeWriter() {
       currentLine += messages[indexe].charAt(charIndex);
       terminals.textContent = messages.slice(0, indexe).join("\n") + "\n" + currentLine;
       charIndex++;
-      setTimeout(typeWriter, 30); // Délai entre chaque caractère
+      setTimeout(typeWriter, 5); // Délai entre chaque caractère
     } else {
       // Fin de la ligne actuelle, passer à la suivante
       terminals.textContent += "\n";

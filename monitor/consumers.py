@@ -6,6 +6,7 @@ import socket
 import datetime
 import time
 import platform
+import pyudev
 import os
 from scapy.all import sniff, IP, TCP
 from collections import defaultdict
@@ -204,6 +205,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.log_monitor_task = asyncio.create_task(self.monitor_logs())
         self.outbound_traffic_task = asyncio.create_task(self.monitor_outbound_traffic())
         self.monitor_startup_info_task = asyncio.create_task(self.monitor_startup_info())
+        self.monitor_usb_task = asyncio.create_task(self.monitor_usb())
 
 
     async def disconnect(self, close_code):
@@ -215,6 +217,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.cron_monitor_task.cancel()
         self.outbound_traffic_task.cancel()
         self.monitor_startup_info_task.cancel()
+        self.monitor_usb_task.cancel()
 
 
 
@@ -321,6 +324,38 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                 "uptime": uptime_str,
             }))
             await asyncio.sleep(1)
+
+    
+
+
+    # Fonction principale pour surveiller les événements USB et envoyer les données via WebSocket
+    async def monitor_usb(self):
+        context = pyudev.Context()
+        monitor = pyudev.Monitor.from_netlink(context)
+        monitor.filter_by(subsystem='usb')
+        loop = asyncio.get_running_loop()
+
+        print("[*] Surveillance asynchrone des périphériques USB lancée...")
+
+        while True:
+                # Récupération de l'événement USB
+            device = await loop.run_in_executor(None, monitor.poll)
+            if device:
+                    # Création des données à envoyer
+                event_data = {
+                    "type": "usb",
+                    "action": device.action,
+                    "timestamp": str(datetime.datetime.now()),
+                    "model": device.get("ID_MODEL", "Inconnu"),
+                    "vendor": device.get("ID_VENDOR", "Inconnu"),
+                    "serial": device.get("ID_SERIAL_SHORT", "N/A"),
+                    "devpath": device.device_path,
+                    "node": device.device_node
+                    }
+                print(json.dumps(event_data, indent=4))
+
+                    # Envoi des données via WebSocket
+                await self.send(json.dumps(event_data))
 
 
 

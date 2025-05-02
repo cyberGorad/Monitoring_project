@@ -2,7 +2,7 @@
 
 
 // WebSocket initialization
-const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
+const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
 
 
 
@@ -45,6 +45,24 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 }
 
                 break;
+
+
+                case "usb":
+
+                const usbInfo = document.createElement("li");
+                usbInfo.innerHTML = `
+                    
+                    <strong>[${data.timestamp}]</strong> 
+                    Action: ${data.action}, 
+                    Modèle: ${data.model},   
+                    Node: ${data.node}
+                `;
+        
+                document.getElementById("usb").appendChild(usbInfo);
+            
+                    
+                    
+    
     
 
 
