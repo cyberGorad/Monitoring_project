@@ -8,3 +8,6 @@ def monitoring(request):
 
 def index(request):
     return render(request, 'monitor/index.html')
+
+def setting(request):
+    return render(request, 'monitor/settings.html')

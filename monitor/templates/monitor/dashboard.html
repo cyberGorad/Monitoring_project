@@ -62,7 +62,7 @@
             <header>
                 <div class="header w3-card-4" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
                     <!-- Logo à gauche -->
-                    <i class="fas fa-shield-alt" style="font-size: 30px; margin-right: 15px; margin-top: 5px; margin-left: 15px;"></i>
+                   <img src="/static/Gorad.png" alt="logo" width="100px" height="100px" style="position: absolute;margin-left: -10px;">
             
                     <!-- === Commande vocale === -->
                     <span id="status" style="color:white; flex-grow: 1;"></span> 
@@ -80,7 +80,7 @@
                             <span id="machine-id"></span>
                             <a id="home_btn" href="{% url 'index' %}">Home</a>
                             <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
-                            <a id="home_btn" href="{% url 'index' %}">Settings</a>
+                            <a id="home_btn" href="{% url 'setting' %}">Settings</a>
                             
                         </div>
 
@@ -219,7 +219,7 @@
 
         
         <div id="usb-table" class="large-card">
-            <h3>RubberDucky Monitor <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+            <h3>RubberDucky Monitor <i class="fas fa-" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
             <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
 
         </div>
