@@ -79,8 +79,12 @@ WSGI_APPLICATION = 'port_monitor.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Indique l'utilisation de PostgreSQL
+        'NAME': 'gorad_db',  # Le nom de ta base de données
+        'USER': 'cybergorad',  # L'utilisateur PostgreSQL que tu as créé
+        'PASSWORD': '@Tsilavina2610',  # Le mot de passe de l'utilisateur PostgreSQL
+        'HOST': 'localhost',  # Si PostgreSQL est local
+        'PORT': '5432',  # Le port par défaut de PostgreSQL
     }
 }
 
