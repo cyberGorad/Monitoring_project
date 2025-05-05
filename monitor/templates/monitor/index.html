@@ -32,7 +32,12 @@
     </script>
 
 
-      <h1>Welcome, Commander</h1>
+      {% if user.is_authenticated %}
+        <h1>Welcome, {{ user.username }}</h1> 
+      {% else %}
+          <h1>Acces Denied</h1>
+      {% endif %}
+
 
 
     
@@ -80,9 +85,9 @@
                 <div class="link">
                   <div class="row">
                     <span style="display: flex;flex-direction: row;align-content: space-around;margin-left: 5px;">
-                      <p href="#" style="margin-right: 50px;margin-top: 30px;cursor: pointer;">
+                      <a href="{% url 'login'%}" style="margin-right: 50px;margin-top: 30px;cursor: pointer;">
                         <i class="fas fa-sign-in-alt"></i> Login
-                      </p>
+                      </a>
 
                     </span>
                   </div>

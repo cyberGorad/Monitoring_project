@@ -134,6 +134,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 #     BASE_DIR / 'monitor/static',
 # ]
 
+# settings.py
+LOGIN_REDIRECT_URL = '/'  # Par exemple, après la connexion, l'utilisateur est redirigé vers la page d'accueil
+LOGOUT_REDIRECT_URL = '/'  # Après la déconnexion, rediriger vers la page d'accueil
+
+
 
 
 

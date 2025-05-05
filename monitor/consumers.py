@@ -273,8 +273,7 @@ def evaluate_system_state(cpu, ram, disks:dict, bandwidth):
 class MultiMonitorConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         
-        from .models import OpenPort, CPUUsage, EstablishedConnection, BandwidthUsage
-        
+    
         await self.accept()
         
         # Crée des tâches pour les scripts de surveillacnce
@@ -308,7 +307,6 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
     async def monitor_ports(self):
-        from .models import OpenPort  # Import localisé
 
         authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293]
         reported_ports = set()  # Ensemble pour suivre les ports déjà signalés
