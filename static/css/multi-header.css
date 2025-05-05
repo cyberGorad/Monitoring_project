@@ -134,7 +134,38 @@ ul li {
     margin-bottom: 5px;
 }
 
+@media (max-width: 600px) {
+    .menu-links {
+        display: none;
+        flex-direction: column;
+        background-color: #333;
+        position: absolute;
+        top: 50px;
+        right: 0;
+        padding: 10px;
+        border-radius: 10px;
+        z-index: 99;
+        width: 300px;
+        font-size: 12px;
+    }
 
+    .menu-links.show {
+        display: flex;
+    }
+
+    .burger {
+        display: flex;
+    }
+
+    .menu-avatar {
+        margin-left: 10px;
+    }
+    #machine-id {
+        color: white;
+        margin-right: 15px;
+        font: 12px;
+    }
+}
 
 
 

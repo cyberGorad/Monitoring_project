@@ -181,6 +181,88 @@ def get_windows_startup_info():
         )
     } """
 
+async def get_cpu_usage():
+    return psutil.cpu_percent(interval=1)
+async def get_ram_usage():
+    return psutil.virtual_memory().percent
+    
+async def get_bandwidth_usage():
+    old_data = psutil.net_io_counters()
+    await asyncio.sleep(1)
+    new_data = psutil.net_io_counters()
+    return {
+        "sent_kb": (new_data.bytes_sent - old_data.bytes_sent) / 1024.0,
+        "received_kb": (new_data.bytes_recv - old_data.bytes_recv) / 1024.0,
+    }
+
+async def get_disk_usage():
+    usage = {}
+
+    for part in psutil.disk_partitions(all=False):
+        try:
+            mountpoint = part.mountpoint
+            percent = psutil.disk_usage(mountpoint).percent
+            usage[mountpoint] = percent
+        except PermissionError:
+            # Ignore les volumes inaccessibles
+            continue
+
+    return usage
+
+
+def evaluate_system_state(cpu, ram, disks:dict, bandwidth):
+    """
+    Évalue l'état général de la machine en se basant sur l'utilisation CPU, RAM, Disque, et Bande Passante.
+    Renvoie : Good, Medium ou Critical.
+    """
+    score = 0
+
+    # Analyse CPU
+    if cpu < 50:
+        score += 1
+    elif cpu < 80:
+        score += 0.5
+    else:
+        score -= 1
+
+    # Analyse RAM
+    if ram < 50:
+        score += 1
+    elif ram < 80:
+        score += 0.5
+    else:
+        score -= 1
+
+    # DISKS (analyse moyenne ou max selon ton besoin)
+    if isinstance(disks, dict) and disks:
+        average_disk_usage = sum(disks.values()) / len(disks)
+        if average_disk_usage < 50:
+            score += 1
+        elif average_disk_usage < 80:
+            score += 0.5
+        else:
+            score -= 1
+    else:
+        score -= 1  # Penalise si on ne reçoit rien
+
+
+
+    # Analyse Bande passante (en KB/s)
+    if bandwidth["sent_kb"] < 100 and bandwidth["received_kb"] < 100:
+        score += 1
+    elif bandwidth["sent_kb"] < 500 and bandwidth["received_kb"] < 500:
+        score += 0.5
+    else:
+        score -= 1
+
+    # Définir l'état global en fonction du score
+    if score >= 3:
+        return "Good"
+    elif 1.5 <= score < 3:
+        return "Medium"
+    else:
+        return "Critical"
+
 
 
 
@@ -206,6 +288,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.outbound_traffic_task = asyncio.create_task(self.monitor_outbound_traffic())
         self.monitor_startup_info_task = asyncio.create_task(self.monitor_startup_info())
         self.monitor_usb_task = asyncio.create_task(self.monitor_usb())
+        self.get_disk_usage_task = asyncio.create_task(self.get_disk_usage())
+
 
 
     async def disconnect(self, close_code):
@@ -218,8 +302,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.outbound_traffic_task.cancel()
         self.monitor_startup_info_task.cancel()
         self.monitor_usb_task.cancel()
-
-
+        self.get_disk_usage_task.cancel()
+                
 
 
 
@@ -305,13 +389,16 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+
     async def monitor_system(self):
         while True:
             cpu_usage = psutil.cpu_percent(interval=1)
-            disk_usage = psutil.disk_usage('/').percent
             ram_usage = psutil.virtual_memory().percent
             uptime_seconds = time.time() - psutil.boot_time()
             uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
+            bandwith_usage = await get_bandwidth_usage()
+
+            disk_usage = await get_disk_usage()
             #battery section
             #battery = psutil.sensors_battery()
             #battery_percent = battery.percent()
@@ -319,13 +406,34 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({
                 "type": "cpu",
                 "ram_usage": ram_usage,
-                "disk_usage": disk_usage,
                 "cpu_usage": cpu_usage,
+                "disk_usage": disk_usage,
+                "bandwith_usage": bandwith_usage,
                 "uptime": uptime_str,
             }))
             await asyncio.sleep(1)
 
-    
+
+    async def get_disk_usage(self):
+        usage = {}
+        for part in psutil.disk_partitions(all=False):
+            try:
+                mountpoint = part.mountpoint
+                percent = psutil.disk_usage(mountpoint).percent
+                usage[mountpoint] = percent
+            except PermissionError:
+                continue
+
+        await self.send(json.dumps({
+            "type": "disk",
+            "disk_usage": usage,
+        }))
+        await asyncio.sleep(1)
+
+ 
+ 
+ 
+        
 
 
     # Fonction principale pour surveiller les événements USB et envoyer les données via WebSocket

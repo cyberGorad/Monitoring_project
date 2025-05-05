@@ -1,12 +1,26 @@
 
-    body {
+   
+   body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);  /* 0.5 = 50% d'opacité */
+    z-index: -1;
+    }
+
+   body {
         font-family: 'JetBrains Mono', monospace;
         margin: 0;
+        background-image: url('/static/natureXtechno.jpg');
+        background-size: cover;
+        background-attachment: fixed;
         padding: 0;
-        background-color: #444040;
         color: #00ff00;
         overflow-x: hidden;
         
+    }
+    header {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     }
 
 
@@ -465,3 +479,24 @@
             box-shadow: 0px 0px 20px 8px rgba(0, 255, 0, 0.5);
         }
     }
+
+
+    /* THEME SELECT START */
+    #settings-menu {
+
+        background: rgba(0, 0, 0, 0.85);
+        border: 1px solid #00ff00;
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        color: #00ff00;
+        z-index: 9999;
+        box-shadow: 0 0 10px #00ff00;
+        backdrop-filter: blur(5px);
+    }
+
+    
+    
+    
+    /* THEME SELECT END */
+ 
+  

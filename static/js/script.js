@@ -1,8 +1,52 @@
+function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
+    let score = 0;
+
+    // Analyse CPU
+    if (cpu < 50) {
+        score += 1;
+    } else if (cpu < 80) {
+        score += 0.5;
+    } else {
+        score -= 1;
+    }
+
+    // Analyse RAM
+    if (ram < 50) {
+        score += 1;
+    } else if (ram < 80) {
+        score += 0.5;
+    } else {
+        score -= 1;
+    }
+
+    // Analyse DISQUE
+    if (disks && typeof disks === "object" && Object.keys(disks).length > 0) {
+        const values = Object.values(disks);
+        const avg = values.reduce((a, b) => a + b, 0) / values.length;
+        if (avg < 50) {
+            score += 1;
+        } else if (avg < 80) {
+            score += 0.5;
+        } else {
+            score -= 1;
+        }
+    } else {
+        score -= 1; // Pénalise si pas de données disque
+    }
+
+    // Bande passante (si tu veux l'ajouter plus tard)
+    // if (bandwidth !== null) { ... }
+
+    // Évaluation finale
+    if (score >= 2.5) return "Good";
+    if (score >= 1) return "Medium";
+    return "Critical";
+}
 
 
 
 // WebSocket initialization
-const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
+const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
 
 
@@ -10,20 +54,28 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
         const data = JSON.parse(e.data);
 
         switch (data.type) {
+
+
             case "cpu":
+                
                     // Sélection de l'élément HTML où afficher l'utilisation du CPU
+                const systemStatus= document.getElementById("system_status");
+
                 const cpuTextElement = document.getElementById('cpu-text');
-                const diskTextElement = document.getElementById('disk-text');
                 const ramTextElement = document.getElementById('ram-text');
                 const uptimeTextElement = document.getElementById('uptime-text');
                 const cpuUsage = data.cpu_usage;
-                const diskUsage = data.disk_usage;
                 const ramUsage = data.ram_usage;
+                const diskUsage = data.disk_usage;
+                const bandwidthUsage = data.bandwidth_usage;
                 const uptime = data.uptime;
                 cpuTextElement.textContent = `CPU  ${cpuUsage}%`;
-                diskTextElement.textContent = `Disk ${diskUsage}%`;
                 ramTextElement.textContent = `RAM ${ramUsage}%`;
                 uptimeTextElement.textContent = `UPTIME ${uptime}`;
+
+                const state = evaluateSystemState(cpuUsage, ramUsage, diskUsage, bandwidthUsage );
+                systemStatus.textContent = `${state}`;
+                
 
                 if (cpuUsage > 80) {
                     cpuTextElement.style.color = "red";
@@ -32,19 +84,39 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                     cpuTextElement.style.color = "green";
                 }
 
-                if (diskUsage >80) {
-                    diskTextElement.style.color = "red";
-                } else {
-                    diskTextElement.style.color = "green";
-                }
                 if (ramUsage > 80) {
                     ramTextElement.style.color = "red";
 
                 } else {
                     ramTextElement.style.color = "green";
                 }
+                /* COLOR FOR SYSTEM STATUS  */
+
+                if (state == "Good"){
+                    systemStatus.style.color = "green";
+                } else if(state == "Medium") {
+                    systemStatus.style.color = "orange";
+                } else if (state == "Critical") {
+                    systemStatus.style.color = "red";
+                }
+
+
+
 
                 break;
+                
+                case "disk":
+                    const diskTextElement = document.getElementById('disk-text');
+
+                    
+
+                    // 🔁 Construction HTML pour les disques
+                    var diskDetails = '';
+                    for (const [mount, percent] of Object.entries(data.disk_usage)) {
+                    diskDetails += `${mount}:${percent}%`;
+                    }
+                    diskTextElement.textContent = `${diskDetails}`;
+
 
 
                 case "usb":

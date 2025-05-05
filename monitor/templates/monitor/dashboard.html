@@ -15,9 +15,12 @@
 
     <!-- W3 CSS -->
     <link rel="stylesheet" href="/static/css/w3.css">
+    <!-- LOADING DATA CSS -->
+    <link rel="stylesheet" href="/static/css/loading-data.css">
     <!-- WEBSOCKET SCRIPT -->
     <script src="/static/js/script.js"></script>
     <script src="/static/js/welcome.js"></script>
+    
 
     
 
@@ -43,7 +46,7 @@
      <link rel="stylesheet" href="/static/css/style.css">
 
 </head>
-    <body >
+    <body>
         
 
         <!-- LOADER SECTION -->
@@ -59,7 +62,7 @@
 
 
 
-        <header style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000;">
+        <header>
 
                 <div class="header w3-card-4" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
                     <!-- Logo à gauche -->
@@ -82,6 +85,22 @@
                             <a id="home_btn" href="{% url 'index' %}">Home</a>
                             <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
                             <a id="home_btn" href="{% url 'setting' %}">Settings</a>
+
+                            <a href="#"><span id="system_status">here</span></a>
+
+                            <div id="settings-menu">
+                                <label for="bg-select">Theme</label>
+                                <select id="bg-select">
+                                    <option value="natureXtechno.jpg">Nature X Tech</option>
+                                    <option value="globe.jpeg">Globe</option>
+                                    <option value="Neuronal_theme.png">Neuronal Themes</option>
+
+                                </select>
+
+                            </div>
+                            
+                                <script src="/static/js/theme_select.js"></script>
+                            
                             
                         </div>
 
@@ -100,25 +119,32 @@
             
 
 
-
   
     
         <div class="container content">
 
-            <div class="card-for-column" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
+            <div class="card-for-column" data-aos="fade-left" >
                 <!-- CPU Container -->
                 <div id="cpu-container" class="column-card">
                     
                     <span id="cpu-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
-                        loading data ...
+                        <div class="three-body">
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            </div>
                     </span>
                 </div>
 
                 <!-- Disk Container -->
-                <div id="disk-container" class="column-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
+                <div id="disk-container" class="column-card" data-aos="fade-left">
 
-                    <span id="disk-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
-                        loading data ...
+                    <span id="disk-text" style="color: #00ff00; font-size: 15px; font-weight: bold;">
+                        <div class="three-body">
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            </div>
                     </span>
                 </div>
 
@@ -128,7 +154,11 @@
 
                     
                     <span id="ram-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
-                        loading data ...
+                        <div class="three-body">
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            </div>
                     </span>
                 </div>
 
@@ -139,7 +169,11 @@
 
                     
                     <span id="uptime-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
-                        loading data ...
+                        <div class="three-body">
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            <div class="three-body__dot"></div>
+                            </div>
                     </span>
                 </div>
             </div>
@@ -210,7 +244,7 @@
         <div id="outbound-container" class="large-card">
             <h3>Outbound Traffic <i class="fas fa-arrow-right" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
 
-            <p>Loading data...</p>
+            <p><div class="custom-spinner"></div></p>
         </div>
 
 
@@ -230,7 +264,7 @@
         
         <div id="startup-info" class="full-card" data-aos="zoom-out" data-aos-duration="200" data-aos-delay="0">
             <h2><i class="fas fa-rocket"></i> full card</h2>
-            <div id="startup-details"></div>
+            <div id="startup"></div>
         </div>
 
 
