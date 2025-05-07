@@ -63,6 +63,7 @@
             flex-direction: column;
             cursor: pointer;
             margin-right: 15px;
+            animation: expandCard 0.6s ease;
         }
 
         .burger span {
@@ -99,6 +100,7 @@
 
             .burger {
                 display: flex;
+                animation: expandCard 0.6s ease;
             }
 
             .menu-avatar {
@@ -209,7 +211,33 @@
         font-family: 'Inter', sans-serif;
 
         transition: all 0.3s ease;  /* Transition douce pour les effets */
+        animation: shrinkCard 0.6s ease;
     }
+    .hover-card {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80vw;
+        height: 80vh;
+        overflow-y: auto;
+        z-index: 9999;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        border: 2px solid #00ff00;
+
+        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        border-radius: 8px;
+        padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+        border: 1px solid #444444;  /* Bordure plus discrète */
+        text-align: center;
+        box-sizing: border-box;
+        color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+        font-family: 'Inter', sans-serif;
+
+        transition: all 0.3s ease;  /* Transition douce pour les effets */
+        animation: expandCard 0.6s ease;
+    }
+
 
     .card:hover {
         background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
@@ -385,7 +413,7 @@
     .modal {
         display: none; /* masquée par défaut */
         position: fixed;
-        z-index: 999; /* bien au-dessus */
+        z-index: 9999; /* bien au-dessus */
         left: 0;
         top: 0;
         width: 100%;
@@ -448,7 +476,7 @@
         align-items: center;
         justify-content: center;
         font-family: monospace;
-        z-index: 9999;
+        z-index: 999999;
     }
     
     .loader-terminal {
@@ -462,7 +490,7 @@
         height: 300px;
         overflow-y: auto;
         white-space: pre-line;
-        z-index: 9999;
+        z-index: 999999;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -492,6 +520,33 @@
         }
     }
 
+    @keyframes expandCard {
+        from {
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0.7;
+            box-shadow: 0 0 10px #509c50;
+        }
+        to {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            box-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00 inset;
+        }
+    }
+
+    @keyframes shrinkCard {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0.5;
+            transform: translate(-50%, -50%) scale(0)
+
+
+        }
+
+    }
+    
+    
 
     /* THEME SELECT START */
     #settings-menu {

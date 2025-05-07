@@ -106,49 +106,131 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                 }
                 break;
 
+
+
                 case "all_process":
-
-
-                const processElement = document.getElementById("process");
-                const ProcessDetails = data.processes;
-
-                // Réinitialiser le contenu du div avant d'ajouter les nouveaux processus
-                processElement.innerHTML = ""; 
-
-                // Créer un tableau HTML pour afficher les processus
-                const table = document.createElement("table");
-                table.classList.add("process-table");
-
-                // Créer l'en-tête de tableau
-                const headerRow = document.createElement("tr");
-                headerRow.innerHTML = `
-                    <th>PID</th>
-                    <th>Nom</th>
-                    <th>RAM (MB)</th>
-                    <th>% RAM</th>
-                    <th>⚠️</th>
-                `;
-                table.appendChild(headerRow);
-
-                // Parcourir les processus et les ajouter dans le tableau
-                ProcessDetails.forEach(proc => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${proc.pid}</td>
-                        <td>${proc.name}</td>
-                        <td>${proc.memory_mb}</td>
-                        <td>${proc.memory_percent}</td>
-                        <td>${proc.alert ? "⚠️" : ""}</td>
-                    `;
-                    if (proc.alert) {
-                        row.style.backgroundColor = "#ffdddd"; // Si alerte, surligner en rouge clair
+                    const processElement = document.getElementById("process");
+                    const ProcessDetails = data.processes;
+                
+                    // Réinitialiser le contenu du div avant d'ajouter les nouveaux processus
+                    processElement.innerHTML = ""; 
+                
+                    // Injecter dynamiquement le CSS une seule fois
+                    if (!document.getElementById("process-style")) {
+                        const style = document.createElement("style");
+                        style.id = "process-style";
+                        style.innerHTML = `
+                            .process-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                font-family: "Courier New", monospace;
+                                font-size: 10px;
+                                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            }
+                            .process-table th, .process-table td {
+                                border: 1px solid #ccc;
+                                padding: 8px 10px;
+                                text-align: center;
+                                word-break: break-word;
+                            }
+                            .process-table th {
+                                color: #fff;
+                                text-transform: uppercase;
+                                font-size: 12px;
+                            }
+                            .process-table tr:hover {
+                                background-color: black;
+                                color:#00ff00;
+                            }
+                            .process-table td:last-child {
+                                font-weight: bold;
+                                color: red;
+                            }
+                            #process {
+                                overflow-x: auto;
+                                max-width: 100%;
+                                padding: 10px;
+                            }
+                            .search-input {
+                                width: 100%;
+                                padding: 8px;
+                                margin-bottom: 10px;
+                                font-size: 12px;
+                                font-family: monospace;
+                                background: #111;
+                                color: #0f0;
+                                border: 1px solid #444;
+                            }
+                            @media screen and (max-width: 600px) {
+                                .process-table {
+                                    font-size: 10px;
+                                }
+                                .process-table th, .process-table td {
+                                    padding: 6px;
+                                }
+                            }
+                        `;
+                        document.head.appendChild(style);
                     }
-                    table.appendChild(row);
-                });
+                
+                    // Créer un champ de recherche
+                    const searchInput = document.createElement("input");
+                    searchInput.type = "text";
+                    searchInput.placeholder = "🔍 search...";
+                    searchInput.classList.add("search-input");
+                
+                    // Ajouter le champ de recherche
+                    processElement.appendChild(searchInput);
+                
+                    // Créer un tableau HTML pour afficher les processus
+                    const table = document.createElement("table");
+                    table.classList.add("process-table");
+                
+                    // Créer l'en-tête de tableau
+                    const headerRow = document.createElement("tr");
+                    headerRow.innerHTML = `
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>RAM (MB)</th>
+                        <th>% RAM</th>
+                        <th>⚠️</th>
+                    `;
+                    table.appendChild(headerRow);
+                
+                    // Parcourir les processus et les ajouter dans le tableau
+                    ProcessDetails.forEach(proc => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${proc.pid}</td>
+                            <td>${proc.name}</td>
+                            <td>${proc.memory_mb}</td>
+                            <td>${proc.memory_percent}</td>
+                            <td>${proc.alert ? "⚠️" : ""}</td>
+                        `;
+                        if (proc.alert) {
+                            row.style.backgroundColor = "red";
+                        }
+                        table.appendChild(row);
+                    });
+                
+                    // Ajouter le tableau au div
+                    processElement.appendChild(table);
+                
+                    // Ajouter filtre sur saisie
+                    searchInput.addEventListener("input", () => {
+                        const filter = searchInput.value.toLowerCase();
+                        const rows = table.querySelectorAll("tr:not(:first-child)");
+                        rows.forEach(row => {
+                            const nameCell = row.cells[1];
+                            if (nameCell && nameCell.textContent.toLowerCase().includes(filter)) {
+                                row.style.display = "";
+                            } else {
+                                row.style.display = "none";
+                            }
+                        });
+                    });
+                
 
-                // Ajouter le tableau au div
-                processElement.appendChild(table);
-            
 
 
 

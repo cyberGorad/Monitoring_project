@@ -16,6 +16,13 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
+    <!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+
+
     <title>Home</title>
 </head>
   <body  data-dashboard-url="{% url 'dashboard' %}">
@@ -37,7 +44,7 @@
       {% if user.is_authenticated %}
         <h1>Welcome, {{ user.username }}</h1> 
       {% else %}
-          <h1>Acces Denied</h1>
+          <h1 style="color: red;">Acces Denied</h1>
       {% endif %}
 
 
@@ -278,14 +285,36 @@
           {{ form.as_p }}
           <button type="submit">Se connecter</button>
       </form>
-  
+
+
+
       {% if messages %}
-          <ul>
-              {% for message in messages %}
-                  <li>{{ message }}</li>
-              {% endfor %}
-          </ul>
-      {% endif %}
+        {% for message in messages %}
+        <script>
+          Swal.fire({
+            title: 'GORA',
+            text: "{{ message|escapejs }}",
+            icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% else %}info{% endif %}',
+            background: 'black',
+            color: '#00ff00',
+            confirmButtonColor: '#00ff00',
+            timer: 5000,
+            timerProgressBar: true,
+            showClass: {
+              popup: 'animate__animated animate__zoomIn'
+            },
+            hideClass: {
+              popup: 'animate__animated animate__zoomOut'
+            }
+          });
+        </script> 
+        {% endfor %}
+  
+    {% endif %}
+
+
+
+    
             
     </section>
 

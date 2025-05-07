@@ -27,6 +27,9 @@
 
     <!-- VOCAL COMMAND JS -->
     <script src="/static/js/vocal_command.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+
+
 
 
 
@@ -212,6 +215,9 @@
             <h3>
                 Open Ports
                 <i class="fas fa-plug" style="float: right; font-size: 24px; color: #00ff00;"></i>
+
+
+                
             </h3>
             
             
@@ -226,6 +232,7 @@
 
             <ul id="unauthorized-ports"></ul>
         </div>
+
 
 
         <div id="connections-container" class="card">
@@ -280,9 +287,13 @@
                 <!-- FULL CARD  -->
         
                 <div id="process-info" class="full-card">
+                        <!-- Bouton pour alterner entre card et full-card -->
+    <button id="toggle-button" onclick="toggleCardSize()">MOVE</button>
                     <h2><i class="fas fa-rocket"></i> Process Watcher</h2>
                     <div id="process"></div> <!-- Ce div sera mis à jour -->
                 </div>
+            
+
                 
 
 
@@ -318,8 +329,8 @@
 
     </div>
 
-
-
+    <!-- ANIMATE JS -->
+    <script src="/static/js/animate/process.js"></script>
     <!-- Lien vers le JS de AOS -->
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>

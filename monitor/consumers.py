@@ -8,6 +8,7 @@ import time
 import platform
 import pyudev
 import os
+from pynput.keyboard import Listener, Key
 from scapy.all import sniff, IP, TCP
 from collections import defaultdict
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -309,7 +310,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.get_sorted_processes_by_memory_task.cancel()
                 
 
-    async def get_sorted_processes_by_memory(threshold_mb=100):
+    async def get_sorted_processes_by_memory(self, threshold_mb=100):
         while True:
             processes = []
             for proc in psutil.process_iter(['pid', 'name', 'memory_info', 'memory_percent']):

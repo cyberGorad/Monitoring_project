@@ -39,11 +39,18 @@ def user_logout(request):
     return redirect('index')  # ou une autre page d'accueil
 
 
+
 def dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('index')
     return render(request, 'monitor/dashboard.html')
 
 def monitoring(request):
+    if not request.user.is_authenticated:
+        return redirect('index')
     return render(request, 'monitor/multi-monitoring.html')
 
 def setting(request):
+    if not request.user.is_authenticated:
+        return redirect('index')
     return render(request, 'monitor/settings.html')
