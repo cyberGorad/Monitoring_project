@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/welcome.css">
     <!-- Lien vers la bibliothèque Font Awesome -->
+    <!-- ANIME .JS -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
 
 
@@ -72,6 +74,117 @@
           z-index: 1;
           position: relative;
         }
+
+
+
+
+
+          /* --- Login Section Styling --- */
+        #login-section {
+            position: fixed; /* Fixed position to overlay */
+            right: 2px;
+            top: 20%;
+            transform: translate(-50%, -50%); /* Base centering */
+            filter: blur(0px) brightness(1);  /* Add this for filter animation base */
+            width: 90%;
+            max-width: 400px; /* Max width for the form */
+            background-color: rgba(0, 10, 0, 0.85); /* Dark semi-transparent green */
+            border: 1px solid #0f0;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+            padding: 30px;
+            border-radius: 5px;
+            z-index: 100; /* Ensure it's above other content */
+
+            /* --- Initially Hidden --- */
+            opacity: 0;
+            pointer-events: none; /* Prevent interaction while hidden */
+        }
+
+        #login-section h2 {
+            color: #0f0;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        #login-section form p {
+            margin-bottom: 15px;
+        }
+
+        #login-section label { /* Style labels if your form rendering generates them */
+             display: block;
+             margin-bottom: 5px;
+             color: #0f0;
+         }
+
+        #login-section input[type="text"],
+        #login-section input[type="password"] {
+            width: calc(100% - 20px); /* Adjust width considering padding */
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0a0;
+            color: #0f0;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+         #login-section input[type="text"]:focus,
+         #login-section input[type="password"]:focus {
+             outline: none;
+             box-shadow: 0 0 10px #0f0;
+             border-color: #0f0;
+         }
+
+        #login-section button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #0f0;
+            border: none;
+            color: #000;
+            font-family: monospace;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-top: 10px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        #login-section button[type="submit"]:hover {
+             background-color: #fff;
+             box-shadow: 0 0 15px #0f0;
+         }
+
+         #login-section .messages { /* Style Django messages */
+             list-style: none;
+             padding: 0;
+             margin-top: 15px;
+             text-align: center;
+         }
+          #login-section .messages li {
+              color: #ff4444; /* Error color */
+              background-color: rgba(255, 0, 0, 0.1);
+              border: 1px solid #ff4444;
+              padding: 8px;
+              border-radius: 3px;
+              margin-bottom: 5px;
+          }
+          /* Add styles for other message levels (info, success, warning) if needed */
+
+          #close-login { /* Style for the close button */
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #0f0;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: color 0.3s, text-shadow 0.3s;
+          }
+          #close-login:hover {
+              color: #fff;
+              text-shadow: 0 0 10px #0f0;
+          }
       </style>
     <!-- ACCOUNT AND LOGO -->  
     <div class="container">
@@ -84,10 +197,19 @@
             <div class="account" style="position:absolute;top: 0;right:0">
                 <div class="link">
                   <div class="row">
-                    <span style="display: flex;flex-direction: row;align-content: space-around;margin-left: 5px;">
-                      <a href="{% url 'login'%}" style="margin-right: 50px;margin-top: 30px;cursor: pointer;">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                      </a>
+                    <span style="display: flex;flex-direction: row;align-content: space-around;margin-right: 10px;margin-top: 10px;">
+
+                  {% if not user.is_authenticated %}
+                  <h3 style="border: none;" id="show-login-link" style="cursor: pointer;margin-right: 100px;margin-top: 10px;" >
+                      <i class="fas fa-sign-in-alt"></i> Login
+                  </h3>
+                  {% else %}
+                   <a href="{% url 'logout' %}" style="margin-right: 50px;margin-top: 30px;cursor: pointer;">
+                        <i class="fas fa-sign-out-alt"></i> Logout ({{ user.username }})
+                    </a>
+                  {% endif %}
+
+
 
                     </span>
                   </div>
@@ -115,7 +237,7 @@
 
 
 
-
+      {% if user.is_authenticated %}
   <div style="padding: 20px;">
           <button style="text-align: center;">
             <span id="rightArrow" class="arrow"></span>
@@ -126,6 +248,18 @@
           <a href="{% url 'multi' %}" style="text-align: center;">Monitor All</a>
       <br><br>
   </div>
+    {% else %}
+    <div style="padding: 20px;">
+          <button style="text-align: center;" disabled title="Veuillez vous connecter">
+            <span id="rightArrow" class="arrow"></span>
+            <a style="pointer-events: none;">Dashboard</a>
+            <span id="leftArrow" class="arrow"></span>
+        </button>
+      </div>
+
+        <a style="pointer-events: none; text-align: center;text-decoration: none;" title="Connexion requise">Monitor All</a>
+
+    {% endif %}
 
 
 
@@ -137,7 +271,116 @@
 
 
 
+    <section id="login-section">
+         <button id="close-login" title="Close">&times;</button> <h2>System Login</h2>
+         <form method="POST">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit">Se connecter</button>
+      </form>
+  
+      {% if messages %}
+          <ul>
+              {% for message in messages %}
+                  <li>{{ message }}</li>
+              {% endfor %}
+          </ul>
+      {% endif %}
+            
+    </section>
 
+
+
+ <script>
+        // Vocal command keydown listener
+        window.addEventListener('keydown', function(event) {
+            // Only trigger if not typing in an input field
+            if (event.code === 'Space' && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+                startVoice();
+            }
+        });
+
+        // Login Animation Logic
+        const loginSection = document.getElementById('login-section');
+        const showLoginLink = document.getElementById('show-login-link');
+        const closeLoginButton = document.getElementById('close-login');
+// Function to show the login form - Futuristic v2 (Skew, Rotate, Filter)
+        function showLogin() {
+            // Reset initial visual state right before animating IF NEEDED
+            // loginSection.style.transform = 'translate(-50%, -50%) scale(0.8) skewX(-10deg) rotateZ(-5deg)'; // Example if base CSS doesn't set it
+
+            anime({
+                targets: loginSection,
+                opacity: [0, 1],                  // Fade in
+                scale: [0.85, 1],                 // Scale up from slightly smaller
+                skewX: [-10, 0],                  // Correct skew distortion
+                rotateZ: [-8, 0],                 // Correct slight rotation
+                filter: ['blur(8px) brightness(1.8)', 'blur(0px) brightness(1)'], // De-blur and fade from bright
+                duration: 700,                    // Slightly longer duration for effect
+                easing: 'easeOutExpo',            // Smooth but quick deceleration
+                // easing: 'easeOutElastic(1, .7)', // Alternative: Bouncier feel
+                begin: function(anim) {
+                    // Ensure it's interactive as soon as it starts appearing
+                    loginSection.style.pointerEvents = 'auto';
+                }
+            });
+        }
+
+        // Function to hide the login form - Futuristic v2 (Reverse with distortion)
+        function hideLogin() {
+             anime({
+                targets: loginSection,
+                opacity: [1, 0],                  // Fade out
+                scale: [1, 0.7],                  // Shrink down significantly
+                skewX: [0, 15],                   // Skew out noticeably
+                rotateZ: [0, 10],                 // Rotate out
+                filter: ['blur(0px)', 'blur(10px) brightness(0.5)'], // Blur out and dim
+                duration: 500,                    // Faster hide
+                easing: 'easeInOutQuad',          // Smooth acceleration into hiding
+                complete: function(anim) {
+                    // Make non-interactive only after fully hidden
+                    loginSection.style.pointerEvents = 'none';
+                    // Optional: Reset transform/filter if needed after hiding fully
+                    // loginSection.style.transform = 'translate(-50%, -50%)';
+                    // loginSection.style.filter = 'blur(0px) brightness(1)';
+                }
+            });
+        }
+
+        // --- Keep the rest of your JavaScript event listeners the same ---
+        // (Event listener for show-login-link, close-login, Escape key etc.)
+
+        // Event listener for the login link
+        if (showLoginLink) {
+             showLoginLink.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                showLogin();
+             });
+        }
+
+         // Event listener for the close button
+         if (closeLoginButton) {
+             closeLoginButton.addEventListener('click', function() {
+                hideLogin();
+             });
+         }
+
+        // Optional: Hide login form if clicked outside of it
+        // window.addEventListener('click', function(event) {
+        //     if (loginSection.style.opacity === '1' && !loginSection.contains(event.target) && event.target !== showLoginLink) {
+        //         hideLogin();
+        //     }
+        // });
+
+        // Optional: Hide login form with Escape key
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && loginSection.style.opacity === '1') {
+                hideLogin();
+            }
+        });
+
+    </script>
 
 
 </body>

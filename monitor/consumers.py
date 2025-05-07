@@ -68,6 +68,9 @@ def bytes_to_human(bytes_value):
         index += 1
     return f"{bytes_value:.2f} {symbols[index]}"
 
+def bytes_to_mb(bytes_value):
+    return round(bytes_value / (1024 * 1024), 2)
+
 
 
 
@@ -288,6 +291,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.monitor_startup_info_task = asyncio.create_task(self.monitor_startup_info())
         self.monitor_usb_task = asyncio.create_task(self.monitor_usb())
         self.get_disk_usage_task = asyncio.create_task(self.get_disk_usage())
+        self.get_sorted_processes_by_memory_task = asyncio.create_task(self.get_sorted_processes_by_memory())
 
 
 
@@ -302,13 +306,69 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.monitor_startup_info_task.cancel()
         self.monitor_usb_task.cancel()
         self.get_disk_usage_task.cancel()
+        self.get_sorted_processes_by_memory_task.cancel()
                 
+
+    async def get_sorted_processes_by_memory(threshold_mb=100):
+        while True:
+            processes = []
+            for proc in psutil.process_iter(['pid', 'name', 'memory_info', 'memory_percent']):
+                try:
+                    mem_mb = bytes_to_mb(proc.info['memory_info'].rss)
+                    processes.append({
+                        'pid': proc.info['pid'],
+                        'name': proc.info['name'],
+                        'memory_mb': mem_mb,
+                        'memory_percent': round(proc.info['memory_percent'], 2),
+                        'alert': mem_mb > threshold_mb
+                    })
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+
+            # Tri décroissant
+            processes.sort(key=lambda p: p['memory_mb'], reverse=True)
+
+            await self.send(json.dumps({
+                "type": "all_process",
+                "processes": processes,
+            }))
+
+            await asyncio.sleep(5)  
+
+
+    
+
+
+    async def monitor_system(self):
+        while True:
+            cpu_usage = psutil.cpu_percent(interval=1)
+            ram_usage = psutil.virtual_memory().percent
+            uptime_seconds = time.time() - psutil.boot_time()
+            uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
+            bandwith_usage = await get_bandwidth_usage()
+
+            disk_usage = await get_disk_usage()
+            #battery section
+            #battery = psutil.sensors_battery()
+            #battery_percent = battery.percent()
+
+            await self.send(json.dumps({
+                "type": "cpu",
+                "ram_usage": ram_usage,
+                "cpu_usage": cpu_usage,
+                "disk_usage": disk_usage,
+                "bandwith_usage": bandwith_usage,
+                "uptime": uptime_str,
+            }))
+            await asyncio.sleep(1)
+
+
 
 
 
     async def monitor_ports(self):
 
-        authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293]
+        authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293, 5432]
         reported_ports = set()  # Ensemble pour suivre les ports déjà signalés
         alert_responses = []  # Liste pour stocker les réponses de Gemini
 
@@ -388,28 +448,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
-    async def monitor_system(self):
-        while True:
-            cpu_usage = psutil.cpu_percent(interval=1)
-            ram_usage = psutil.virtual_memory().percent
-            uptime_seconds = time.time() - psutil.boot_time()
-            uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
-            bandwith_usage = await get_bandwidth_usage()
 
-            disk_usage = await get_disk_usage()
-            #battery section
-            #battery = psutil.sensors_battery()
-            #battery_percent = battery.percent()
-
-            await self.send(json.dumps({
-                "type": "cpu",
-                "ram_usage": ram_usage,
-                "cpu_usage": cpu_usage,
-                "disk_usage": disk_usage,
-                "bandwith_usage": bandwith_usage,
-                "uptime": uptime_str,
-            }))
-            await asyncio.sleep(1)
 
 
     async def get_disk_usage(self):

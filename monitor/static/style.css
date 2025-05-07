@@ -93,6 +93,8 @@ canvas {
 #unauthorized-ports {
     color: red;
 }
+
+
 .header {
     text-align: right;
     background-color: #333;
@@ -207,6 +209,12 @@ align-items: center;
 z-index: 9999; /* Assure que le loader est au-dessus de tout */
 color: white; /* Couleur pour un message éventuel */
 }
+
+
+
+
+
+
 
 /* Loader principale */
 .loader {

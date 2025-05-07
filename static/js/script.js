@@ -46,7 +46,7 @@ function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
 
 
 // WebSocket initialization
-const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
+const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
 
 
 
@@ -57,7 +57,8 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
 
             case "cpu":
-                
+                    // HEADER COLOR SELECTION
+                const headerStatus = document.getElementById("head-status");
                     // Sélection de l'élément HTML où afficher l'utilisation du CPU
                 const systemStatus= document.getElementById("system_status");
 
@@ -94,16 +95,63 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
                 if (state == "Good"){
                     systemStatus.style.color = "green";
+                    headerStatus.style.boxShadow = "0 5px 5px #00ff00";
                 } else if(state == "Medium") {
                     systemStatus.style.color = "orange";
+                    headerStatus.style.boxShadow = "0 5px 5px orange";
+                    
                 } else if (state == "Critical") {
                     systemStatus.style.color = "red";
+                    headerStatus.style.boxShadow = "0 5px 5px red";
                 }
-
-
-
-
                 break;
+
+                case "all_process":
+
+
+                const processElement = document.getElementById("process");
+                const ProcessDetails = data.processes;
+
+                // Réinitialiser le contenu du div avant d'ajouter les nouveaux processus
+                processElement.innerHTML = ""; 
+
+                // Créer un tableau HTML pour afficher les processus
+                const table = document.createElement("table");
+                table.classList.add("process-table");
+
+                // Créer l'en-tête de tableau
+                const headerRow = document.createElement("tr");
+                headerRow.innerHTML = `
+                    <th>PID</th>
+                    <th>Nom</th>
+                    <th>RAM (MB)</th>
+                    <th>% RAM</th>
+                    <th>⚠️</th>
+                `;
+                table.appendChild(headerRow);
+
+                // Parcourir les processus et les ajouter dans le tableau
+                ProcessDetails.forEach(proc => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${proc.pid}</td>
+                        <td>${proc.name}</td>
+                        <td>${proc.memory_mb}</td>
+                        <td>${proc.memory_percent}</td>
+                        <td>${proc.alert ? "⚠️" : ""}</td>
+                    `;
+                    if (proc.alert) {
+                        row.style.backgroundColor = "#ffdddd"; // Si alerte, surligner en rouge clair
+                    }
+                    table.appendChild(row);
+                });
+
+                // Ajouter le tableau au div
+                processElement.appendChild(table);
+            
+
+
+
                 
                 case "disk":
                     const diskTextElement = document.getElementById('disk-text');
@@ -113,7 +161,7 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                     // 🔁 Construction HTML pour les disques
                     var diskDetails = '';
                     for (const [mount, percent] of Object.entries(data.disk_usage)) {
-                    diskDetails += `${mount}:${percent}%`;
+                    diskDetails += `${mount}:${percent}% \n`;
                     }
                     diskTextElement.textContent = `${diskDetails}`;
 
@@ -144,14 +192,31 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 // Mise à jour de la liste des ports ouverts
             const openPortsList = document.getElementById('open-ports');
             openPortsList.innerHTML = '';
+
             data.open_ports.forEach(port => {
                 const li = document.createElement('li');
+                li.style.cssText = `
+                    padding: 6px 10px;
+                    margin: 4px 0;
+                    color: #e0e0e0;
+                    background-color: #1e1e2f;
+                    border-left: 4px solid #4CAF50;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    display: flex;
+                    align-items: center;
+                `;
+
                 li.innerHTML = `
-                <i class="fas fa-plug" style="color: #4CAF50; margin-right: 8px;"></i> 
-                Port ${port.port} (PID: ${port.pid}) - Process: ${port.process}
-            `;
+                    <strong style="color:#4CAF50;">Port ${port.port}</strong>
+                    <span style="margin-left: 10px; color: #90caf9;">${port.pid}</span>
+                    <span style="margin-left: 10px; color: #ffcc80;">${port.process}</span>
+                `;
+
                 openPortsList.appendChild(li);
             });
+
+
 
             // Mise à jour de la liste des ports non autorisés
             const unauthorizedPortsList = document.getElementById('unauthorized-ports');
@@ -160,7 +225,18 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
             data.alerts.forEach(alert => {
                 const alertDiv = document.createElement('div');
                 alertDiv.classList.add('alert');
-                alertDiv.textContent = `Unauthorized port: ${alert.port} (PID: ${alert.pid}) - Process: ${alert.process}`;
+                alertDiv.textContent = `⚠️ Unauthorized Port ${alert.port} -  ${alert.pid} - ${alert.process}`;
+                    alertDiv.style.cssText = `
+                        background-color: #2c0b0e;
+                        color: #f28b82;
+                        padding: 8px 12px;
+                        margin: 6px 0;
+                        border-left: 4px solid #ff1744;
+                        border-radius: 4px;
+                        font-family: monospace;
+                        font-size: 10px;
+                    `;
+
 
                 // Sélectionner l'image existante
                 const existingImage = document.querySelector('img[src="/static/IA.jpeg"]');
@@ -241,9 +317,23 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 } else {
                     data.connections.forEach(conn => {
                         const li = document.createElement('li');
-                        li.textContent = `IP: ${conn.ip} - Hostname: ${conn.hostname}`;
+                        li.textContent = `${conn.ip} - ${conn.hostname}`;
+                        li.style.cssText = `
+                            padding: 6px 10px;
+                            margin: 4px 0;
+                            background-color: #1e1e2f;
+                            color: #cfd8dc;
+                            border-left: 4px solid #2196f3;
+                            border-radius: 4px;
+                            font-family: monospace;
+                            font-size: 10px;
+                            white-space: wrap;  
+                            overflow: scroll;  
+                            text-overflow: scroll;
+                        `;
                         connectionsList.appendChild(li);
                     });
+                    
                 }
                 break;
 
@@ -303,14 +393,14 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                 const bandwidthInfo = document.getElementById('bandwidth-info');
                 const dosElement = document.getElementById('dos');  // Sélectionne l'élément dos
                 
-            // Mise à jour des informations de la bande passante
-            bandwidthInfo.innerHTML = `
-                <div class="bandwidth-info-row">
-                    <span><i class="fas fa-arrow-up"></i> ${data.sent} KB</span>
-                    <span><i class="fas fa-arrow-down"></i>${data.received} KB</span>
-                    <span><i class="fas fa-tachometer-alt"></i> Total: ${data.total} KB</span>
+                bandwidthInfo.innerHTML = `
+                <div class="bandwidth-info-row" style="display: flex; justify-content: space-between; align-items: center; background-color: #1e1e2f; padding: 8px 12px; border-radius: 6px; margin: 6px 0; color: #cfd8dc; font-size: 14px; border-left: 4px solid #4CAF50;">
+                    <span style="display: flex; align-items: center; color: #4CAF50;"><i class="fas fa-arrow-up" style="margin-right: 6px;"></i>${data.sent} KB</span>
+                    <span style="display: flex; align-items: center; color: #ff7043;"><i class="fas fa-arrow-down" style="margin-right: 6px;"></i>${data.received} KB</span>
+                    <span style="display: flex; align-items: center; color: #2196f3;"><i class="fas fa-tachometer-alt" style="margin-right: 6px;"></i>Total: ${data.total} KB</span>
                 </div>
             `;
+            
 
             // Style pour formater les informations de bande passante
             const style = document.createElement('style');
@@ -321,7 +411,7 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                     justify-content: center;
                     align-items:center;
                     margin-bottom: 15px;
-                    font-size: 16px;
+                    font-size: 10px;
                     color: #ffffff; /* Couleur du texte pour tout le bloc */
                 }
                 .bandwidth-info-row span {
@@ -393,7 +483,7 @@ const socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
                                 justify-content: space-between;
                                 flex-wrap: wrap;
                                 margin-bottom: 10px;
-                                font-size: 14px;
+                                font-size: 10px;
                                 color: #ffffff;
                             }
                             .connection-title {
