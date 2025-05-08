@@ -55,6 +55,21 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
 
         switch (data.type) {
 
+            case "rubber_ducky":
+
+
+            const typerElement = document.getElementById("typer-alert");
+            const typerAlert = data.message;
+            
+            // Crée un nouvel élément <div> ou <li> pour chaque alerte
+            const alertItem = document.createElement("div"); // ou "li" si tu veux une <ul>
+            alertItem.textContent = `🔔 ALERT : ${typerAlert}`;
+            
+            // Ajoute au conteneur
+            typerElement.appendChild(alertItem);
+            
+
+
 
             case "cpu":
                     // HEADER COLOR SELECTION
@@ -108,14 +123,16 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
 
 
 
+
+
+
+                
                 case "all_process":
                     const processElement = document.getElementById("process");
-                    const ProcessDetails = data.processes;
+                    const newProcessDetails = data.processes;
+                    window.currentVisibleProcessDetails = newProcessDetails;
                 
-                    // Réinitialiser le contenu du div avant d'ajouter les nouveaux processus
-                    processElement.innerHTML = ""; 
-                
-                    // Injecter dynamiquement le CSS une seule fois
+                    // Injecter CSS une seule fois
                     if (!document.getElementById("process-style")) {
                         const style = document.createElement("style");
                         style.id = "process-style";
@@ -146,11 +163,6 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                                 font-weight: bold;
                                 color: red;
                             }
-                            #process {
-                                overflow-x: auto;
-                                max-width: 100%;
-                                padding: 10px;
-                            }
                             .search-input {
                                 width: 100%;
                                 padding: 8px;
@@ -161,74 +173,166 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                                 color: #0f0;
                                 border: 1px solid #444;
                             }
-                            @media screen and (max-width: 600px) {
-                                .process-table {
-                                    font-size: 10px;
-                                }
-                                .process-table th, .process-table td {
-                                    padding: 6px;
-                                }
+                            .analyze-button {
+                                padding: 8px 16px;
+                                background-color: black;
+                                color: lime;
+                                border: 1px solid #0f0;
+                                cursor: pointer;
+                                font-family: monospace;
+                                margin-bottom: 10px;
+                            }
+                            .modal {
+                                display: none;
+                                position: fixed;
+                                z-index: 999;
+                                left: 0; top: 0;
+                                width: 100%; height: 100%;
+                                overflow: auto;
+                                background-color: rgba(0, 0, 0, 0.9);
+                            }
+                            .modal-content {
+                                background-color: #111;
+                                margin: 10% auto;
+                                padding: 20px;
+                                border: 1px solid #0f0;
+                                width: 90%;
+                                max-width: 800px;
+                                color: #0f0;
+                                font-family: monospace;
+                                font-size: 14px;
+                                white-space: pre-wrap;
+                                position: relative;
+                            }
+                            .close {
+                                color: red;
+                                position: absolute;
+                                right: 10px;
+                                top: 10px;
+                                font-size: 28px;
+                                font-weight: bold;
+                                cursor: pointer;
                             }
                         `;
                         document.head.appendChild(style);
                     }
                 
-                    // Créer un champ de recherche
-                    const searchInput = document.createElement("input");
-                    searchInput.type = "text";
-                    searchInput.placeholder = "🔍 search...";
-                    searchInput.classList.add("search-input");
+                    // Ajout zone input et bouton
+                    if (!document.getElementById("process-search-input")) {
+                        const input = document.createElement("input");
+                        input.id = "process-search-input";
+                        input.type = "text";
+                        input.placeholder = "🔍 search process by name...";
+                        input.classList.add("search-input");
+                        input.addEventListener("input", () => {
+                            const filter = input.value.toLowerCase();
+                            const rows = document.querySelectorAll("#live-process-table tr:not(:first-child)");
+                            rows.forEach(row => {
+                                const nameCell = row.cells[1];
+                                row.style.display = nameCell && nameCell.textContent.toLowerCase().includes(filter) ? "" : "none";
+                            });
+                        });
+                        processElement.appendChild(input);
+                    }
                 
-                    // Ajouter le champ de recherche
-                    processElement.appendChild(searchInput);
+                    if (!document.getElementById("process-analyze-button")) {
+                        const button = document.createElement("button");
+                        button.id = "process-analyze-button";
+                        button.textContent = "AI SCAN";
+                        button.classList.add("analyze-button");
+
+                        button.addEventListener("click", async () => {
+                            const details = window.currentVisibleProcessDetails;
+                            if (!details || !details.length) return alert("Aucun processus à analyser");
+                            const originalText = button.textContent;
+                            button.textContent = "SCAN IN PROGRESS...";
+                            button.disabled = true;
                 
-                    // Créer un tableau HTML pour afficher les processus
+                            const processData = details.map(p =>
+                                `- PID: ${p.pid}, Nom: ${p.name}, RAM: ${p.memory_mb}MB (${p.memory_percent}%), Alerte active: ${p.alert ? 'Oui' : 'Non'}`
+                            ).join('\n');
+                
+                            const promptText = `
+                Agis en tant qu'analyste système expert. Analyse les processus suivants :
+                ${processData}
+                Ton réponse dois être seulement les commnande a executer exemple  "killall nc" , si il y a un processus superieur a 1 tu affiche , pas de texte phrase mais juste le commande 
+                `;
+                       
+                            const apiKey = "AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg";
+                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }),
+                            });
+                
+                            const data = await response.json();
+                            const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Analyse non disponible";
+                
+                            const modal = document.getElementById("modal") || (() => {
+                                const m = document.createElement("div");
+                                m.id = "modal";
+                                m.className = "modal";
+                                button.textContent = "SCAN";
+                                button.disabled = false;
+                                m.innerHTML = `
+                                    <div class="modal-content">
+                                        <span class="close">&times;</span>
+                                        <h2>Result</h2>
+                                        <pre id="modal-analysis-text">Chargement...</pre>
+                                    </div>`;
+                                document.body.appendChild(m);
+                                m.querySelector(".close").onclick = () => m.style.display = "none" ;
+                                m.onclick = e => { if (e.target === m) m.style.display = "none"; };
+                                return m;
+
+                            })();
+                
+                            document.getElementById("modal-analysis-text").textContent = content;
+                            modal.style.display = "block";
+                        });
+                        processElement.appendChild(button);
+
+
+                  
+          
+                    
+                    
+                    }
+                
+                    // Table
+                    let wrapper = document.getElementById("process-table-wrapper");
+                    if (!wrapper) {
+                        wrapper = document.createElement("div");
+                        wrapper.id = "process-table-wrapper";
+                        processElement.appendChild(wrapper);
+                    }
+                    wrapper.innerHTML = "";
+                
                     const table = document.createElement("table");
-                    table.classList.add("process-table");
-                
-                    // Créer l'en-tête de tableau
-                    const headerRow = document.createElement("tr");
-                    headerRow.innerHTML = `
-                        <th>PID</th>
-                        <th>Name</th>
-                        <th>RAM (MB)</th>
-                        <th>% RAM</th>
-                        <th>⚠️</th>
+                    table.id = "live-process-table";
+                    table.className = "process-table";
+                    table.innerHTML = `
+                        <tr>
+                            <th>PID</th><th>Name</th><th>RAM (MB)</th><th>% RAM</th><th>⚠️</th>
+                        </tr>
                     `;
-                    table.appendChild(headerRow);
-                
-                    // Parcourir les processus et les ajouter dans le tableau
-                    ProcessDetails.forEach(proc => {
+                    newProcessDetails.forEach(p => {
                         const row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td>${proc.pid}</td>
-                            <td>${proc.name}</td>
-                            <td>${proc.memory_mb}</td>
-                            <td>${proc.memory_percent}</td>
-                            <td>${proc.alert ? "⚠️" : ""}</td>
-                        `;
-                        if (proc.alert) {
-                            row.style.backgroundColor = "red";
+                        if (p.alert) {
+                            row.style.backgroundColor = "darkred";
+                            row.style.color = "white";
                         }
+                        row.innerHTML = `
+                            <td>${p.pid}</td>
+                            <td>${p.name.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</td>
+                            <td>${p.memory_mb}</td>
+                            <td>${p.memory_percent}</td>
+                            <td>${p.alert ? "⚠️" : ""}</td>
+                        `;
                         table.appendChild(row);
                     });
-                
-                    // Ajouter le tableau au div
-                    processElement.appendChild(table);
-                
-                    // Ajouter filtre sur saisie
-                    searchInput.addEventListener("input", () => {
-                        const filter = searchInput.value.toLowerCase();
-                        const rows = table.querySelectorAll("tr:not(:first-child)");
-                        rows.forEach(row => {
-                            const nameCell = row.cells[1];
-                            if (nameCell && nameCell.textContent.toLowerCase().includes(filter)) {
-                                row.style.display = "";
-                            } else {
-                                row.style.display = "none";
-                            }
-                        });
-                    });
+                    wrapper.appendChild(table);
+                    break;
                 
 
 
@@ -427,7 +531,8 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                 
                     // Ajoute l'OS détecté
                     const osHeader = document.createElement('h3');
-                    osHeader.innerHTML = `<i class="fas fa-desktop"></i> System : ${data.os}`;
+                    const toogle = document.createElement('span');
+                    osHeader.innerHTML = `<i class="fas fa-desktop"></i> System : ${data.os} <button id="startup-button" onmouseover="StartupFunction()" style="float:right;background-color:transparent;border:none;color:white;margin-bottom:30px;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>`;
                     osHeader.style.cssText = `
                         color: #00ffcc;
                         font-family: 'Courier New', Courier, monospace;
@@ -672,7 +777,7 @@ async function scanFile() {
         const response = await fetch("https://www.virustotal.com/api/v3/files", {
             method: 'POST',
             headers: {
-                'x-apikey': 'b36cecf797239b46e00bb9d17c71573ddfd3ccd2d345076dfcae0c23a3c7e20e', // Remplacez par votre clé API
+                'x-apikey': 'b36cecf797239b46e00bb9d17c71573ddfd3ccd2d345076dfcae0c23a3c7e20e', // 
             },
             body: formData,
         });

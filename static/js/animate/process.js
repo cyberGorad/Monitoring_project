@@ -1,5 +1,5 @@
 
-    function toggleCardSize() {
+    function ProcessFunction() {
         const card = document.getElementById("process-info");
         const button = document.getElementById("toggle-button");
         
@@ -7,11 +7,11 @@
         if (card.classList.contains("hover-card")) {
             card.classList.remove("hover-card");
             card.classList.add("full-card");
-            button.textContent = "FULL";  // Changer le texte du bouton
+            button.innerHTML = '<i class="fas fa-expand" title="agrandir" style="font-size:14px;"></i>'; 
         } else {
             // Sinon, on passe à 'full-card'
             card.classList.remove("full-card");
             card.classList.add("hover-card");
-            button.textContent = "Réduire";  // Changer le texte du bouton
+            button.innerHTML = '<i class="fas fa-compress" title="Réduire" style="font-size:14px;"></i>'; 
         }
     }

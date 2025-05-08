@@ -288,7 +288,7 @@
         
                 <div id="process-info" class="full-card">
                         <!-- Bouton pour alterner entre card et full-card -->
-    <button id="toggle-button" onclick="toggleCardSize()">MOVE</button>
+    <button id="toggle-button" onmouseover="ProcessFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>
                     <h2><i class="fas fa-rocket"></i> Process Watcher</h2>
                     <div id="process"></div> <!-- Ce div sera mis à jour -->
                 </div>
@@ -296,16 +296,27 @@
 
                 
 
+        
 
         <div id="startup-info" class="large-card">
+            
             <h2><i class="fas fa-rocket"></i> Startup Info</h2>
-            <div id="startup-details"></div>
+            
+            <div id="startup-details">
+                
+            </div>
         </div>
 
         
         <div id="usb-table" class="large-card">
             <h3>RubberDucky Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
             <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
+
+        </div>
+
+        <div id="typer-info" class="large-card">
+            <h3>TYPER MONITOR <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+            <p id="typer-alert" style="color:#00ff00;font-size: 12px;"></p>
 
         </div>
 
@@ -331,6 +342,7 @@
 
     <!-- ANIMATE JS -->
     <script src="/static/js/animate/process.js"></script>
+    <script src="/static/js/animate/startup.js"></script>
     <!-- Lien vers le JS de AOS -->
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>

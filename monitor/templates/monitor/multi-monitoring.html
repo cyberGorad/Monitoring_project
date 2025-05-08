@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Multi Monitoring | GORADMONITOR</title>
   <link rel="stylesheet" href="/static/css/multi-monitoring.css">
   <link rel="stylesheet" href="/static/css/multi-header.css">
@@ -37,6 +38,25 @@
                 <span id="machine-id"></span>
                 <a id="home_btn" href="{% url 'index' %}">Home</a>
                 <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
+
+
+                <div id="settings-menu">
+                  <label for="bg-select">Theme</label>
+                  <select id="bg-select">
+                      <option value="natureXtechno.jpg">Nature X Tech</option>
+                      <option value="globe.jpeg">Globe</option>
+                      <option value="Neuronal_theme.png">Neuronal Themes</option>
+                      <option value="Network_RJ45.jpg">Network Server</option>
+
+                  </select>
+
+              </div>
+              
+                  <script src="/static/js/theme_select.js"></script>
+              
+              
+                </div>
+
             </div>
 
             <img src="/static/IA.jpeg" alt="gora" class="menu-avatar">

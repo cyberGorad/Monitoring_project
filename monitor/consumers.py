@@ -7,6 +7,7 @@ import datetime
 import time
 import platform
 import pyudev
+import threading
 import os
 from pynput.keyboard import Listener, Key
 from scapy.all import sniff, IP, TCP
@@ -269,7 +270,14 @@ def evaluate_system_state(cpu, ram, disks:dict, bandwidth):
 
 
 
-
+async def run_command_async(command):
+    proc = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await proc.communicate()
+    return stdout.decode().strip() if stdout else stderr.decode().strip()
 
 
 
@@ -293,6 +301,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.monitor_usb_task = asyncio.create_task(self.monitor_usb())
         self.get_disk_usage_task = asyncio.create_task(self.get_disk_usage())
         self.get_sorted_processes_by_memory_task = asyncio.create_task(self.get_sorted_processes_by_memory())
+        self.RubberDuckyMonitor_task = asyncio.create_task(self.RubberDuckyMonitor())
 
 
 
@@ -308,7 +317,57 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.monitor_usb_task.cancel()
         self.get_disk_usage_task.cancel()
         self.get_sorted_processes_by_memory_task.cancel()
-                
+        self.RubberDuckyMonitor_task.cancel()
+
+
+
+    async def RubberDuckyMonitor(self):
+        MAX_KEYS = 15
+        TIME_WINDOW = 1
+        keystrokes = []
+        queue = asyncio.Queue()
+
+        # Récupère la loop principale avant de démarrer le thread
+        main_loop = asyncio.get_running_loop()
+
+        def on_press(key):
+            current_time = time.time()
+
+            if key == Key.backspace:
+                return
+
+            keystrokes.append(current_time)
+            keystrokes[:] = [t for t in keystrokes if current_time - t <= TIME_WINDOW]
+
+            if len(keystrokes) >= MAX_KEYS:
+                print("🚨 Détection de frappes rapides ! Possible attaque Rubber Ducky ⚠️")
+                keystrokes.clear()
+
+                # ✅ Appelle put dans la bonne loop via call_soon_threadsafe
+                main_loop.call_soon_threadsafe(
+                    lambda: queue.put_nowait({
+                        "type": "rubber_ducky",
+                        "message": "🚨 Détection de frappes rapides ! Possible attaque Rubber Ducky ⚠️",
+                    })
+                )
+
+        def start_listener():
+            print("[*] Surveillance des frappes (anti-Rubber Ducky) activée...")
+            with Listener(on_press=on_press) as listener:
+                listener.join()
+
+        threading.Thread(target=start_listener, daemon=True).start()
+
+        # Boucle async qui reçoit les alertes
+        while True:
+            data = await queue.get()
+            print(f"[DEBUG] Alerte détectée : {data}")  # 🔥 Maintenant ça va s'afficher
+            await self.send(json.dumps(data))
+
+
+
+
+                    
 
     async def get_sorted_processes_by_memory(self, threshold_mb=100):
         while True:
@@ -338,8 +397,6 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
     
-
-
     async def monitor_system(self):
         while True:
             cpu_usage = psutil.cpu_percent(interval=1)
@@ -368,10 +425,9 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
     async def monitor_ports(self):
-
         authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293, 5432]
-        reported_ports = set()  # Ensemble pour suivre les ports déjà signalés
-        alert_responses = []  # Liste pour stocker les réponses de Gemini
+        reported_ports = set()
+        alert_responses = []
 
         while True:
             open_ports = []
@@ -380,36 +436,30 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                     process_name = psutil.Process(conn.pid).name() if conn.pid else "Inconnu"
                     open_ports.append({"port": conn.laddr.port, "pid": conn.pid, "process": process_name})
 
-            # Identifie les ports non autorisés
             unauthorized_ports = [
-                port
-                for port in open_ports
-                if port["port"] not in authorized_ports
+                port for port in open_ports if port["port"] not in authorized_ports
             ]
 
-            # Vérifie les alertes pour chaque port non autorisé
             for port in unauthorized_ports:
                 if port["port"] not in reported_ports:
-                    reported_ports.add(port["port"])  # Marque le port comme signalé
+                    reported_ports.add(port["port"])
 
-                    # Texte de l'alerte pour le port non autorisé
                     alert_text = (
                         f"Alerte : Port non autorisé détecté - "
                         f"Port: {port['port']}, Processus: {port['process']}"
                     )
                     print(alert_text)
 
-                    # Appelle la fonction run_command() pour envoyer l'alerte
-                    alert_response = run_command(
-                        f"""
-                        curl -H "Content-Type: application/json" -X POST -d '{json.dumps({
-                            "contents": [{
-                                "parts": [{"text": alert_text}]
-                            }]
-                        })}' https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg
-                        """
-                    )
-                    # Gestion de la réponse et extraction du contenu
+                    # Appel async non-bloquant
+                    curl_cmd = f"""
+                    curl -H "Content-Type: application/json" -X POST -d '{json.dumps({
+                        "contents": [{
+                            "parts": [{"text": alert_text}]
+                        }]
+                    })}' https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg
+                    """
+                    alert_response = await run_command_async(curl_cmd)
+
                     if alert_response:
                         try:
                             response_data = json.loads(alert_response)
@@ -419,9 +469,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                                 .get("parts", [{}])[0]
                                 .get("text", "Aucun contenu trouvé.")
                             )
-                            print(f"Contenu de l'alerte : {response_content}")
+                            #print(f"Contenu de l'alerte : {response_content}")
 
-                            # Ajoute la réponse à la liste des alertes
                             alert_responses.append({
                                 "port": port["port"],
                                 "response": response_content
@@ -433,16 +482,16 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                                 "response": "Erreur : Réponse JSON invalide."
                             })
 
-            # Envoie les données via WebSocket
+            # Envoi WebSocket async
             await self.send(json.dumps({
                 "type": "ports",
                 "open_ports": open_ports,
                 "alerts": unauthorized_ports,
-                "alert_responses": alert_responses,  # Ajout des réponses Gemini
+                "alert_responses": alert_responses,
             }))
 
-            # Pause avant la prochaine vérification
             await asyncio.sleep(5)
+
 
 
 
@@ -474,7 +523,6 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         
 
 
-    # Fonction principale pour surveiller les événements USB et envoyer les données via WebSocket
     async def monitor_usb(self):
         context = pyudev.Context()
         monitor = pyudev.Monitor.from_netlink(context)
@@ -483,25 +531,38 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
         print("[*] Surveillance asynchrone des périphériques USB lancée...")
 
-        while True:
-                # Récupération de l'événement USB
-            device = await loop.run_in_executor(None, monitor.poll)
-            if device:
-                    # Création des données à envoyer
-                event_data = {
-                    "type": "usb",
-                    "action": device.action,
-                    "timestamp": str(datetime.datetime.now()),
-                    "model": device.get("ID_MODEL", "Inconnu"),
-                    "vendor": device.get("ID_VENDOR", "Inconnu"),
-                    "serial": device.get("ID_SERIAL_SHORT", "N/A"),
-                    "devpath": device.device_path,
-                    "node": device.device_node
-                    }
-                print(json.dumps(event_data, indent=4))
+        try:
+            while True:
+                try:
+                    # timeout de 1 seconde pour rendre la boucle réactive à l'annulation
+                    device = await asyncio.wait_for(
+                        loop.run_in_executor(None, monitor.poll),
+                        timeout=1.0
+                    )
+                    if device:
+                        event_data = {
+                            "type": "usb",
+                            "action": device.action,
+                            "timestamp": str(datetime.datetime.now()),
+                            "model": device.get("ID_MODEL", "Inconnu"),
+                            "vendor": device.get("ID_VENDOR", "Inconnu"),
+                            "serial": device.get("ID_SERIAL_SHORT", "N/A"),
+                            "devpath": device.device_path,
+                            "node": device.device_node
+                        }
+                        await self.send(json.dumps(event_data))
+                except asyncio.TimeoutError:
+                    # Pas d'événement : boucle continue, permet cancel propre
+                    continue
+        except asyncio.CancelledError:
+            print("[*] Arrêt propre de la surveillance USB.")
+            raise
 
-                    # Envoi des données via WebSocket
-                await self.send(json.dumps(event_data))
+            
+            
+            
+
+                
 
 
 

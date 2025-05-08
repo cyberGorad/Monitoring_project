@@ -78,6 +78,23 @@ def evaluate_system_state(cpu, ram, disks:dict, bandwidth):
 
 
 
+
+# Fonction de reconnexion avec délai exponentiel
+async def reconnect_with_backoff():
+    backoff_time = 2  # Temps initial de reconnexion (en secondes)
+    max_backoff = 60  # Délai maximum (en secondes)
+    
+    while True:
+        try:
+            print(f"Tentative de reconnexion dans {backoff_time}s...")
+            await asyncio.sleep(backoff_time)  # Attente avant de tenter la reconnexion
+            await send_data()  # Essaye de reconnecter et de renvoyer des données
+            break  # Si la connexion réussit, sortir de la boucle
+        except Exception as e:
+            print(f"Erreur lors de la reconnexion: {e}")
+            backoff_time = min(backoff_time * 2, max_backoff)
+
+
 async def run_command(command):
     try:
         result = subprocess.check_output(command, shell=True, text=True)
@@ -242,43 +259,126 @@ async def get_outbound_traffic():
                 pass
     return connections
 
-async def send_data():
+
+async def send_data(websocket):
+    while True:
+        try:
+            local_ip = get_local_ip()
+            os_name = platform.platform()
+
+            cpu = await get_cpu_usage()
+            ram = await get_ram_usage()
+            disk = await get_disk_usage()
+            bandwidth = await get_bandwidth_usage()
+            system_state = evaluate_system_state(cpu, ram, disk, bandwidth)
+
+            data = {
+                "type": "status",
+                "system_state": system_state,
+                "local_ip": local_ip,
+                "cpu": cpu,
+                "ram": ram,
+                "disk": disk,
+                "open_ports": await get_open_ports(),
+                "connections": await get_established_connections(),
+                "bandwidth": bandwidth,
+                "cron_jobs": await get_cron_jobs(),
+                "logs": await get_system_logs(),
+                "outbound_traffic": await get_outbound_traffic(),
+                "battery_data": await get_battery_status(),
+                "internet_status": await check_internet_connection(),
+                "temperature": await get_temperature(),
+                "os": get_os(),
+            }
+
+            await websocket.send(json.dumps(data))
+            await asyncio.sleep(5)
+        except websockets.exceptions.ConnectionClosedError as e:
+            print(f"[SEND CLOSED ERROR] {e}")
+            raise e  # IMPORTANT pour que le task meurt et qu'on quitte asyncio.wait
+        except Exception as e:
+            print(f"[SEND ERROR] {e}")
+            raise e
+
+async def execute_command(command):
+    """Exécute la commande reçue par le WebSocket et retourne le résultat."""
+    try:
+        # Exécuter la commande via subprocess
+        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Retourner la sortie de la commande
+        if result.returncode == 0:
+            return result.stdout  # Commande réussie, renvoie la sortie standard
+        else:
+            return result.stderr  # Commande échouée, renvoie l'erreur
+    except Exception as e:
+        return f"Erreur lors de l'exécution de la commande: {e}"
+
+
+# ======================
+# 📡 Réception de commandes
+# ======================
+async def receive_commands(websocket):
+    try:
+        while True:
+            message = await websocket.recv()
+            data = json.loads(message)
+            if data.get("type") == "command":
+                command = data.get("command")
+                print(f"[COMMANDE REÇUE] {command}")
+                result = await execute_command(command)
+                response = {
+                    "type": "command_result",
+                    "result": result
+                }
+                await websocket.send(json.dumps(response))
+    except websockets.exceptions.ConnectionClosedOK:
+        print("[INFO] Connexion fermée proprement.")
+    except websockets.exceptions.ConnectionClosedError as e:
+        print(f"[CLOSED ERROR] {e}")
+    except Exception as e:
+        print(f"[RECEIVE ERROR] {e}")
+    finally:
+        await websocket.close()
+        print("[INFO] Connexion WebSocket fermée.")
+
+
+# ======================
+# 🚀 Main : gérer la connexion WebSocket
+# ======================
+async def main():
     while True:
         try:
             async with websockets.connect(SERVER_URL) as websocket:
-                # Récupération de l'adresse IP locale de la machine
-                local_ip = get_local_ip()
-                os_name = platform.platform()
+                print("[+] Connecté au serveur.")
 
-                cpu = await get_cpu_usage()
-                ram = await get_ram_usage()
-                disk = await get_disk_usage()
-                bandwidth = await get_bandwidth_usage()
-                system_state = evaluate_system_state(cpu, ram, disk, bandwidth) #Etat du système
-                
-                data = {
-                    "system_state":system_state,
-                    "local_ip": local_ip,  # Ajout de l'adresse IP de la machine dans les données envoyées
-                    "cpu": await get_cpu_usage(),
-                    "ram": await get_ram_usage(),
-                    "disk": await get_disk_usage(),
-                    "open_ports": await get_open_ports(),
-                    "connections": await get_established_connections(),
-                    "bandwidth": await get_bandwidth_usage(),
-                    "cron_jobs": await get_cron_jobs(),
-                    "logs": await get_system_logs(),
-                    "outbound_traffic": await get_outbound_traffic(),
-                    "battery_data": await get_battery_status(),
-                    "internet_status": await check_internet_connection(),
-                    "temperature": await get_temperature(),
-                    "os": get_os(),
-                    
-                }
-                await websocket.send(json.dumps(data))
-                await asyncio.sleep(5)  # Envoi des données toutes les 5 secondes
-        except websockets.exceptions.ConnectionClosedError as e:
-            print(f"Erreur de connexion: {e}. Tentative de reconnexion...")
-            await asyncio.sleep(2)  # Attente avant de réessayer la connexion
+                send_task = asyncio.create_task(send_data(websocket))
+                recv_task = asyncio.create_task(receive_commands(websocket))
+
+                done, pending = await asyncio.wait(
+                    [send_task, recv_task],
+                    return_when=asyncio.FIRST_EXCEPTION
+                )
+
+                for task in pending:
+                    task.cancel()
+                    try:
+                        await task
+                    except:
+                        pass
+
+                print("[INFO] Connexion WebSocket fermée.")
+        except Exception as e:
+            print(f"[MAIN ERROR] {e} | Reconnexion dans 5 secondes...")
+            await asyncio.sleep(5)
+
+
+
 
 if __name__ == "__main__":
-    asyncio.run(send_data())
+    asyncio.run(main())
+
+
+
+
+
