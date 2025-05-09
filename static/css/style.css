@@ -1,5 +1,7 @@
-
+/* CARD COLOR #080F0D */
+/* HEADER COLOR #08130F */
    
+
    body::before {
     content: "";
     position: fixed;
@@ -123,7 +125,7 @@
     }
 
     .card {
-        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        background-color: #080F0D;  /* Gris foncé plus neutre */
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
         width: 22%;
@@ -155,7 +157,7 @@
     }
     
     .column-card {
-        background-color: #1d1b1b;
+        background-color: #080F0D;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         border: 1px solid #444444;
@@ -180,7 +182,7 @@
 
 
     .large-card {
-        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        background-color: #080F0D;  /* Gris foncé plus neutre */
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
         width: 47%;
@@ -197,7 +199,7 @@
     }
 
     .full-card {
-        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        background-color: #080F0D;  /* Gris foncé plus neutre */
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
         width: 98%;
@@ -225,7 +227,7 @@
         box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
         border: 2px solid #00ff00;
 
-        background-color: #1d1b1b;  /* Gris foncé plus neutre */
+        background-color: #080F0D;  /* Gris foncé plus neutre */
         border-radius: 8px;
         padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
         border: 1px solid #444444;  /* Bordure plus discrète */
@@ -323,7 +325,7 @@
     }
     .header {
         text-align: right;
-        background-color: #333;
+        background-color: #08130F;
         font-size: 10px;
         color: white;
         text-shadow: 0 0 10px #00ff00;

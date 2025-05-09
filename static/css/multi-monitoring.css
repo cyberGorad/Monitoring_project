@@ -1,4 +1,4 @@
-
+/* COLOR CARD #080F0D */
 
 * {
   padding: 0;
@@ -72,7 +72,7 @@ body::before {
   display: none; /* Cacher le contenu initialement */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  background-color: #201f1f; /* Dark background */
+  background-color: #080F0D; /* Dark background */
   color: #f8f8f2; /* Light text */
   flex-direction: column;
   align-items: center;
@@ -96,7 +96,7 @@ h1 {
 
 .card {
   margin-top: 20px;
-  background: #282a36; /* Dark card background */
+  background: #080F0D; /* Dark card background */
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);

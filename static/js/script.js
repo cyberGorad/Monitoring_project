@@ -46,7 +46,34 @@ function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
 
 
 // WebSocket initialization
-const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
+let socket;
+let reconnectInterval = 5000; // 5 secondes avant de retenter
+
+function connectWebSocket() {
+    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
+
+    socket.onopen = () => {
+        console.log('%c[+] WebSocket connected','color: lime');
+    };
+
+    socket.onmessage = (event) => {
+        console.log('%c[DATA]', 'color: cyan', event.data);
+        // Traite tes données ici
+    };
+
+    socket.onerror = (error) => {
+        console.error('%c[!] WebSocket error:', 'color: red', error);
+    };
+
+    socket.onclose = (event) => {
+        console.warn('%c[-] WebSocket closed. Retrying in 5 seconds...', 'color: orange');
+        setTimeout(connectWebSocket, reconnectInterval);
+    };
+}
+
+// Démarrage initial
+connectWebSocket();
+
 
 
 
@@ -503,14 +530,17 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                 } else {
                     data.connections.forEach(conn => {
                         const li = document.createElement('li');
-                        li.textContent = `${conn.ip} - ${conn.hostname}`;
+                        li.innerHTML = `
+                                <span style="color: #00ff00;">${conn.ip}</span><br>  
+                                <span style="color: #ff9800;">${conn.hostname}</span>
+                                `;
                         li.style.cssText = `
                             padding: 6px 10px;
                             margin: 4px 0;
                             background-color: #1e1e2f;
                             color: #cfd8dc;
                             border-left: 4px solid #2196f3;
-                            border-radius: 4px;
+                            border-radius: 4px;ss
                             font-family: monospace;
                             font-size: 10px;
                             white-space: wrap;  
@@ -574,70 +604,136 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
 
 
 
+                    case "bandwidth":
+                        const bandwidthContainer = document.getElementById('bandwidth-container');
+                        const dosElement = document.getElementById('dos');
+                    
+                        // Initialisation du graphe s'il n'existe pas
+                        if (!window.bandwidthChartInitialized) {
+                            const canvas = document.createElement('canvas');
+                            canvas.id = 'bandwidth-canvas';
+                            canvas.width = 400;
+                            canvas.height = 150;
+                            document.getElementById('bandwidth-info').appendChild(canvas);
+                    
+                            const ctx = canvas.getContext('2d');
+                    
+                            window.bandwidthChartData = {
+                                labels: [],
+                                datasets: [
+                                    {
+                                        label: 'Sent',
+                                        data: [],
+                                        borderColor: '#4CAF50',
+                                        borderWidth: 2,
+                                        fill: false,
+                                        tension: 0.3,
+                                        pointRadius: 0
+                                    },
+                                    {
+                                        label: 'Received',
+                                        data: [],
+                                        borderColor: '#FF7043',
+                                        borderWidth: 2,
+                                        fill: false,
+                                        tension: 0.3,
+                                        pointRadius: 0
+                                    },
+                                    {
+                                        label: 'Total',
+                                        data: [],
+                                        borderColor: '#2196F3',
+                                        borderWidth: 2,
+                                        fill: false,
+                                        tension: 0.3,
+                                        pointBackgroundColor: [],
+                                        pointRadius: [],
+                                    }
+                                ]
+                            };
+                    
+                            window.bandwidthChart = new Chart(ctx, {
+                                type: 'line',
+                                data: window.bandwidthChartData,
+                                options: {
+                                    animation: false,
+                                    plugins: {
+                                        legend: { display: false }
+                                    },
+                                    scales: {
+                                        x: { display: false },
+                                        y: { display: false }
+                                    }
+                                }
+                            });
+                    
+                            window.bandwidthChartInitialized = true;
+                        }
+                    
+                        const chartData = window.bandwidthChartData;
+                        const changeThreshold = 2000;  // seuil de changement brusque
+                        const previousTotal = chartData.datasets[2].data.slice(-1)[0] || 0;
+                        const delta = Math.abs(data.total - previousTotal);
+                    
+                        chartData.labels.push('');
+                        chartData.datasets[0].data.push(data.sent);
+                        chartData.datasets[1].data.push(data.received);
+                        chartData.datasets[2].data.push(data.total);
+                    
+                        // Pour surbrillance du pic
+                        chartData.datasets[2].pointBackgroundColor.push(
+                            delta > changeThreshold ? 'red' : 'transparent'
+                        );
+                        chartData.datasets[2].pointRadius.push(
+                            delta > changeThreshold ? 5 : 0
+                        );
+                    
+                        if (chartData.labels.length > 20) {
+                            chartData.labels.shift();
+                            chartData.datasets.forEach(ds => ds.data.shift());
+                            chartData.datasets[2].pointBackgroundColor.shift();
+                            chartData.datasets[2].pointRadius.shift();
+                        }
+                    
+                        window.bandwidthChart.update();
+                    
+                        // Alerte DoS
+                        if (data.total > 10000) {
+                            dosElement.textContent = "Alert High Traffic";
+                            dosElement.style.color = 'red';
+                            dosElement.style.fontSize = '15px';
+                            playAudio('/static/flood.mp3');
+                        } else {
+                            dosElement.textContent = "Traffic Normal";
+                            dosElement.style.color = 'green';
+                        }
 
-            case "bandwidth":
-                const bandwidthContainer = document.getElementById('bandwidth-container');
-                const bandwidthInfo = document.getElementById('bandwidth-info');
-                const dosElement = document.getElementById('dos');  // Sélectionne l'élément dos
-                
-                bandwidthInfo.innerHTML = `
-                <div class="bandwidth-info-row" style="display: flex; justify-content: space-between; align-items: center; background-color: #1e1e2f; padding: 8px 12px; border-radius: 6px; margin: 6px 0; color: #cfd8dc; font-size: 14px; border-left: 4px solid #4CAF50;">
-                    <span style="display: flex; align-items: center; color: #4CAF50;"><i class="fas fa-arrow-up" style="margin-right: 6px;"></i>${data.sent} KB</span>
-                    <span style="display: flex; align-items: center; color: #ff7043;"><i class="fas fa-arrow-down" style="margin-right: 6px;"></i>${data.received} KB</span>
-                    <span style="display: flex; align-items: center; color: #2196f3;"><i class="fas fa-tachometer-alt" style="margin-right: 6px;"></i>Total: ${data.total} KB</span>
-                </div>
-            `;
-            
+                        // Création du bloc texte s'il n'existe pas encore
+                    let textDiv = document.getElementById('bandwidth-text');
+                    if (!textDiv) {
+                        textDiv = document.createElement('div');
+                        textDiv.id = 'bandwidth-text';
+                        textDiv.style.marginTop = '10px';
+                        textDiv.style.color = '#ccc';
+                        textDiv.style.fontFamily = 'monospace';
+                        textDiv.style.fontSize = '10px';
+                        textDiv.style.display = 'flex';
+                        textDiv.style.justifyContent = 'center';
+                        textDiv.style.flexBasis = 'column';
+                        textDiv.style.gap = '5px';
+                        document.getElementById('bandwidth-info').appendChild(textDiv);
+                    }
 
-            // Style pour formater les informations de bande passante
-            const style = document.createElement('style');
-            style.innerHTML = `
-                .bandwidth-info-row {
-                    display: flex;
-                    flex-direction:column;
-                    justify-content: center;
-                    align-items:center;
-                    margin-bottom: 15px;
-                    font-size: 10px;
-                    color: #ffffff; /* Couleur du texte pour tout le bloc */
-                }
-                .bandwidth-info-row span {
-                    margin-right: 20px;
-                    text-align: left;
-                }
-                .bandwidth-info-row i {
-                    margin-right: 5px;  /* Espacement entre l'icône et le texte */
-                    color: #00ff00;  /* Icônes en vert pour uniformité */
-                }
-                .bandwidth-info-row span:first-child {
-                    color: #4CAF50; /* Couleur verte pour "Sent" */
-                }
-                .bandwidth-info-row span:nth-child(2) {
-                    color: #2196F3; /* Couleur bleue pour "Received" */
-                }
-                .bandwidth-info-row span:last-child {
-                    color: #FFEB3B; /* Couleur jaune pour "Total" */
-                }
-            `;
-            document.head.appendChild(style);
+                    // Met à jour les valeurs dans le bloc texte
+                    textDiv.innerHTML = `
+                        <span style="color:#4CAF50;">Sent: ${data.sent} KB</span> 
+                        <span style="color:#FF7043;">Received: ${data.received} KB</span> 
+                        <span style="color:#2196F3;">Total: ${data.total} KB</span>
+                    `;
 
-
-
-            if (data.total > 10000) {
-                // Affiche une alerte sur l'élément dos en rouge
-            
-                dosElement.textContent = "Alert High Traffic";
-                dosElement.style.color = 'red';
-                dosElement.style.fontSize = '15px';
-                playAudio('/static/flood.mp3');
-            } else {
-                // Affiche normalement si le seuil de 7000 KB n'est pas dépassé
-                dosElement.textContent = "Traffic Normal";
-                dosElement.style.color = 'green';  // Ou la couleur par défaut que vous souhaitez
-            }
-            break;
-
-
+                        break;
+                    
+                    
 
 
 
@@ -653,14 +749,15 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                         connectionDiv.classList.add('connection-item');
             
                         connectionDiv.innerHTML = `
-                            <div class="connection-row">
-                                <span><strong class="connection-title">${index + 1} </strong></span>
-                                <span><i class="fas fa-cogs"></i> ${connection.process}</span>
-                                <span><i class="fas fa-globe"></i> Dest: ${connection.remote_address}</span>
-                                <span><i class="fas fa-exchange-alt"></i> Proto: ${connection.protocol}</span>
-                            </div>
-                            <hr>
-                        `;
+                        <div class="connection-row">
+                            <span><strong class="connection-title">${index + 1}</strong></span>
+                            <span><i class="fas fa-cogs"></i>${connection.process}</span>
+                            <span><i class="fas fa-globe"></i> <span class="label">Dest:</span> ${connection.remote_address}</span>
+                            <span><i class="fas fa-exchange-alt"></i> <span class="label">Proto:</span> ${connection.protocol}</span>
+                        </div>
+                        <hr>
+                    `;
+                    
             
                         // Style en ligne pour les rows
                         const style = document.createElement('style');
@@ -689,6 +786,11 @@ const socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
                                 margin-top: 10px;
                                 border-top: 1px solid #444444;
                             }
+                            .label {
+                                color: #00FF00;
+                                font-weight: bold;
+                            }
+                            
                         `;
                         document.head.appendChild(style);
             
