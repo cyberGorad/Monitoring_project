@@ -88,6 +88,10 @@ def get_machine_id():
 
 
 
+def format_duration(seconds):
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours}h {minutes}min {seconds}s"
 
 
 
@@ -340,14 +344,13 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
             keystrokes[:] = [t for t in keystrokes if current_time - t <= TIME_WINDOW]
 
             if len(keystrokes) >= MAX_KEYS:
-                print("🚨 Détection de frappes rapides ! Possible attaque Rubber Ducky ⚠️")
                 keystrokes.clear()
 
                 # ✅ Appelle put dans la bonne loop via call_soon_threadsafe
                 main_loop.call_soon_threadsafe(
                     lambda: queue.put_nowait({
                         "type": "rubber_ducky",
-                        "message": "🚨 Détection de frappes rapides ! Possible attaque Rubber Ducky ⚠️",
+                        "message": "Alert ! BOT DETECTED ...",
                     })
                 )
 
@@ -614,6 +617,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+
+
     async def monitor_cron_jobs(self):
         """Surveille les cron jobs sous Linux ou les tâches planifiées sous Windows."""
 
@@ -721,26 +726,30 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
 
 
 
+
+
     async def monitor_outbound_traffic(self):
-        """
-        Surveille le trafic réseau sortant et l'envoie au tableau de bord.
-        """
         while True:
             connections = []
             for conn in psutil.net_connections(kind='inet'):
-                if conn.raddr:  # Connexion vers l’extérieur
+                if conn.raddr:
                     try:
                         pid = conn.pid
                         process = psutil.Process(pid) if pid else None
-                        name = process.name() if process else "Unknown"
 
-                        # Protocole utilisé
+                        if process:
+                            name = process.name()
+                            uptime_sec = int(time.time() - process.create_time())
+                            uptime = format_duration(uptime_sec)
+                        else:
+                            name = "Unknown"
+                            uptime = "0h 0min 0s"
+
                         proto = {
                             socket.SOCK_STREAM: "TCP",
                             socket.SOCK_DGRAM: "UDP"
                         }.get(conn.type, "Unknown")
 
-                        # Stat réseau globale
                         net_io = psutil.net_io_counters(pernic=False)
                         sent = net_io.bytes_sent
                         recv = net_io.bytes_recv
@@ -753,17 +762,17 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                             'protocol': proto,
                             'packets_sent': sent,
                             'packets_received': recv,
+                            'uptime': uptime  # maintenant lisible
                         })
                     except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
                         pass
 
-            # Envoi via WebSocket
             await self.send(json.dumps({
                 "type": "outbound_traffic",
                 "connections": connections,
             }))
             await asyncio.sleep(5)
-    
+
 
                 
 

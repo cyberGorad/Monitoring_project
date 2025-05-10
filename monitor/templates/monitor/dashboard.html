@@ -14,6 +14,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 
+        <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     
 
    
@@ -113,7 +116,7 @@
 
                         <div class="menu-links" id="menuLinks">
                             <span id="machine-id"></span>
-                            <a id="home_btn" href="{% url 'index' %}">Home</a>
+                            <a id="home_btn" href="{% url 'index' %}"">Home</a>
                             <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
                             <a id="home_btn" href="{% url 'setting' %}">Settings</a>
 
@@ -130,8 +133,10 @@
                                 </select>
 
                             </div>
-                            <h3 style="margin-right: -30px;margin-left: 5px;"><span id="system_status"></span></h3>
+                            <h6 style="margin-right: -30px;margin-left: 5px;"><span id="system_status"></span></h6>
                             
+
+
                                 <script src="/static/js/theme_select.js"></script>
                             
                             
@@ -172,7 +177,7 @@
                 <!-- Disk Container -->
                 <div id="disk-container" class="column-card" data-aos="fade-left">
 
-                    <span id="disk-text" style="color: #00ff00; font-size: 15px; font-weight: bold;">
+                    <span id="disk-text" style="color: #00ff00; font-size: 9px; font-weight: bold;">
                         <div class="three-body">
                             <div class="three-body__dot"></div>
                             <div class="three-body__dot"></div>
@@ -182,6 +187,8 @@
                 </div>
 
 
+
+                
                 <!-- RAM Container -->
                 <div id="ram-container" class="column-card">
 
@@ -294,13 +301,16 @@
 
                 <!-- FULL CARD  -->
         
-                <div id="process-info" class="full-card">
+                <div id="process-info" class="large-card">
                         <!-- Bouton pour alterner entre card et full-card -->
     <button id="toggle-button" onmouseover="ProcessFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>
                     <h3 style="color: #00ff00;"><i class="fas fa-rocket"></i> Process Watcher</h3>
                     <div id="process"></div> <!-- Ce div sera mis à jour -->
                 </div>
             
+                <div class="large-card">
+                    <canvas id="process-chart-canvas"></canvas>
+                </div>
 
                 
 
@@ -316,15 +326,15 @@
         </div>
 
         
-        <div id="usb-table" class="large-card">
+        <div id="usb-table" class="card">
             <h3 style="color: #00ff00;">Usb Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
             <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
 
         </div>
 
-        <div id="typer-info" class="large-card">
+        <div id="typer-info" class="card">
             <h3 style="color: #00ff00;">Typer Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
-            <p id="typer-alert" style="color:#00ff00;font-size: 12px;"></p>
+            <p id="typer-alert" style="color:red;font-size: 12px;"></p>
 
         </div>
 
@@ -347,14 +357,22 @@
 
 
 
-        <!-- Fenêtre modale pour afficher la réponse Gemini -->
-        <div id="gemini-modal" class="modal">
-            <div class="modal-content">
-                <span id="close-modal" class="close-btn">&times;</span>
-                <h3>GORA :</h3><img src="/static/IA.jpeg" width="50px" height="50px"  alt="GORA_DETAILS">
-                <p id="gemini-response-text" style="margin-top: 10px;"></p>
-            </div>
-        </div>  
+<!-- Fenêtre modale pour afficher la réponse Gemini -->
+<div id="gemini-modal" class="modal">
+    <div class="modal-content">
+        <span id="close-modal" class="close-btn">&times;</span>
+        <img src="/static/IA.jpeg" width="50px" height="50px" alt="GORA_DETAILS">
+
+        <!-- Contenu de la réponse -->
+        <button id="copy-gemini-response" style="position:relative;float: right;top: 10px;">Copy</button>
+        <p id="gemini-response-text" style="margin-top: 10px;"></p>
+
+        <!-- Bouton copier -->
+       
+    </div>
+</div>
+
+   
         
         
 
@@ -368,6 +386,9 @@
     <script src="/static/js/animate/process.js"></script>
     <script src="/static/js/animate/startup.js"></script>
     <script src="/static/js/animate/outboundFunction.js"></script>
+
+
+    <script src="/static/js/copy.js"></script>
     <!-- Lien vers le JS de AOS -->
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>

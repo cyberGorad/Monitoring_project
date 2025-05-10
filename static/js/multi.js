@@ -62,18 +62,21 @@ function connectWebSocket() {
 
   ws.onerror = (err) => {
     console.log('⚠️ Erreur WebSocket:', err.message);
-    noMachine.textContent = "Tentative de reconnexion...";
+    noMachine.textContent = "Reconnecting to server ...";
     setTimeout(connectWebSocket, reconnectInterval); // Essayer de se reconnecter
     reconnectInterval = Math.min(reconnectInterval * 2, 30000); // Double le délai de reconnexion (jusqu'à 30 secondes)
   };
 
   ws.onclose = () => {
     console.warn('⚠️ Connexion WebSocket fermée');
-    noMachine.textContent = "WebSocket fermé. Tentative de reconnexion...";
+    noMachine.textContent = "Wainting for machines ...";
     setTimeout(connectWebSocket, reconnectInterval); // Essayer de se reconnecter
     reconnectInterval = Math.min(reconnectInterval * 2, 30000); // Double le délai de reconnexion
   };
 }
+
+
+
 
 // Fonction de mise à jour d'une carte machine existante
 function updateMachineCard(data, hostname) {
@@ -84,27 +87,28 @@ function updateMachineCard(data, hostname) {
 
   machines[hostname].card.innerHTML = `
 
-
-    <strong>System status:</strong> ${data.system_state}<br>
-    <strong>System:</strong> ${data.os}<br> 
-    <strong>INTERNET STATUS:</strong> ${data.internet_status}<br>
-    <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
-    <strong>🖥️ Temp :</strong> ${data.temperature}<br>
-    <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
-    <strong>⚙️ RAM :</strong> ${data.ram ?? 'N/A'} %<br>
-    <strong>⚙️ DISQUES :</strong><br>${diskDetails}
-    ${batteryStatus}
-    <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
-    <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>
-    ${openPortsDetails}
-    <strong>📶 Bande passante :</strong> ${data.bandwidth.sent_kb} Ko envoyés, ${data.bandwidth.received_kb} Ko reçus<br>
-    <span class="section-title">⏲️ Cron Jobs :</span><br>${data.cron_jobs}<br>
-    <span class="section-title">📜 Journaux système :</span><br>${data.logs}<br>
-    <span class="section-title">📡 Trafic sortant :</span><br>${data.outbound_traffic.length} connexions sortantes<br>
-    ${outboundTrafficDetails}
+  <div class="inter-container">
+      <div class="card-inter">${data.local_ip}</div>
+      <div class="card-inter">${data.os}</div>
+      <div class="card-inter">${data.system_state}</div>
+      <div class="card-inter">${data.internet_status}</div>
+      <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
+      <div class="card-inter"><strong>CPU</strong> ${data.cpu ?? 'N/A'} %</div>
+      <div class="card-inter"><strong>RAM</strong> ${data.ram ?? 'N/A'} %</div>
+      <div class="card-inter">DISK ${diskDetails}</div>
+      <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
+      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} send, ${data.bandwidth.received_kb}received</div>
+      <div class="card-inter">${batteryStatus}</div>
+      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
+      <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
+      <div class="card-inter"><span class="section-title">Logs</span><br>${data.logs}</div>
+      <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
+</div>
   `;
   machines[hostname].lastSeen = Date.now();
 }
+
+
 
 // Fonction de création d'une nouvelle carte pour une machine
 function createNewMachineCard(data, hostname) {
@@ -116,29 +120,32 @@ function createNewMachineCard(data, hostname) {
   const batteryStatus = buildBatteryStatus(data.battery_data);
 
   card.innerHTML = `
-    <strong>System status:</strong> ${data.system_state}<br>
-    <strong>System:</strong> ${data.os}<br> 
-    <strong>INTERNET STATUS:</strong> ${data.internet_status}<br>
-    <strong>🖥️ IP locale :</strong> ${data.local_ip}<br>
-    <strong>🖥️ Temp :</strong> ${data.temperature}<br>
-    <strong>⚙️ CPU :</strong> ${data.cpu ?? 'N/A'} %<br>
-    <strong>⚙️ RAM :</strong> ${data.ram ?? 'N/A'} %<br>
-    <strong>⚙️ DISQUES :</strong><br>${diskDetails}
-    ${batteryStatus}
-    <strong>🌐 Connexions :</strong> ${data.connections.length} établies<br>
-    <strong>💾 Ports ouverts :</strong> ${data.open_ports.length} ouverts<br>
-    ${openPortsDetails}
-    <strong>📶 Bande passante :</strong> ${data.bandwidth.sent_kb} Ko envoyés, ${data.bandwidth.received_kb} Ko reçus<br>
-    <span class="section-title">⏲️ Cron Jobs :</span><br>${data.cron_jobs}<br>
-    <span class="section-title">📜 Journaux système :</span><br>${data.logs}<br>
-    <span class="section-title">📡 Trafic sortant :</span><br>${data.outbound_traffic.length} connexions sortantes<br>
-    ${outboundTrafficDetails}
+  <div class="inter-container">
+      <div class="card-inter">${data.local_ip}</div>
+      <div class="card-inter">${data.os}</div>
+      <div class="card-inter">${data.system_state}</div>
+      <div class="card-inter">${data.internet_status}</div>
+      <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
+      <div class="card-inter"><strong>CPU</strong> ${data.cpu ?? 'N/A'} %</div>
+      <div class="card-inter"><strong>RAM</strong> ${data.ram ?? 'N/A'} %</div>
+      <div class="card-inter">DISK ${diskDetails}</div>
+      <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
+      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} send, ${data.bandwidth.received_kb}received</div>
+      <div class="card-inter">${batteryStatus}</div>
+      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
+      <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
+      <div class="card-inter"><span class="section-title">Logs</span><br>${data.logs}</div>
+      <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
+</div>
   `;
   dashboard.appendChild(card);
   machines[hostname] = {
     card,
     lastSeen: Date.now()
   };
+
+
+
   updateAgentCount(); // 🔁 Met à jour le compteur
 }
 

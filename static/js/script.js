@@ -50,7 +50,7 @@ let socket;
 let reconnectInterval = 5000; // 5 secondes avant de retenter
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
+    socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected','color: lime');
@@ -87,10 +87,11 @@ connectWebSocket();
 
             const typerElement = document.getElementById("typer-alert");
             const typerAlert = data.message;
+            const botTime = data.timestamp;
             
             // Crée un nouvel élément <div> ou <li> pour chaque alerte
             const alertItem = document.createElement("div"); // ou "li" si tu veux une <ul>
-            alertItem.textContent = `🔔 ALERT : ${typerAlert}`;
+            alertItem.textContent = ` ${typerAlert}`;
             
             // Ajoute au conteneur
             typerElement.appendChild(alertItem);
@@ -123,16 +124,24 @@ connectWebSocket();
                 if (cpuUsage > 80) {
                     cpuTextElement.style.color = "red";
                 } 
-                else {
+                else if(cpuUsage >= 60 && cpuUsage < 80) {
+                    cpuTextElement.style.color = "orange";
+                } else {
                     cpuTextElement.style.color = "green";
                 }
+
 
                 if (ramUsage > 80) {
                     ramTextElement.style.color = "red";
 
+                } else if (ramUsage >=60 && ramUsage < 80){
+                    ramTextElement.style.color = "orange";
                 } else {
                     ramTextElement.style.color = "green";
                 }
+
+
+
                 /* COLOR FOR SYSTEM STATUS  */
 
                 if (state == "Good"){
@@ -146,7 +155,8 @@ connectWebSocket();
                     systemStatus.style.color = "red";
                     headerStatus.style.boxShadow = "0 5px 5px red";
                 }
-                break;
+                
+                break;  
 
 
 
@@ -249,15 +259,15 @@ connectWebSocket();
                         const input = document.createElement("input");
                         input.id = "process-search-input";
                         input.type = "text";
-                        input.placeholder = "🔍 search process by name...";
+                        input.placeholder = "search..";
                         input.classList.add("search-input");
                            // Style direct intégré
                             input.style.display = "block";
                             input.style.position = "absolute";
                             input.style.left = "40px";
-                            input.style.width = "20%";
+                            input.style.width = "10%";
                             input.style.padding = "6px 12px";
-                            input.style.fontSize = "14px";
+                            input.style.fontSize = "10px";
                             input.style.borderRadius = "6px";   
                             input.style.backgroundColor = "#0a0a0a";
                             input.style.color = "#00FFOO";
@@ -370,24 +380,180 @@ connectWebSocket();
                         table.appendChild(row);
                     });
                     wrapper.appendChild(table);
+
+
+
+
+
+
+
+
+                    // *** DÉBUT DU CODE POUR LE GRAPHIQUE À BARRES VERTICALES ***
+                    let canvas = document.getElementById("process-chart-canvas");
+   
+
+                    const ct = canvas.getContext("2d");
+
+                    function drawBarChart(processes) {
+                        ct.clearRect(0, 0, canvas.width, canvas.height); // Effacer le canvas
+
+                        if (!processes || processes.length === 0) {
+                            ct.fillStyle = "#ccc";
+                            ct.font = "20px Courier New";
+                            ct.textAlign = "center";
+                            ct.fillText("No data to show", canvas.width / 2, canvas.height / 2);
+                            return;
+                        }
+
+                        // Filtrer les processus pour n'afficher que ceux avec une consommation RAM > 0 pour plus de clarté
+                        // et prendre, par exemple, les 15 plus gourmands pour éviter un graphique surchargé
+                        const topProcesses = processes
+                            .filter(p => p.memory_mb > 0)
+                            .sort((a, b) => b.memory_mb - a.memory_mb)
+                            .slice(0, 20); // Afficher jusqu'à 20 processus
+
+                        if (topProcesses.length === 0) {
+                            ct.fillStyle = "#ccc";
+                            ct.font = "30px Courier New";
+                            ct.textAlign = "center";
+                            ct.fillText("No higher process", canvas.width / 2, canvas.height / 2);
+                            return;
+                        }
+
+
+                        const padding = 60; // Espace pour les étiquettes et les axes
+                        const chartWidth = canvas.width - 2 * padding;
+                        const chartHeight = canvas.height - 2 * padding;
+                        const barPadding = 5; // Espace entre les barres
+                        const numBars = topProcesses.length;
+                        const barWidth = (chartWidth - (numBars -1) * barPadding) / numBars;
+
+
+                        const maxMemory = Math.max(...topProcesses.map(p => p.memory_mb), 0); // Valeur maximale de RAM pour l'échelle Y
+
+                        if (maxMemory === 0) { // Si tous les processus filtrés ont 0 RAM
+                             ctx.fillStyle = "#ccc";
+                            ct.font = "16px Courier New";
+                            ct.textAlign = "center";
+                            ct.fillText("This Process use 0 MB of RAM", canvas.width / 2, canvas.height / 2);
+                            return;
+                        }
+
+                        // Dessiner l'axe Y et les étiquettes
+                        ct.beginPath();
+                        ct.moveTo(padding, padding);
+                        ct.lineTo(padding, canvas.height - padding);
+                        ct.strokeStyle = "#555";
+                        ct.stroke();
+
+                        const numYTicks = 5;
+                        for (let i = 0; i <= numYTicks; i++) {
+                            const yTickValue = Math.round((maxMemory / numYTicks) * i);
+                            const yPos = canvas.height - padding - (yTickValue / maxMemory) * chartHeight;
+                            ct.fillStyle = "#aaa";
+                            ct.font = "14px Courier New";
+                            ct.textAlign = "right";
+                            ct.fillText(yTickValue + "MB", padding - 10, yPos + 3); // +3 pour alignement vertical
+
+                            ct.beginPath();
+                            ct.moveTo(padding - 5, yPos);
+                            ct.lineTo(padding, yPos);
+                            ct.strokeStyle = "#555";
+                            ct.stroke();
+                        }
+
+
+                        // Dessiner l'axe X (juste une ligne pour l'instant)
+                        ct.beginPath();
+                        ct.moveTo(padding, canvas.height - padding);
+                        ct.lineTo(canvas.width - padding, canvas.height - padding);
+                        ct.strokeStyle = "#555";
+                        ct.stroke();
+
+
+                        topProcesses.forEach((p, index) => {
+                            const barHeight = (p.memory_mb / maxMemory) * chartHeight;
+                            const x = padding + index * (barWidth + barPadding);
+                            const y = canvas.height - padding - barHeight;
+
+                            // Couleur de la barre (vert, ou rouge si alerte)
+                            ct.fillStyle = p.alert ? "darkred" : "#00ff00";
+                            ct.fillRect(x, y, barWidth, barHeight);
+
+                            // Étiquette du nom du processus (sous la barre)
+                            ct.save();
+                            ct.translate(x + barWidth / 2, canvas.height - padding + 15);
+                            ct.rotate(-Math.PI / 4); // Rotation pour les noms longs
+                            ct.fillStyle = "#ccc";
+                            ct.font = "14px Courier New";
+                            ct.textAlign = "right";
+                            let processName = p.name;
+                            if (processName.length > 15) processName = processName.substring(0,12) + "..."; // Tronquer les noms longs
+                            ct.fillText(processName, 0, 0);
+                            ct.restore();
+
+                            // Valeur de RAM au-dessus de la barre
+                            if (barHeight > 15) { // N'afficher que si la barre est assez haute
+                                ct.fillStyle = "#fff";
+                                ct.font = "14px Courier New";
+                                ct.textAlign = "center";
+                                ct.fillText(p.memory_mb.toFixed(1) + "MB", x + barWidth / 2, y - 5);
+                            }
+                        });
+
+                        // Titre du graphique
+                        ct.fillStyle = "#00ff00";
+                        ct.font = "bold 20px Orbitron, monospace";
+                        ct.textAlign = "center";
+                        ct.fillText("Top Processes ", canvas.width / 2, padding / 2);
+                    }
+
+                    // Appeler la fonction pour dessiner le graphique avec les données actuelles
+                    drawBarChart(newProcessDetails);
+
+                    // Optionnel: Redessiner le graphique si la taille de la fenêtre change
+                    // Cela peut être plus complexe à gérer parfaitement avec le positionnement CSS de l'input
+                    // window.addEventListener('resize', () => {
+                    //    canvas.width = processElement.offsetWidth > 600 ? processElement.offsetWidth - 40 : 600;
+                    //    drawBarChart(window.currentVisibleProcessDetails);
+                    // });
+
+                    // *** FIN DU CODE POUR LE GRAPHIQUE À BARRES VERTICALES ***
                     break;
-                
 
-
-
-
-                
-                case "disk":
-                    const diskTextElement = document.getElementById('disk-text');
 
                     
+                
 
-                    // 🔁 Construction HTML pour les disques
-                    var diskDetails = '';
-                    for (const [mount, percent] of Object.entries(data.disk_usage)) {
-                    diskDetails += `${mount}:${percent}% \n`;
-                    }
-                    diskTextElement.textContent = `${diskDetails}`;
+
+
+
+                
+                    case "disk":
+                        const diskTextElement = document.getElementById('disk-text');
+                    
+                        // 🔁 Construction HTML pour les disques avec couleur par usage
+                        var diskDetails = '';
+                        for (const [mount, percent] of Object.entries(data.disk_usage)) {
+                            let color;
+                            if (percent > 80) {
+                                color = 'red';
+                            } else if (percent >= 60) {
+                                color = 'orange';
+                            } else {
+                                color = 'green';
+                            }
+                    
+                            diskDetails += `<span style="color:${color}">${mount}: ${percent}%</span><br>`;
+                        }
+                    
+                        diskTextElement.innerHTML = diskDetails;
+                        break;
+                    
+
+
+
+
 
 
 
@@ -413,7 +579,7 @@ connectWebSocket();
 
 
             case "ports":
-// Mise à jour de la liste des ports ouverts
+            // Mise à jour de la liste des ports ouverts - style futuriste
             const openPortsList = document.getElementById('open-ports');
             openPortsList.innerHTML = '';
 
@@ -422,23 +588,26 @@ connectWebSocket();
                 li.style.cssText = `
                     padding: 6px 10px;
                     margin: 4px 0;
-                    color: #e0e0e0;
-                    background-color: #1e1e2f;
-                    border-left: 4px solid #4CAF50;
+                    color: #00FF00;
+                    background-color: #0a0a0a;
+                    border-left: 4px solid #00FF00;
                     border-radius: 4px;
-                    font-size: 10px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 11px;
                     display: flex;
                     align-items: center;
+                    box-shadow: 0 0 5px #00FF00;
                 `;
 
                 li.innerHTML = `
-                    <strong style="color:#4CAF50;">Port ${port.port}</strong>
-                    <span style="margin-left: 10px; color: #90caf9;">${port.pid}</span>
-                    <span style="margin-left: 10px; color: #ffcc80;">${port.process}</span>
+                    <strong style="color:#00FF00;">Port ${port.port}</strong>
+                    <span style="margin-left: 10px; color: #00ccff;">PID ${port.pid}</span>
+                    <span style="margin-left: 10px; color: #ff00ff;">${port.process}</span>
                 `;
 
                 openPortsList.appendChild(li);
             });
+
 
 
 
@@ -449,7 +618,7 @@ connectWebSocket();
             data.alerts.forEach(alert => {
                 const alertDiv = document.createElement('div');
                 alertDiv.classList.add('alert');
-                alertDiv.textContent = `⚠️ Unauthorized Port ${alert.port} -  ${alert.pid} - ${alert.process}`;
+                alertDiv.textContent = `⚠️ Unauthorized Port ${alert.port} -  ${alert.pid} ${alert.process}`;
                     alertDiv.style.cssText = `
                         background-color: #2c0b0e;
                         color: #f28b82;
@@ -548,9 +717,9 @@ connectWebSocket();
                         li.style.cssText = `
                             padding: 6px 10px;
                             margin: 4px 0;
-                            background-color: #1e1e2f;
+                            background-color: #0a0a0a;
                             color: #cfd8dc;
-                            border-left: 4px solid #2196f3;
+                            border-left: 4px solid #00FF00;
                             border-radius: 4px;ss
                             font-family: monospace;
                             font-size: 10px;
@@ -776,6 +945,7 @@ connectWebSocket();
                                             <span><i class="fas fa-cogs"></i> ${process}</span>
                                             <span><i class="fas fa-globe"></i> <span class="label">Dest:</span> ${remote_address}</span>
                                             <span><i class="fas fa-exchange-alt"></i> <span class="label">Proto:</span> ${protocol}</span>
+                                            <span> ${connection.uptime}</span>
                                         </div>
                                         <hr>
                                     `;
@@ -827,6 +997,8 @@ connectWebSocket();
                 } else {
                     outboundContainer.innerHTML = "<p>No outbound traffic detected.</p>";
                 }
+
+
 
 
 // Regroupe le trafic par processus
@@ -889,9 +1061,11 @@ window.outboundChart = new Chart(ctx, {
         backgroundColor: 'transparent', // pas de fond
         plugins: {
             legend: {
-                position: 'right',
+                position: 'right', // change la position si besoin
                 labels: {
                     color: '#0ff',
+                    boxWidth: 10,
+                    padding: 10,
                     font: {
                         family: 'Orbitron',
                         size: 8
@@ -915,13 +1089,14 @@ window.outboundChart = new Chart(ctx, {
                 },
                 formatter: (value, ctx) => {
                     const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    const percent = ((value / total) * 100).toFixed(1);
-                    return `${percent}%`;
+                    const percent = ((value / total) * 100);
+                    return percent < 10 ? '' : `${percent.toFixed(1)}%`;
                 }
             }
         }
     },
     plugins: [ChartDataLabels]
+    
 });
 
 

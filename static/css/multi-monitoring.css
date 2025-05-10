@@ -16,7 +16,7 @@ body::before {
  body {
       font-family: 'JetBrains Mono', monospace;
       margin: 0;
-      background-image: url('/static/natureXtechno.jpg');
+      background-image: url('/static/Network_RJ45.jpg');
       background-size: cover;
       background-attachment: fixed;
       padding: 0;
@@ -155,6 +155,72 @@ h1 {
       width: 100%;
   }
 
+}
+
+
+
+
+
+/* CARD INTER CARD */
+
+
+.inter-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 15px;
+  margin: 10px;
+}
+
+.card-inter {
+  background-color: #080F0D;  /* Gris foncé plus neutre */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+  width: 22%;
+  padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+  border: 1px solid #444444;  /* Bordure plus discrète */
+  text-align: center;
+  box-sizing: border-box;
+  height: 100px;
+  overflow-y: auto;
+  color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+  font-family: 'Inter', sans-serif;
+
+  transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
+}
+
+.full-card-inter {
+  background-color: #080F0D;  /* Gris foncé plus neutre */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+  width: 90%;
+  padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+  border: 1px solid #444444;  /* Bordure plus discrète */
+  text-align: center;
+  box-sizing: border-box;
+  height: 100px;
+  overflow-y: auto;
+  color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+  font-family: 'Inter', sans-serif;
+
+  transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
+}
+
+.middle-card-inter {
+  background-color: #080F0D;  /* Gris foncé plus neutre */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+  width: 45%;
+  padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+  border: 1px solid #444444;  /* Bordure plus discrète */
+  text-align: center;
+  box-sizing: border-box;
+  height: 100px;
+  overflow-y: auto;
+  color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+  font-family: 'Inter', sans-serif;
+
+  transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
 }
 
 

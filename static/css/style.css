@@ -13,7 +13,7 @@
    body {
         font-family: 'JetBrains Mono', monospace;
         margin: 0;
-        background-image: url('/static/natureXtechno.jpg');
+        background-image: url('/static/Network_RJ45.jpg');
         background-size: cover;
         background-attachment: fixed;
         padding: 0;
@@ -176,6 +176,7 @@
         font-family: 'Inter', sans-serif;
         text-align: center;
         transition: all 0.3s ease-in-out;
+        overflow-y:auto;
     }
     
 
