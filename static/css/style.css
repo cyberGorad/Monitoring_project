@@ -138,7 +138,7 @@
         color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
         font-family: 'Inter', sans-serif;
 
-        transition: all 0.3s ease;  /* Transition douce pour les effets */
+        transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
     }
 
 
@@ -175,7 +175,7 @@
         color: #ffffff;
         font-family: 'Inter', sans-serif;
         text-align: center;
-        transition: all 0.3s ease;
+        transition: all 0.3s ease-in-out;
     }
     
 
@@ -195,7 +195,7 @@
         color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
         font-family: 'Inter', sans-serif;
 
-        transition: all 0.3s ease;  /* Transition douce pour les effets */
+        transition: all 0.5s ease-in-out;  /* Transition douce pour les effets */
     }
 
     .full-card {
@@ -213,7 +213,7 @@
         font-family: 'Inter', sans-serif;
 
         transition: all 0.3s ease;  /* Transition douce pour les effets */
-        animation: shrinkCard 0.6s ease;
+        animation: shrinkCard 0.7s ease-in-out;
     }
     .hover-card {
         position: fixed;
@@ -237,38 +237,38 @@
         font-family: 'Inter', sans-serif;
 
         transition: all 0.3s ease;  /* Transition douce pour les effets */
-        animation: expandCard 0.6s ease;
+        animation: expandCard 0.7s ease-in-out;
     }
 
 
     .card:hover {
-        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+        
         border-color: #00ff00;
         box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
         transform: scale(1.05);
-        transition: all 0.3s ease-in-out;
+        transition: all 0.5s ease-in-out;
     }
 
     .large-card:hover {
-        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+
         border-color: #00ff00;
         box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
         transform: scale(1.05);
-        transition: all 0.3s ease-in-out;
+        transition: all 0.5s ease-in-out;
     }
     .column-card:hover {
-        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+
         border-color: #00ff00;
         box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
         transform: scale(1.05);
-        transition: all 0.3s ease-in-out;
+        transition: all 0.5s ease-in-out;
     }
     .full-card:hover {
-        background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
+
         border-color: #00ff00;
         box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
         transform: scale(1.05);
-        transition: all 0.3s ease-in-out;
+        transition: all 0.5s ease-in-out;
     }
 
 
@@ -541,7 +541,7 @@
         }
         to {
             opacity: 0.5;
-            transform: translate(-50%, -50%) scale(0)
+            
 
 
         }
