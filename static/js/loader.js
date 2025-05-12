@@ -37,4 +37,13 @@ function typeWriter() {
 // Lancer le loader
 window.addEventListener("load", () => {
   typeWriter();
+  AOS.init({
+    // joue l'animation une seule fois
+offset: 0,                       // démarre sans attendre le scroll
+delay: 0,                        // sans délai global
+duration: 700                   // durée globale si tu veux override
 });
+
+});
+
+

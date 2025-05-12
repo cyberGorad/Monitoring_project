@@ -4,22 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GORADMONITOR</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Home-IDS-GORAD</title>
+    <script src="/static/offline-mode/chart.js"></script>
+    <script src="/static/offline-mode/axios.min.js"></script>
     <script src="/static/js/music-background.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/offline-mode/chartjs-plugin-datalabels"></script>
+
 
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/offline-mode/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 
         <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/offline-mode/sweetalert2@11"></script>
 
-    
-
-   
     
 
     <!-- W3 CSS -->
@@ -33,10 +32,9 @@
     
 
     
-
     <!-- VOCAL COMMAND JS -->
     <script src="/static/js/vocal_command.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <link rel="stylesheet" href="/static/offline-mode/notyf.min.css">
 
 
 
@@ -54,19 +52,14 @@
       </script>
 
 
-     <!-- Lien vers la bibliothèque Font Awesome -->
-     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-     <link rel="stylesheet" href="/static/css/style.css">
+    
+
 
 </head>
     <body>
         
 
         <!-- LOADER SECTION -->
-
-
-
-
 
         <div id="loader" class="loader-container">
                     <!-- From Uiverse.io by krlozCJ --> 
@@ -93,11 +86,7 @@
 
 
 
-
-
-
         <header >
-
                 <div class="header w3-card-4" id="head-status" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
                     <!-- Logo à gauche -->
                    <img src="/static/Gorad.png" alt="logo" width="100px" height="100px" style="position: absolute;margin-left: -10px;">
@@ -163,7 +152,7 @@
 
             <div class="card-for-column" data-aos="fade-left" >
                 <!-- CPU Container -->
-                <div id="cpu-container" class="column-card">
+                <div id="cpu-container" class="column-card" >
                     
                     <span id="cpu-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
                         <div class="three-body">
@@ -175,7 +164,7 @@
                 </div>
 
                 <!-- Disk Container -->
-                <div id="disk-container" class="column-card" data-aos="fade-left">
+                <div id="disk-container" class="column-card" >
 
                     <span id="disk-text" style="color: #00ff00; font-size: 9px; font-weight: bold;">
                         <div class="three-body">
@@ -248,24 +237,6 @@
 
 
 
-        <div id="connections-container" class="card">
-            <h3>
-                Established
-                <i class="fas fa-network-wired" style="float: right; font-size: 24px; color: #00ff00;"></i>
-            </h3>
-
-            <ul id="connections-list"></ul>
-        </div>
-
-        <div class="card">
-            
-            <canvas id="outboundTrafficChart" width="500" height="600"></canvas>
-        </div>
-
-
-
-
-
         <div id="bandwidth-container" class="card">
             <h3>Bandwidth Usage <i class="fas fa-tachometer-alt" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
 
@@ -280,43 +251,93 @@
 
 
 
-        <div id="cron-jobs-list" class="card">
-            <h3>Tasks Scheduled <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
-            <div class="three-body">
-                <div class="three-body__dot"></div>
-                <div class="three-body__dot"></div>
-                <div class="three-body__dot"></div>
-            </div>
+        <div class="card">
             
+            <canvas id="outboundTrafficChart" width="1000" height="600"></canvas>
         </div>
 
 
-        <div id="outbound-info" class="large-card">
-            <button id="Outbound-button" onmouseover="OutboundFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button><br><br>
+
+        <div class="large-card"  data-aos="fade-left" data-aos-duration="100" data-aos-delay="50">
+            <canvas id="process-chart-canvas"></canvas>
+
+        </div>
+
+
+
+
+
+
+        <div id="outbound-info" class="large-card" >
+            <button id="outbound-button" onmouseover="OutboundFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button><br><br>
             <div id="outbound-container"></div>
 
             <p><div class="custom-spinner"></div></p>
-           
+        
         </div>
+
+
+
+
+
+
+                
+        <div id="connections-container" class="card">
+            <h3>
+                Established
+                <i class="fas fa-network-wired" style="float: right; font-size: 24px; color: #00ff00;"></i>
+            </h3>
+
+            <ul id="connections-list"></ul>
+        </div>
+
+
+
 
                 <!-- FULL CARD  -->
         
-                <div id="process-info" class="large-card">
+             <div id="process-info" class="large-card" >
                         <!-- Bouton pour alterner entre card et full-card -->
-    <button id="toggle-button" onmouseover="ProcessFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>
+                <button id="toggle-button" onmouseover="ProcessFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>
                     <h3 style="color: #00ff00;"><i class="fas fa-rocket"></i> Process Watcher</h3>
                     <div id="process"></div> <!-- Ce div sera mis à jour -->
                 </div>
             
-                <div class="large-card">
-                    <canvas id="process-chart-canvas"></canvas>
+
+
+                <div id="cron-jobs-list" class="card">
+                    <h3>Tasks Scheduled <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+                    <div class="three-body">
+                        <div class="three-body__dot"></div>
+                        <div class="three-body__dot"></div>
+                        <div class="three-body__dot"></div>
+                    </div>
+                    
                 </div>
 
-                
+
+
+
+
+
+  
 
         
+                <div id="usb-table" class="card"  >
+                    <h3 style="color: #00ff00;">Usb Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+                    <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
+        
+                </div>
+        
+                <div id="typer-info" class="card" data-aos="fade-left">
+                    <h3 style="color: #00ff00;">Typer Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+                    <p id="typer-alert" style="color:red;font-size: 12px;"></p>
+        
+                </div>
+        
+                
 
-        <div id="startup-info" class="large-card">
+        <div id="startup-info" class="large-card" >
             
             <h2><i class="fas fa-rocket"></i> Startup Info</h2>
             
@@ -325,21 +346,13 @@
             </div>
         </div>
 
+
+
+
         
-        <div id="usb-table" class="card">
-            <h3 style="color: #00ff00;">Usb Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
-            <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
-
-        </div>
-
-        <div id="typer-info" class="card">
-            <h3 style="color: #00ff00;">Typer Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
-            <p id="typer-alert" style="color:red;font-size: 12px;"></p>
-
-        </div>
 
 
-        <div id="file-scan-container" class="card">
+        <div id="file-scan-container" class="card"  >
             <h3>
                 File Scan
                 <i class="fas fa-search" style="float: right; font-size: 24px; color: #00ff00;"></i>
@@ -352,9 +365,6 @@
         </div>
 
         
-
-
-
 
 
 <!-- Fenêtre modale pour afficher la réponse Gemini -->
@@ -372,9 +382,17 @@
     </div>
 </div>
 
+
+
+
+
+
+
+
+
+
    
-        
-        
+
 
 
 
@@ -390,13 +408,21 @@
 
     <script src="/static/js/copy.js"></script>
     <!-- Lien vers le JS de AOS -->
-    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <link href="/static/offline-mode/aos/aos.css" rel="stylesheet">
+    <script src="/static/offline-mode/aos/aos.js"></script>
     <!-- MUSIC BACKGROND -->
-    
     <script>
-        // Initialiser AOS
-        AOS.init();
+        AOS.init({
+              // joue l'animation une seule fois
+          offset: 0,    
+          once: true,                   // démarre sans attendre le scroll
+          delay: 0,                        // sans délai global
+          duration: 700                   // durée globale si tu veux override
+          });
+          
     </script>
+  
+    
+
     </body>
         </html>

@@ -1,6 +1,6 @@
 function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
     let score = 0;
-
+    let statusDetails = {};
     // Analyse CPU
     if (cpu < 50) {
         score += 1;
@@ -34,14 +34,26 @@ function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
         score -= 1; // Pénalise si pas de données disque
     }
 
-    // Bande passante (si tu veux l'ajouter plus tard)
-    // if (bandwidth !== null) { ... }
+    let overallIcon;
+    let overallColor;
+    // Évaluation finale avec les icônes
+    if (score >= 2.5) {
+        overallIcon = "fa-leaf";
+        overallColor = "green";
+    } else if (score >= 1) {
+        overallIcon = "fa-lightbulb"; // Icône d'ampoule pour l'inspiration orange
+        overallColor = "orange";
+    } else {
+        overallIcon = "fa-skull-crossbones";
+        overallColor = "red";
+    }
 
-    // Évaluation finale
-    if (score >= 2.5) return "Good";
-    if (score >= 1) return "Medium";
-    return "Critical";
+    return {
+        overall: { icon: overallIcon, color: overallColor },
+        details: statusDetails
+    };
 }
+
 
 
 
@@ -50,7 +62,7 @@ let socket;
 let reconnectInterval = 5000; // 5 secondes avant de retenter
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://192.168.43.225:8000/ws/monitor/');
+    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected','color: lime');
@@ -98,12 +110,11 @@ connectWebSocket();
             
 
 
-
             case "cpu":
-                    // HEADER COLOR SELECTION
+                // HEADER COLOR SELECTION
                 const headerStatus = document.getElementById("head-status");
-                    // Sélection de l'élément HTML où afficher l'utilisation du CPU
-                const systemStatus= document.getElementById("system_status");
+                // Sélection de l'élément HTML où afficher l'état du système (sera l'icône)
+                const systemStatus = document.getElementById("system_status");
 
                 const cpuTextElement = document.getElementById('cpu-text');
                 const ramTextElement = document.getElementById('ram-text');
@@ -117,13 +128,12 @@ connectWebSocket();
                 ramTextElement.textContent = `RAM ${ramUsage}%`;
                 uptimeTextElement.textContent = `UPTIME ${uptime}`;
 
-                const state = evaluateSystemState(cpuUsage, ramUsage, diskUsage, bandwidthUsage );
-                systemStatus.textContent = `${state}`;
-                
+                const state = evaluateSystemState(cpuUsage, ramUsage, diskUsage, bandwidthUsage);
+                // systemStatus.textContent = `${state}`; // Supprimer l'affichage du texte
 
                 if (cpuUsage > 80) {
                     cpuTextElement.style.color = "red";
-                } 
+                }
                 else if(cpuUsage >= 60 && cpuUsage < 80) {
                     cpuTextElement.style.color = "orange";
                 } else {
@@ -142,21 +152,17 @@ connectWebSocket();
 
 
 
-                /* COLOR FOR SYSTEM STATUS  */
+                /* COLOR FOR SYSTEM STATUS (ICON) */
 
-                if (state == "Good"){
-                    systemStatus.style.color = "green";
-                    headerStatus.style.boxShadow = "0 5px 5px #00ff00";
-                } else if(state == "Medium") {
-                    systemStatus.style.color = "orange";
-                    headerStatus.style.boxShadow = "0 5px 5px orange";
-                    
-                } else if (state == "Critical") {
-                    systemStatus.style.color = "red";
-                    headerStatus.style.boxShadow = "0 5px 5px red";
+                if (state && state.overall && state.overall.icon && state.overall.color) {
+                    systemStatus.innerHTML = `<i class="fas ${state.overall.icon}" style="color: ${state.overall.color};"></i>`;
+                    headerStatus.style.boxShadow = `0 5px 5px ${state.overall.color}`;
+                } else {
+                    systemStatus.textContent = "N/A"; // Ou une autre indication si l'état n'est pas disponible
+                    headerStatus.style.boxShadow = "none"; // Supprimer l'ombre si l'état n'est pas disponible
                 }
-                
-                break;  
+
+                break;
 
 
 
@@ -263,9 +269,9 @@ connectWebSocket();
                         input.classList.add("search-input");
                            // Style direct intégré
                             input.style.display = "block";
-                            input.style.position = "absolute";
-                            input.style.left = "40px";
-                            input.style.width = "10%";
+                            input.style.position = "relative";
+                            input.style.left = "20px";
+                            input.style.width = "20%";
                             input.style.padding = "6px 12px";
                             input.style.fontSize = "10px";
                             input.style.borderRadius = "6px";   
@@ -287,8 +293,10 @@ connectWebSocket();
                         const button = document.createElement("button");
                         button.id = "process-analyze-button";
                         button.textContent = "AI SCAN";
-                        button.classList.add("analyze-button");
-
+                        button.style.float = "right";
+                        button.style.marginTop = "-50px";
+                        button.style.position = "position";
+                        button.classList.add("analyze-button")
                         button.addEventListener("click", async () => {
                             const details = window.currentVisibleProcessDetails;
                             if (!details || !details.length) return alert("Aucun processus à analyser");
@@ -381,150 +389,138 @@ connectWebSocket();
                     });
                     wrapper.appendChild(table);
 
+// *** DÉBUT DU CODE POUR LE GRAPHIQUE À BARRES HORIZONTALES (THÈME FUTURISTE) ***
+let canvas = document.getElementById("process-chart-canvas");
+const ct = canvas.getContext("2d");
 
+// Taille du canvas
+canvas.width = 5000;
+canvas.height = 1000;
+const backgroundColor = " #080F0D"; // Fond sombre futuriste
+const axisColor = "#485460";
+const gridColor = "#2C3A47";
+const barColorStart = "#007bff"; // Bleu électrique
+const barColorEnd = "#6dd5ed"; // Cyan brillant
+const alertBarColor = "#ff4d4d"; // Rouge alerte
+const textColor = "#f5f6fa";
+const titleColor = "#00ffc6"; // Vert cyber
 
+function drawFutureHorizontalBarChart(processes) {
+  ct.fillStyle = backgroundColor;
+  ct.fillRect(0, 0, canvas.width, canvas.height);
+  ct.lineWidth = 2;
 
+  if (!processes || processes.length === 0) {
+    ct.fillStyle = textColor;
+    ct.font = "20px Orbitron, monospace";
+    ct.textAlign = "center";
+    ct.fillText("No data to show", canvas.width / 2, canvas.height / 2);
+    return;
+  }
 
+  const topProcesses = processes
+    .filter(p => p.memory_mb > 0)
+    .sort((a, b) => b.memory_mb - a.memory_mb)
+    .slice(0, 10);
 
+  if (topProcesses.length === 0) {
+    ct.fillStyle = textColor;
+    ct.font = "20px Orbitron, monospace";
+    ct.textAlign = "center";
+    ct.fillText("No higher process", canvas.width / 2, canvas.height / 2);
+    return;
+  }
 
+  const padding = 80;
+  const chartWidth = canvas.width - 2 * padding;
+  const chartHeight = canvas.height - 2 * padding;
+  const barPadding = 20;
+  const numBars = topProcesses.length;
+  const barHeight = (chartHeight - (numBars - 1) * barPadding) / numBars;
+  const maxMemory = Math.max(...topProcesses.map(p => p.memory_mb), 0);
 
-                    // *** DÉBUT DU CODE POUR LE GRAPHIQUE À BARRES VERTICALES ***
-                    let canvas = document.getElementById("process-chart-canvas");
-   
+    if (maxMemory === 0) {
+      ct.fillStyle = textColor;
+      ct.font = "20px Orbitron, monospace";
+      ct.textAlign = "center";
+      ct.fillText("This Process use 0 MB of RAM", canvas.width / 2, canvas.height / 2);
+      return;
+    }
 
-                    const ct = canvas.getContext("2d");
+  // Axe X et étiquettes
+  ct.beginPath();
+  ct.moveTo(padding, canvas.height - padding);
+  ct.lineTo(canvas.width - padding, canvas.height - padding);
+  ct.strokeStyle = axisColor;
+  ct.stroke();
 
-                    function drawBarChart(processes) {
-                        ct.clearRect(0, 0, canvas.width, canvas.height); // Effacer le canvas
+  const numXTicks = 5;
+  for (let i = 0; i <= numXTicks; i++) {
+    const xTickValue = Math.round((maxMemory / numXTicks) * i);
+    const xPos = padding + (xTickValue / maxMemory) * chartWidth;
+    ct.fillStyle = textColor;
+    ct.font = "20px Roboto Mono, monospace";
+    ct.textAlign = "center";
+    ct.fillText(xTickValue + "MB", xPos, canvas.height - padding + 20);
 
-                        if (!processes || processes.length === 0) {
-                            ct.fillStyle = "#ccc";
-                            ct.font = "20px Courier New";
-                            ct.textAlign = "center";
-                            ct.fillText("No data to show", canvas.width / 2, canvas.height / 2);
-                            return;
-                        }
+    ct.beginPath();
+    ct.moveTo(xPos, canvas.height - padding);
+    ct.lineTo(xPos, canvas.height - padding + 5);
+    ct.strokeStyle = gridColor;
+    ct.stroke();
+  }
 
-                        // Filtrer les processus pour n'afficher que ceux avec une consommation RAM > 0 pour plus de clarté
-                        // et prendre, par exemple, les 15 plus gourmands pour éviter un graphique surchargé
-                        const topProcesses = processes
-                            .filter(p => p.memory_mb > 0)
-                            .sort((a, b) => b.memory_mb - a.memory_mb)
-                            .slice(0, 20); // Afficher jusqu'à 20 processus
+  // Axe Y
+  ct.beginPath();
+  ct.moveTo(padding, padding);
+  ct.lineTo(padding, canvas.height - padding);
+  ct.strokeStyle = axisColor;
+  ct.stroke();
 
-                        if (topProcesses.length === 0) {
-                            ct.fillStyle = "#ccc";
-                            ct.font = "30px Courier New";
-                            ct.textAlign = "center";
-                            ct.fillText("No higher process", canvas.width / 2, canvas.height / 2);
-                            return;
-                        }
+  topProcesses.forEach((p, index) => {
+    const barWidth = (p.memory_mb / maxMemory) * chartWidth;
+    const x = padding;
+    const y = padding + index * (barHeight + barPadding);
 
+    // Gradient futuriste pour les barres
+    const gradient = ct.createLinearGradient(x, y, canvas.width - padding, y);
+    gradient.addColorStop(0, barColorStart);
+    gradient.addColorStop(1, barColorEnd);
 
-                        const padding = 60; // Espace pour les étiquettes et les axes
-                        const chartWidth = canvas.width - 2 * padding;
-                        const chartHeight = canvas.height - 2 * padding;
-                        const barPadding = 5; // Espace entre les barres
-                        const numBars = topProcesses.length;
-                        const barWidth = (chartWidth - (numBars -1) * barPadding) / numBars;
+    ct.fillStyle = p.alert ? alertBarColor : gradient;
+    ct.fillRect(x, y, barWidth, barHeight);
 
+    // Étiquettes des noms de processus
+    ct.fillStyle = textColor;
+    ct.font = "20px Roboto Mono, monospace";
+    ct.textAlign = "left";
+    let processName = p.name;
+    if (processName.length > 20) processName = processName.substring(0, 18) + "...";
+    ct.fillText(processName, padding + 10, y + barHeight / 2 + 8);
 
-                        const maxMemory = Math.max(...topProcesses.map(p => p.memory_mb), 0); // Valeur maximale de RAM pour l'échelle Y
+    // Valeurs à droite des barres
+    if (barWidth > 20) {
+      ct.fillStyle = textColor;
+      ct.font = "20px Roboto Mono, monospace";
+      ct.textAlign = "right";
+      ct.fillText(p.memory_mb.toFixed(1) + "MB", padding + barWidth - 10, y + barHeight / 2 + 8);
+    }
+  });
 
-                        if (maxMemory === 0) { // Si tous les processus filtrés ont 0 RAM
-                             ctx.fillStyle = "#ccc";
-                            ct.font = "16px Courier New";
-                            ct.textAlign = "center";
-                            ct.fillText("This Process use 0 MB of RAM", canvas.width / 2, canvas.height / 2);
-                            return;
-                        }
+  // Titre futuriste
+  ct.fillStyle = titleColor;
+  ct.font = "bold 30px Orbitron, monospace";
+  ct.textAlign = "center";
+  ct.fillText("Top Processes - Memory Usage", canvas.width / 2, padding / 2);
+}
 
-                        // Dessiner l'axe Y et les étiquettes
-                        ct.beginPath();
-                        ct.moveTo(padding, padding);
-                        ct.lineTo(padding, canvas.height - padding);
-                        ct.strokeStyle = "#555";
-                        ct.stroke();
+// Appeler la fonction pour dessiner le graphique horizontal futuriste
+drawFutureHorizontalBarChart(newProcessDetails);
 
-                        const numYTicks = 5;
-                        for (let i = 0; i <= numYTicks; i++) {
-                            const yTickValue = Math.round((maxMemory / numYTicks) * i);
-                            const yPos = canvas.height - padding - (yTickValue / maxMemory) * chartHeight;
-                            ct.fillStyle = "#aaa";
-                            ct.font = "14px Courier New";
-                            ct.textAlign = "right";
-                            ct.fillText(yTickValue + "MB", padding - 10, yPos + 3); // +3 pour alignement vertical
+// *** FIN DU CODE POUR LE GRAPHIQUE À BARRES HORIZONTALES (THÈME FUTURISTE) ***
 
-                            ct.beginPath();
-                            ct.moveTo(padding - 5, yPos);
-                            ct.lineTo(padding, yPos);
-                            ct.strokeStyle = "#555";
-                            ct.stroke();
-                        }
-
-
-                        // Dessiner l'axe X (juste une ligne pour l'instant)
-                        ct.beginPath();
-                        ct.moveTo(padding, canvas.height - padding);
-                        ct.lineTo(canvas.width - padding, canvas.height - padding);
-                        ct.strokeStyle = "#555";
-                        ct.stroke();
-
-
-                        topProcesses.forEach((p, index) => {
-                            const barHeight = (p.memory_mb / maxMemory) * chartHeight;
-                            const x = padding + index * (barWidth + barPadding);
-                            const y = canvas.height - padding - barHeight;
-
-                            // Couleur de la barre (vert, ou rouge si alerte)
-                            ct.fillStyle = p.alert ? "darkred" : "#00ff00";
-                            ct.fillRect(x, y, barWidth, barHeight);
-
-                            // Étiquette du nom du processus (sous la barre)
-                            ct.save();
-                            ct.translate(x + barWidth / 2, canvas.height - padding + 15);
-                            ct.rotate(-Math.PI / 4); // Rotation pour les noms longs
-                            ct.fillStyle = "#ccc";
-                            ct.font = "14px Courier New";
-                            ct.textAlign = "right";
-                            let processName = p.name;
-                            if (processName.length > 15) processName = processName.substring(0,12) + "..."; // Tronquer les noms longs
-                            ct.fillText(processName, 0, 0);
-                            ct.restore();
-
-                            // Valeur de RAM au-dessus de la barre
-                            if (barHeight > 15) { // N'afficher que si la barre est assez haute
-                                ct.fillStyle = "#fff";
-                                ct.font = "14px Courier New";
-                                ct.textAlign = "center";
-                                ct.fillText(p.memory_mb.toFixed(1) + "MB", x + barWidth / 2, y - 5);
-                            }
-                        });
-
-                        // Titre du graphique
-                        ct.fillStyle = "#00ff00";
-                        ct.font = "bold 20px Orbitron, monospace";
-                        ct.textAlign = "center";
-                        ct.fillText("Top Processes ", canvas.width / 2, padding / 2);
-                    }
-
-                    // Appeler la fonction pour dessiner le graphique avec les données actuelles
-                    drawBarChart(newProcessDetails);
-
-                    // Optionnel: Redessiner le graphique si la taille de la fenêtre change
-                    // Cela peut être plus complexe à gérer parfaitement avec le positionnement CSS de l'input
-                    // window.addEventListener('resize', () => {
-                    //    canvas.width = processElement.offsetWidth > 600 ? processElement.offsetWidth - 40 : 600;
-                    //    drawBarChart(window.currentVisibleProcessDetails);
-                    // });
-
-                    // *** FIN DU CODE POUR LE GRAPHIQUE À BARRES VERTICALES ***
-                    break;
-
-
-                    
-                
-
+// *** FIN DU CODE POUR LE GRAPHIQUE CIRCULAIRE (THÈME FUTURISTE) ***
+break;
 
 
 
@@ -554,22 +550,33 @@ connectWebSocket();
 
 
 
-
-
-
-                case "usb":
-
-                const usbInfo = document.createElement("li");
-                usbInfo.innerHTML = `
-                    
-                    <strong>[${data.timestamp}]</strong> 
-                    Action: ${data.action}, 
-                    Modèle: ${data.model},   
-                    Node: ${data.node}
-                `;
-        
-                document.getElementById("usb").appendChild(usbInfo);
-            
+                        case "usb":
+                            const usbList = document.getElementById("usb");
+                            const usbInfo = document.createElement("li");
+                        
+                            usbInfo.innerHTML = `
+                                <span style="color: #aaa; font-size: 0.8em;">[${data.timestamp}]</span>
+                                <strong style="color: #00ccff;">Action:</strong> <span style="color: #00FF00;">${data.action}</span>,
+                                <strong style="color: #00ccff;">Modèle:</strong> <span style="color: #ee;">${data.model}</span>,
+                                <strong style="color: #00ccff;">Node:</strong> <span style="color: #ee;">${data.node}</span>
+                            `;
+                        
+                            usbInfo.style.cssText = `
+                                padding: 8px 12px;
+                                margin-bottom: 4px;
+                                background-color: #0a0a0a;
+                                color: #00FF00;
+                                border-left: 4px solid #00FF00;
+                                border-radius: 4px;
+                                font-family: monospace;
+                                font-size: 10px;
+                                white-space: nowrap;
+                                overflow-X: scroll;
+                                text-overflow: ellipsis;
+                            `;
+                        
+                            usbList.appendChild(usbInfo);
+                            break;
                     
                     
     
@@ -687,51 +694,62 @@ connectWebSocket();
             break;
 
 
-
-
             case "connections":
                 const connectionsList = document.getElementById('connections-list');
                 const machineIdElement = document.getElementById('machine-id');
+                const seenConnections_etablished = new Set(); // Utiliser un Set pour suivre les connexions uniques
+            
+                // Mettre à jour l'identifiant de la machine
                 if (data.machine_id) {
-                // Mettre à jour le machine_id
-                machineIdElement.innerHTML = `<i class="fas fa-server"></i> Server address: ${data.machine_id}`;
+                    machineIdElement.innerHTML = `<i class="fas fa-server"></i> Server address: ${data.machine_id}`;
+                    machineIdElement.style.color = '#00ff00';
                 } else {
-                machineIdElement.innerHTML = '<p>Offline</p>';
+                    machineIdElement.innerHTML = '<i class="fas fa-server"></i> Offline';
+                    machineIdElement.style.color = 'red';
                 }
-
-                
+            
                 // Nettoyer la liste des connexions
                 connectionsList.innerHTML = '';
-                if (data.connections.length === 0) {
+            
+                if (!data.connections || data.connections.length === 0) {
                     const offlineMessage = document.createElement('li');
-                    offlineMessage.textContent = 'Offline';
-                    offlineMessage.style.color = 'red';
+                    offlineMessage.textContent = 'No active connections';
+                    offlineMessage.style.color = 'orange';
                     connectionsList.appendChild(offlineMessage);
                 } else {
                     data.connections.forEach(conn => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                                <span style="color: #00ff00;">${conn.ip}</span><br>  
-                                <span style="color: #ff9800;">${conn.hostname}</span>
-                                `;
-                        li.style.cssText = `
-                            padding: 6px 10px;
-                            margin: 4px 0;
-                            background-color: #0a0a0a;
-                            color: #cfd8dc;
-                            border-left: 4px solid #00FF00;
-                            border-radius: 4px;ss
-                            font-family: monospace;
-                            font-size: 10px;
-                            white-space: wrap;  
-                            overflow: scroll;  
-                            text-overflow: scroll;
-                        `;
-                        connectionsList.appendChild(li);
+                        // Créer une clé unique pour identifier une connexion (combinaison IP et hostname)
+                        const connectionKey = `${conn.ip}-${conn.hostname}`;
+            
+                        // Vérifier si cette connexion a déjà été affichée
+                        if (!seenConnections_etablished.has(connectionKey)) {
+                            seenConnections_etablished.add(connectionKey); // Ajouter la connexion au Set des connexions vues
+            
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <span style="color: #00ff00;"> ${conn.ip}</span><br>
+                                <span style="color: #ff9800;"><i class="fas fa-desktop"></i> ${conn.hostname}</span>
+                            `;
+                            li.style.cssText = `
+                                padding: 8px 12px;
+                                margin-bottom: 6px;
+                                background-color: #0a0a0a;
+                                color: #cfd8dc;
+                                border-left: 5px solid #00FF00;
+                                border-radius: 6px;
+                                font-family: 'Courier New', monospace;
+                                font-size: 11px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            `;
+                            connectionsList.appendChild(li);
+                        }
                     });
-                    
                 }
                 break;
+
+
 
 
                 
