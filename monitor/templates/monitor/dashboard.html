@@ -238,15 +238,15 @@
 
 
         <div id="bandwidth-container" class="card">
-            <h3>Bandwidth Usage <i class="fas fa-tachometer-alt" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
-
+            <h3 id="dos" style="font-size: 14px;"><i class="fas fa-tachometer-alt" id="no" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
+            
             <p id="bandwidth-info">
 
-            <p id="dos"><div class="three-body">
+            <div class="three-body">
                 <div class="three-body__dot"></div>
                 <div class="three-body__dot"></div>
                 <div class="three-body__dot"></div>
-                </div></p></p>
+                </div></p>
         </div>
 
 
@@ -258,10 +258,21 @@
 
 
 
-        <div class="large-card"  data-aos="fade-left" data-aos-duration="100" data-aos-delay="50">
             <canvas id="process-chart-canvas"></canvas>
+    
+            <style>
+                #process-chart-canvas {
+                    width: 50%;
+                    height:6500px;
+                }
+            </style>
 
-        </div>
+    
+
+
+
+        <!-- ALERTE MULTIPLE-PROCESSUS -->
+   
 
 
 
@@ -270,6 +281,9 @@
 
         <div id="outbound-info" class="large-card" >
             <button id="outbound-button" onmouseover="OutboundFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button><br><br>
+        
+                <div id="unauthorised_process" style="margin-top: -40px;"></div><br>
+                
             <div id="outbound-container"></div>
 
             <p><div class="custom-spinner"></div></p>
@@ -300,7 +314,10 @@
                         <!-- Bouton pour alterner entre card et full-card -->
                 <button id="toggle-button" onmouseover="ProcessFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>
                     <h3 style="color: #00ff00;"><i class="fas fa-rocket"></i> Process Watcher</h3>
+                    <!-- MULTIPLE PROCESS WATcHER -->
+                    <div id="multiple-process-alert" style="font-size: 10px;color: red;"></div><br>
                     <div id="process"></div> <!-- Ce div sera mis à jour -->
+                    
                 </div>
             
 
@@ -363,6 +380,21 @@
             <button onclick="scanFile()" style="background-color: #00ff00;border-radius: 10%;">Scan File</button>
             <div id="scan-results"></div>
         </div>
+
+
+        <div id="firewall" class="card">
+            <div id="platform"></div>
+            <div id="firewall-status">
+            </div>
+
+        </div>
+
+
+
+
+
+        </div>
+
 
         
 

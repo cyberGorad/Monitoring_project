@@ -99,7 +99,7 @@ h1 {
   background: #080F0D; /* Dark card background */
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  /*box-shadow: 0 4px 8px #00ff00;*/
   transition: transform 0.2s ease-in-out;
   border-left: 5px solid #6272a4; /* Subtle border */
   height: 400px;
@@ -161,6 +161,10 @@ h1 {
 
 
 
+
+
+
+
 /* CARD INTER CARD */
 
 
@@ -174,11 +178,10 @@ h1 {
 
 .card-inter {
   background-color: #080F0D;  /* Gris foncé plus neutre */
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
   width: 22%;
   padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
-  border: 1px solid #444444;  /* Bordure plus discrète */
+  border: 1px solid black;
+
   text-align: center;
   box-sizing: border-box;
   height: 100px;
@@ -228,3 +231,17 @@ h1 {
 
 
 
+/* CONDITIONNAL COLOR */
+/* Style pour l'état du net */
+.status-up {
+  background-color: #d4edda;
+  color: #155724;
+  font-weight: bold;
+}
+
+.status-down {
+  background-color: #f8d7da;
+  color: #721c24;
+  font-weight: bold;
+}
+ 

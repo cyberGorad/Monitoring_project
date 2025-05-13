@@ -12,8 +12,7 @@ body {
 .container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 15px;
+    gap: 0px;
 }
 
 .card {

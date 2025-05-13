@@ -44,6 +44,6 @@ wss.on('connection', (ws, req) => {
 });
 
 // Écoute sur le port 9000
-server.listen(9000, '192.168.43.225', () => {
+server.listen(9000, '192.168.10.83', () => {
   console.log('🚀 Serveur WebSocket disponible sur : ws://192.168.43.225:9000');
 });

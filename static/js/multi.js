@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.43.225:9000';
+const SERVER_URL = 'ws://192.168.10.83:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -78,6 +78,10 @@ function connectWebSocket() {
 
 
 
+
+
+
+
 // Fonction de mise à jour d'une carte machine existante
 function updateMachineCard(data, hostname) {
   const openPortsDetails = buildOpenPortsDetails(data.open_ports);
@@ -85,20 +89,103 @@ function updateMachineCard(data, hostname) {
   const outboundTrafficDetails = buildOutboundTrafficDetails(data.outbound_traffic);
   const batteryStatus = buildBatteryStatus(data.battery_data);
 
+
+
+
+
   machines[hostname].card.innerHTML = `
 
-  <div class="inter-container">
+  <div class="inter-container" style="
+  box-shadow:  0 4px 8px ${
+    data.system_state === 'Good'
+      ? 'green'
+      : data.system_state === 'Medium'
+      ? 'orange'
+      : data.system_state === 'Critical'
+      ? 'red'
+      : 'grey'
+  };">
+
+
+
+  
+    <div class="card-inter">${data.uptime}</div>
       <div class="card-inter">${data.local_ip}</div>
       <div class="card-inter">${data.os}</div>
-      <div class="card-inter">${data.system_state}</div>
-      <div class="card-inter">${data.internet_status}</div>
+
+
+
+      <div class="card-inter" style="
+
+      color: ${
+        data.system_state === 'Good'
+          ? 'green'
+          : data.system_state === 'Medium'
+          ? 'orange'
+          : data.system_state === 'Critical' 
+          ? 'red'
+          :'grey'
+      };
+    ">
+      ${data.system_state}
+    </div>
+    
+
+
+
+      <div class="card-inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
+        ${data.internet_status}
+      </div>
+
+
+
       <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
-      <div class="card-inter"><strong>CPU</strong> ${data.cpu ?? 'N/A'} %</div>
-      <div class="card-inter"><strong>RAM</strong> ${data.ram ?? 'N/A'} %</div>
-      <div class="card-inter">DISK ${diskDetails}</div>
+      <div class="card-inter" style="
+
+      color: ${
+        data.cpu >= 80
+          ? 'red'     // vert foncé
+          : data.cpu > 60
+          ? 'orange' 
+          : data.cpu < 60
+          ? 'green'    // orange foncé
+          : 'white'     // rouge foncé
+      };
+    ">
+      <strong>CPU</strong> ${data.cpu ?? 'N/A'} %
+    </div>
+
+    
+
+
+    <div class="card-inter" style="
+
+  color: ${
+    data.ram < 60
+      ? 'green'     // vert foncé
+      : data.ram < 80
+      ? 'orange'     // orange foncé
+      : 'red'     // rouge foncé
+  };
+">
+  <strong>RAM</strong> ${data.ram ?? 'N/A'} %
+</div>
+
+
+
+
+
+<div class="card-inter">DISK ${diskDetails}</div>
+
+
+
       <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
       <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} send, ${data.bandwidth.received_kb}received</div>
+
+
       <div class="card-inter">${batteryStatus}</div>
+
+      
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
       <div class="card-inter"><span class="section-title">Logs</span><br>${data.logs}</div>
@@ -112,8 +199,10 @@ function updateMachineCard(data, hostname) {
 
 // Fonction de création d'une nouvelle carte pour une machine
 function createNewMachineCard(data, hostname) {
+
   const card = document.createElement('div');
   card.className = 'card';
+
   const openPortsDetails = buildOpenPortsDetails(data.open_ports);
   const diskDetails = buildDiskDetails(data.disk);
   const outboundTrafficDetails = buildOutboundTrafficDetails(data.outbound_traffic);
@@ -122,6 +211,7 @@ function createNewMachineCard(data, hostname) {
   card.innerHTML = `
   <div class="inter-container">
       <div class="card-inter">${data.local_ip}</div>
+      <div class="card-inter">${data.uptime}</div>
       <div class="card-inter">${data.os}</div>
       <div class="card-inter">${data.system_state}</div>
       <div class="card-inter">${data.internet_status}</div>
@@ -163,15 +253,27 @@ function buildOpenPortsDetails(openPorts) {
   return openPortsDetails;
 }
 
-// Fonction pour construire les détails des disques
+// Fonction pour construire les détails des disques avec couleurs dynamiques
 function buildDiskDetails(disk) {
   let diskDetails = '<ul>';
+
   for (const [mount, percent] of Object.entries(disk)) {
-    diskDetails += `<li>${mount} : ${percent}% utilisé</li>`;
+    const color =
+      percent < 60
+        ? 'green'
+        : percent < 80
+        ? 'orange'
+        : percent > 80
+        ? 'red'
+        : 'white';
+
+    diskDetails += `<li style="color: ${color};"><strong>${mount}</strong> : ${percent}% utilisé</li>`;
   }
+
   diskDetails += '</ul>';
   return diskDetails;
 }
+
 
 // Fonction pour construire les détails du trafic sortant
 function buildOutboundTrafficDetails(outboundTraffic) {
@@ -183,13 +285,36 @@ function buildOutboundTrafficDetails(outboundTraffic) {
   return outboundTrafficDetails;
 }
 
-// Fonction pour construire les détails de la batterie
+// Fonction pour construire les détails de la batterie avec double couleur dynamique
 function buildBatteryStatus(batteryData) {
+  // Couleur pour le pourcentage de batterie
+  const percentColor =
+    batteryData.battery_percent > 60
+      ? 'green'
+      : batteryData.battery_percent > 20
+      ? 'orange'
+      : batteryData.battery_percent <= 15
+      ? 'red'
+      : 'white';
+
+  // Couleur pour le statut (prise secteur ou batterie)
+  const statusColor = batteryData.battery_status === "On AC power" ? 'green' : 'white';
+
   return `
-    <strong>🔋 Batterie :</strong> ${batteryData.battery_percent}%<br>
-    <strong>Statut de la batterie :</strong> ${batteryData.battery_status}<br>
+    <div>
+      <strong>Battery:</strong> <span style="color: ${percentColor};">${batteryData.battery_percent}%</span><br>
+      <strong>Battery Status:</strong> <span style="color: ${statusColor};">${batteryData.battery_status}</span><br>
+    </div>
   `;
 }
+
+
+
+
+
+
+
+
 
 // Connexion initiale
 connectWebSocket();

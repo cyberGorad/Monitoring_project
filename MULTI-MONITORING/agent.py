@@ -1,14 +1,16 @@
 
 import asyncio
+import time
 import json
 import subprocess
 import platform
 import psutil
+import datetime
 import socket
 import os
 import websockets
 
-SERVER_URL = "ws://192.168.43.225:9000"
+SERVER_URL = "ws://192.168.10.83:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
@@ -237,6 +239,17 @@ async def get_temperature():
     return "CPU Temperature not available"
 
 
+
+async def get_uptime():
+        uptime_seconds = time.time() - psutil.boot_time()
+        uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
+        return uptime_str
+        
+
+
+
+
+
 async def get_system_logs():
     log_path = "/var/log/syslog"
     if os.path.exists(log_path):
@@ -289,6 +302,7 @@ async def send_data(websocket):
                 "internet_status": await check_internet_connection(),
                 "temperature": await get_temperature(),
                 "os": get_os(),
+                "uptime": await get_uptime(),
             }
 
             await websocket.send(json.dumps(data))

@@ -120,7 +120,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-around;
-        gap: 15px;
+        gap: 10px;
         margin: 10px;
     }
 
@@ -147,8 +147,8 @@
     .card-for-column {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 2px;
+        justify-content: space-around;
+        gap: 1px;
         width: 22%;
         padding: 2px;
         box-sizing: border-box;

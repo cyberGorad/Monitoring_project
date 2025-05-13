@@ -306,6 +306,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.get_disk_usage_task = asyncio.create_task(self.get_disk_usage())
         self.get_sorted_processes_by_memory_task = asyncio.create_task(self.get_sorted_processes_by_memory())
         self.RubberDuckyMonitor_task = asyncio.create_task(self.RubberDuckyMonitor())
+        self.allow_connection_task = asyncio.create_task(self.allow_connection())
+        self.check_firewall_status_task = asyncio.create_task(self.check_firewall_status())
 
 
 
@@ -322,6 +324,95 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.get_disk_usage_task.cancel()
         self.get_sorted_processes_by_memory_task.cancel()
         self.RubberDuckyMonitor_task.cancel()
+        self.allow_connection_task.cancel()
+        self.check_firewall_status_task.cancel()
+
+
+
+
+
+
+
+
+    async def check_firewall_status(self):
+        system = platform.system()
+        firewall_status = {
+            "type": "firewall_status",
+            "windows": "Yes",
+            "iptables": "Vrai",
+            
+            }
+
+        try:
+            if system == "Windows":
+                result = subprocess.check_output(
+                    'netsh advfirewall show allprofiles',
+                    shell=True, text=True
+                )
+                if "État du pare-feu actuel : ON" in result or "State ON" in result:
+                    firewall_status["windows"] = "FIREWALL ON"
+                else:
+                    firewall_status["windows"] = "FIREWALL OFF"
+
+            elif system == "Linux":
+                result = subprocess.run(['which', 'iptables'], stdout=subprocess.PIPE)
+                if result.stdout.decode().strip():
+                    firewall_status["iptables"] = "Iptables installed"
+                else:
+                    firewall_status["iptables"] = "Iptables Not installeds"
+
+        except Exception as e:
+            print(f"ERROR:FATAL {e}")
+            firewall_status["error"] = str(e)
+
+        await self.send(json.dumps(firewall_status))
+
+
+
+
+
+
+
+    async def allow_connection(self):
+        # Liste blanche des noms de processus autorisés
+        allowed_processes = {"firefox-esr", "chrome", "curl", "daphne", "node", "python3"}
+        seen = set()
+
+        while True:
+            # Utilisation d'asyncio pour rendre non-bloquant
+              # Remplace time.sleep() par asyncio.sleep()
+
+            # Liste des processus non autorisés
+            unauthorized_processes = []
+
+            for conn in psutil.net_connections(kind='inet'):
+                pid = conn.pid
+                if pid and pid not in seen:
+                    try:
+                        proc = psutil.Process(pid)
+                        name = proc.name().lower()
+                        if name not in allowed_processes:
+                            # Collecter les informations du processus non autorisé
+                            unauthorized_processes.append({
+                                "pid": pid,
+                                "name": name,
+                                "status": "unauthorized"
+                            })
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+
+                    seen.add(pid)
+
+            # Si des processus non autorisés ont été trouvés, envoyer une alerte sous forme JSON
+            if unauthorized_processes:
+                await self.send(json.dumps({
+                    "type": "unauthorized_processes_alert",
+                    "processes": unauthorized_processes,
+                }))
+
+            await asyncio.sleep(2)
+            
+
 
 
 
