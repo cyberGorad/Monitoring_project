@@ -214,11 +214,9 @@
 
 
         <div id="ports-container" class="card">
+            <i class="fas fa-plug" style="float: left; font-size: 24px; color: #00ff00;"></i>
             <h3>
                 Open Ports
-                <i class="fas fa-plug" style="float: right; font-size: 24px; color: #00ff00;"></i>
-
-
                 
             </h3>
             
@@ -292,19 +290,18 @@
 
 
 
-
-
-
-                
-        <div id="connections-container" class="card">
-            <h3>
-                Established
-                <i class="fas fa-network-wired" style="float: right; font-size: 24px; color: #00ff00;"></i>
-            </h3>
-
-            <ul id="connections-list"></ul>
+        <div id="cron-jobs-list" class="card">
+            <h3>Tasks Scheduled <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+            <div class="three-body">
+                <div class="three-body__dot"></div>
+                <div class="three-body__dot"></div>
+                <div class="three-body__dot"></div>
+            </div>
+            
         </div>
 
+
+  
 
 
 
@@ -322,15 +319,22 @@
             
 
 
-                <div id="cron-jobs-list" class="card">
-                    <h3>Tasks Scheduled <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
-                    <div class="three-body">
-                        <div class="three-body__dot"></div>
-                        <div class="three-body__dot"></div>
-                        <div class="three-body__dot"></div>
-                    </div>
-                    
-                </div>
+                              
+        <div id="connections-info" class="card">
+            <i class="fas fa-network-wired" style="float: left; font-size: 24px; color: #00ff00;"></i>
+            <h3>
+                Established
+                
+                    <button id="connection-button" onmouseover="etablishedFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button>
+             
+
+            </h3>
+
+            <ul id="connections-list"></ul>
+        </div>
+
+
+    
 
 
 
@@ -369,6 +373,19 @@
         
 
 
+        <div id="file-info" class="large-card" >
+            
+            <h2><i class="fas fa-rocket"></i>File monitoring</h2>
+            
+            <div id="startup-details">
+                
+            </div>
+        </div>
+
+
+
+
+
         <div id="file-scan-container" class="card"  >
             <h3>
                 File Scan
@@ -383,12 +400,24 @@
 
 
         <div id="firewall" class="card">
-            <div id="platform"></div>
-            <div id="firewall-status">
-            </div>
 
+            <button onclick="setDefaultPolicy()">Activer Politique de Sécurité</button>
+
+                    <script>
+                    function setDefaultPolicy() {
+                        socket.send(JSON.stringify({
+                            type: "set_policy"
+                        }));
+                    }
+                    </script>
+
+            <h4>Add address authorised</h4>
+            <input type="text" id="ip-input" placeholder="Ex: 192.168.1.10">
+            <button onclick="sendIP()">Autoriser IP</button>
+        
+            <div id="firewall-status"></div>
         </div>
-
+        
 
 
 
@@ -436,6 +465,7 @@
     <script src="/static/js/animate/process.js"></script>
     <script src="/static/js/animate/startup.js"></script>
     <script src="/static/js/animate/outboundFunction.js"></script>
+    <script src="/static/js/animate/etablishedFunction.js"></script>
 
 
     <script src="/static/js/copy.js"></script>

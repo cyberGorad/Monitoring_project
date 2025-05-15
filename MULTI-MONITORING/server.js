@@ -12,11 +12,11 @@ const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
   const ip = req.socket.remoteAddress;
-  console.log(`Client connecté depuis ${ip}`);
+  console.log(`[+] Client connected ->  ${ip}`);
 
   // Écouter les messages venant du client
   ws.on('message', (msg) => {
-    console.log('📩 Reçu:', msg);
+    console.log('Received:', msg);
     
     // Par exemple, faire une broadcast à tous les clients
     wss.clients.forEach(client => {
@@ -28,7 +28,7 @@ wss.on('connection', (ws, req) => {
 
     // Gérer la fermeture propre du WebSocket
     ws.on('close', () => {
-        console.log('Client déconnecté');
+        console.log('Client Deconnected');
     });
 
 
@@ -39,11 +39,11 @@ wss.on('connection', (ws, req) => {
       command: 'caja /' // Commande à exécuter côté client
     };
     ws.send(JSON.stringify(command)); // Envoie la commande au client
-    console.log('📤 Commande envoyée:', command.command);
+    console.log('Command Send:', command.command);
   }, 5000); // Envoie la commande après 5 secondes de connexion
 });
 
 // Écoute sur le port 9000
-server.listen(9000, '192.168.10.83', () => {
-  console.log('🚀 Serveur WebSocket disponible sur : ws://192.168.43.225:9000');
+server.listen(9000, '192.168.43.226', () => {
+  console.log('Server Websocket is available : ws://192.168.43.225:9000');
 });

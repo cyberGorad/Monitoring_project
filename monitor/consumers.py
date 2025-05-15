@@ -1,4 +1,5 @@
 import asyncio
+import ipaddress
 import json
 import subprocess
 import psutil
@@ -32,6 +33,8 @@ def resolve_ip(ip):
         return host[0]
     except socket.herror:
         return None
+
+        
 
 # Fonction pour obtenir les connexions établies
 def get_established_connections():
@@ -291,6 +294,15 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         
     
         await self.accept()
+
+
+        await self.send(json.dumps({"type": "firewall_status", "iptables": "Ready to receive IPs."}))
+        
+
+        
+
+
+
         
         # Crée des tâches pour les scripts de surveillacnce
         
@@ -309,6 +321,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.allow_connection_task = asyncio.create_task(self.allow_connection())
         self.check_firewall_status_task = asyncio.create_task(self.check_firewall_status())
 
+      
+
 
 
     async def disconnect(self, close_code):
@@ -326,6 +340,129 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.RubberDuckyMonitor_task.cancel()
         self.allow_connection_task.cancel()
         self.check_firewall_status_task.cancel()
+
+        
+    """
+    WINDOWS
+    import json
+import subprocess
+import platform
+
+async def receive(self, text_data):
+    data = json.loads(text_data)
+    type_action = data.get("type")
+
+    if platform.system() != "Windows":
+        await self.send(json.dumps({
+            "type": "firewall_status",
+            "iptables": "Ce système n'est pas Windows. Utilisez iptables pour Linux."
+        }))
+        return
+
+    if type_action == "add_ip":
+        ip = data.get("ip")
+        if self.is_valid_ip(ip):
+            try:
+                cmd1 = ["netsh", "advfirewall", "firewall", "add", "rule", "name=Allow_In_{}".format(ip),
+                        "dir=in", "action=allow", "remoteip={}".format(ip), "protocol=any"]
+                cmd2 = ["netsh", "advfirewall", "firewall", "add", "rule", "name=Allow_Out_{}".format(ip),
+                        "dir=out", "action=allow", "remoteip={}".format(ip), "protocol=any"]
+                subprocess.run(cmd1, check=True, shell=True)
+                subprocess.run(cmd2, check=True, shell=True)
+
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": f"L'adresse IP {ip} a été autorisée dans le pare-feu Windows."
+                }))
+            except Exception as e:
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": f"Erreur lors de l'ajout de l'IP : {str(e)}"
+                }))
+        else:
+            await self.send(json.dumps({
+                "type": "firewall_status",
+                "iptables": "Adresse IP invalide."
+            }))
+
+    elif type_action == "set_policy":
+        try:
+            # Désactiver toutes les règles existantes (optionnel et dangereux si mal utilisé)
+            subprocess.run(["netsh", "advfirewall", "reset"], check=True, shell=True)
+
+            # Bloquer tout sauf localhost
+            subprocess.run(["netsh", "advfirewall", "set", "allprofiles", "firewallpolicy", "blockinbound,allowoutbound"], check=True, shell=True)
+            subprocess.run(["netsh", "advfirewall", "firewall", "add", "rule", "name=Allow_Localhost", "dir=in",
+                            "action=allow", "remoteip=127.0.0.1", "protocol=any"], check=True, shell=True)
+
+            await self.send(json.dumps({
+                "type": "firewall_status",
+                "iptables": "Politique pare-feu Windows définie : tout bloqué sauf localhost."
+            }))
+        except subprocess.CalledProcessError as e:
+            await self.send(json.dumps({
+                "type": "firewall_status",
+                "iptables": f"Erreur lors de l'application de la politique : {str(e)}"
+            }))
+
+    """
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        type_action = data.get("type")
+
+        if type_action == "add_ip":
+            ip = data.get("ip")
+
+            if self.is_valid_ip(ip):
+                try:
+                    cmd1 = ["sudo", "iptables", "-A", "INPUT", "-s", ip, "-j", "ACCEPT"]
+                    cmd2 = ["sudo", "iptables", "-A", "OUTPUT", "-d", ip, "-j", "ACCEPT"]
+                    subprocess.run(cmd1, check=True)
+                    subprocess.run(cmd2, check=True)
+                    await self.send(json.dumps({
+                        "type": "firewall_status",
+                        "iptables": f"L'adresse IP {ip} a été autorisée avec succès."
+                    }))
+                except Exception as e:
+                    await self.send(json.dumps({
+                        "type": "firewall_status",
+                        "iptables": f"Erreur lors de l'ajout de l'IP: {str(e)}"
+                    }))
+            else:
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": "Adresse IP invalide."
+                }))
+
+        elif type_action == "set_policy":
+            try:
+                subprocess.run(["sudo", "iptables", "-F"], check=True)  # flush all rules
+                subprocess.run(["sudo", "iptables", "-A", "INPUT", "-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"], check=True)
+                subprocess.run(["sudo", "iptables", "-A", "INPUT", "-s", "127.0.0.1", "-j", "ACCEPT"], check=True)
+                subprocess.run(["sudo", "iptables", "-P", "INPUT", "DROP"], check=True)
+                subprocess.run(["sudo", "iptables", "-P", "FORWARD", "DROP"], check=True)
+                subprocess.run(["sudo", "iptables", "-P", "OUTPUT", "ACCEPT"], check=True)
+                        
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": "Politique par défaut appliquée : tout bloqué sauf les IP autorisées."
+                }))
+            except subprocess.CalledProcessError as e:
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": f"Erreur lors de l'application de la politique : {str(e)}"
+                }))
+
+
+
+    def is_valid_ip(self, ip):
+        try:
+            ipaddress.ip_address(ip)
+            return True
+        except ValueError:
+            return False
+
 
 
 
@@ -703,8 +840,6 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
                 "received": recv_kb,
                 "total": total_kb,
             }))
-
-
 
 
 

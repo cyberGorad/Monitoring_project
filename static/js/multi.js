@@ -1,7 +1,7 @@
     // Fonction pour mettre à jour le nombre d'agents connectés
     function updateAgentCount() {
       const count = Object.keys(machines).length;
-      agentCount.textContent = `${count} Machines${count !== 1 ? 's' : ''} connected${count !== 1 ? 's' : ''}`;
+      agentCount.textContent = `${count} Machine${count !== 1 ? 's' : ''} connected${count !== 1 ? 's' : ''}`;
     }
 const loaderContainer = document.querySelector('.loader-container');
 const content = document.querySelector('.content');
@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.10.83:9000';
+const SERVER_URL = 'ws://192.168.43.226:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -21,7 +21,7 @@ function connectWebSocket() {
   ws = new WebSocket(SERVER_URL);
 
   ws.onopen = () => {
-    console.log('✅ Connexion WebSocket ouverte');
+    console.log('CONNECTION WEBSOCKET OPENED ...');
     reconnectInterval = 5000; // Réinitialiser le délai de reconnexion
   };
 
@@ -40,10 +40,10 @@ function connectWebSocket() {
     try {
       data = JSON.parse(textData);
     } catch (e) {
-      console.warn("❌ Message non-JSON :", textData);
+      console.warn("❌ Message no JSON :", textData);
       dashboard.innerHTML += `
         <div class="card error">
-          Message non reconnu : ${textData}
+          Message no clear : ${textData}
         </div>
       `;
       return;
@@ -61,17 +61,17 @@ function connectWebSocket() {
   };
 
   ws.onerror = (err) => {
-    console.log('⚠️ Erreur WebSocket:', err.message);
+    console.log('⚠️ ERROR WEBSOCKET:', err.message);
     noMachine.textContent = "Reconnecting to server ...";
     setTimeout(connectWebSocket, reconnectInterval); // Essayer de se reconnecter
-    reconnectInterval = Math.min(reconnectInterval * 2, 30000); // Double le délai de reconnexion (jusqu'à 30 secondes)
+    reconnectInterval = Math.min(reconnectInterval * 2, 5000); // Double le délai de reconnexion (jusqu'à 30 secondes)
   };
 
   ws.onclose = () => {
-    console.warn('⚠️ Connexion WebSocket fermée');
-    noMachine.textContent = "Wainting for machines ...";
+    console.warn('⚠️ CONNECTION CLOSED');
+    noMachine.textContent = "Waiting for machines ...";
     setTimeout(connectWebSocket, reconnectInterval); // Essayer de se reconnecter
-    reconnectInterval = Math.min(reconnectInterval * 2, 30000); // Double le délai de reconnexion
+    reconnectInterval = Math.min(reconnectInterval * 2, 5000); // Double le délai de reconnexion
   };
 }
 
@@ -188,12 +188,13 @@ function updateMachineCard(data, hostname) {
       
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
-      <div class="card-inter"><span class="section-title">Logs</span><br>${data.logs}</div>
+
       <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
 </div>
   `;
   machines[hostname].lastSeen = Date.now();
 }
+
 
 
 
@@ -224,7 +225,6 @@ function createNewMachineCard(data, hostname) {
       <div class="card-inter">${batteryStatus}</div>
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
-      <div class="card-inter"><span class="section-title">Logs</span><br>${data.logs}</div>
       <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
 </div>
   `;
@@ -299,6 +299,8 @@ function buildBatteryStatus(batteryData) {
 
   // Couleur pour le statut (prise secteur ou batterie)
   const statusColor = batteryData.battery_status === "On AC power" ? 'green' : 'white';
+
+
 
   return `
     <div>

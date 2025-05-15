@@ -10,7 +10,7 @@ import socket
 import os
 import websockets
 
-SERVER_URL = "ws://192.168.10.83:9000"
+SERVER_URL = "ws://192.168.43.226:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
@@ -88,12 +88,12 @@ async def reconnect_with_backoff():
     
     while True:
         try:
-            print(f"Tentative de reconnexion dans {backoff_time}s...")
+            print(f"RECONNECT TO SERVER {backoff_time}s...")
             await asyncio.sleep(backoff_time)  # Attente avant de tenter la reconnexion
             await send_data()  # Essaye de reconnecter et de renvoyer des données
             break  # Si la connexion réussit, sortir de la boucle
         except Exception as e:
-            print(f"Erreur lors de la reconnexion: {e}")
+            print(f"ERROR WHEN CONNECT: {e}")
             backoff_time = min(backoff_time * 2, max_backoff)
 
 
@@ -189,6 +189,9 @@ async def get_cron_jobs():
             return "Aucune tâche cron trouvée pour root"
 
 
+
+
+
 async def get_battery_status():
     battery = psutil.sensors_battery()
     if battery is None:
@@ -250,11 +253,6 @@ async def get_uptime():
 
 
 
-async def get_system_logs():
-    log_path = "/var/log/syslog"
-    if os.path.exists(log_path):
-        return await run_command("tail -n 10 /var/log/syslog")
-    return "No logs found."
 
 async def get_outbound_traffic():
     connections = []
@@ -296,7 +294,6 @@ async def send_data(websocket):
                 "connections": await get_established_connections(),
                 "bandwidth": bandwidth,
                 "cron_jobs": await get_cron_jobs(),
-                "logs": await get_system_logs(),
                 "outbound_traffic": await get_outbound_traffic(),
                 "battery_data": await get_battery_status(),
                 "internet_status": await check_internet_connection(),

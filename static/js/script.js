@@ -65,7 +65,7 @@ let socket;
 let reconnectInterval = 5000; // 5 secondes avant de retenter
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
+    socket = new WebSocket('ws://192.168.43.226:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected','color: lime');
@@ -88,6 +88,38 @@ function connectWebSocket() {
 
 // Démarrage initial
 connectWebSocket();
+
+
+
+
+function sendIP() {
+    const ip = document.getElementById("ip-input").value.trim();
+
+    if (!ip) {
+        alert("Adresse IP invalide.");
+        return;
+    }
+
+    const payload = {
+        type: "add_ip",   // type attendu dans consumers.py
+        ip: ip
+    };
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(payload));
+        console.log('%c[>] IP envoyée au backend: ' + ip, 'color: gold');
+    } else {
+        alert("WebSocket non connecté.");
+    }
+}
+
+
+function setDefaultPolicy() {
+    socket.send(JSON.stringify({
+        type: "set_policy"
+    }));
+}
+
 
 
 
@@ -1393,3 +1425,13 @@ function startBackgroundMusic(src, volume = 0.1) {
 
 // Appeler la fonction avec la source de votre musique et le volume
 startBackgroundMusic('/static/background.mp3', 0.1);
+
+
+
+
+
+
+
+
+
+
