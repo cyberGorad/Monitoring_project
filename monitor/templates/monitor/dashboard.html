@@ -403,13 +403,7 @@
 
             <button onclick="setDefaultPolicy()">Activer Politique de Sécurité</button>
 
-                    <script>
-                    function setDefaultPolicy() {
-                        socket.send(JSON.stringify({
-                            type: "set_policy"
-                        }));
-                    }
-                    </script>
+
 
             <h4>Add address authorised</h4>
             <input type="text" id="ip-input" placeholder="Ex: 192.168.1.10">
@@ -442,17 +436,6 @@
        
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-   
 
 
 

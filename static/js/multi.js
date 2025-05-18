@@ -17,6 +17,57 @@ let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
 
 
 
+function sendCommand(hostname) {
+  const input = document.getElementById(`commandInput_${hostname}`);
+  const cmd = input.value.trim();
+
+  if (cmd && ws && ws.readyState === WebSocket.OPEN) {
+    const payload = {
+      type: 'command',
+      command: cmd,
+      target: hostname  // Agent a envoyer du commande 
+    };
+    ws.send(JSON.stringify(payload));
+    console.log(`[🟢] Command sent to ${hostname} ->`, cmd);
+    input.value = ''; // Reset input
+  } else {
+    console.warn('[🔴] Impossible d\'envoyer la commande. WebSocket non connecté.');
+  }
+}
+
+
+
+
+function sendCommandAll() {
+  const cmdInput = document.getElementById('commandInputAll');
+  const commandText = cmdInput.value.trim();
+
+  if (!commandText) {
+    alert("Print correct command");
+    return;
+  }
+
+  if (ws.readyState !== WebSocket.OPEN) {
+    alert("WebSocket non connecté !");
+    return;
+  }
+
+  const message = {
+    type: 'broadcast_command',
+    command: commandText
+  };
+
+  ws.send(JSON.stringify(message));
+  console.log("[🟢] Command sent to all:", commandText);
+
+  cmdInput.value = '';
+}
+
+
+
+
+
+
 function connectWebSocket() {
   ws = new WebSocket(SERVER_URL);
 
@@ -189,11 +240,36 @@ function updateMachineCard(data, hostname) {
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
 
+   
       <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
+
+
+      
+
+      <div style="margin-top: 20px;">
+  <input id="commandInput_${hostname}" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
+  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">Envoyer</button>
 </div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
   `;
   machines[hostname].lastSeen = Date.now();
 }
+
+
+
+
 
 
 
@@ -226,6 +302,17 @@ function createNewMachineCard(data, hostname) {
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
       <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
+
+
+
+      <div style="margin-top: 20px;">
+
+
+  <input id="commandInput_${hostname}" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
+  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">Envoyer</button>
+</div>
+
+
 </div>
   `;
   dashboard.appendChild(card);

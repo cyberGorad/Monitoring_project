@@ -1,5 +1,24 @@
 const http = require('http');
 const WebSocket = require('ws');
+const os = require('os');
+
+
+const agents = new Map(); // hostname => ws
+
+// Fonction pour récupérer l'IP locale (IPv4 non loopback)
+function getLocalIPAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1'; // Fallback si aucun trouvé
+}
+
+const localIP = getLocalIPAddress();
 
 // Serveur HTTP minimal
 const server = http.createServer((req, res) => {
@@ -14,36 +33,113 @@ wss.on('connection', (ws, req) => {
   const ip = req.socket.remoteAddress;
   console.log(`[+] Client connected ->  ${ip}`);
 
-  // Écouter les messages venant du client
+
+
+
+
+  /* CLIENT SPECIFIQUE */
   ws.on('message', (msg) => {
-    console.log('Received:', msg);
-    
-    // Par exemple, faire une broadcast à tous les clients
-    wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(msg);
+    try {
+      const data = JSON.parse(msg);
+  
+      if (data.type === 'broadcast_command') {
+        // On envoie la commande à tous les clients connectés
+        const payload = JSON.stringify({
+          type: 'command',
+          command: data.command
+        });
+  
+        console.log(`[📢] Reçu commande broadcast -> "${data.command}"`);
+  
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(payload);
+          }
+        });
+  
+      } else if (data.type === 'register'){
+          const ip = data.ip;
+  
+          agents.set(ip, ws);
+  
+          console.log(`[📝] Agent enregistré avec IP: ${ip}`);
+        
+        
+
+
+
+      } else if (data.type === 'command') {
+        const targetIP = data.target;  // IP cible reçue
+        const command = data.command;
+      
+        console.log(`HOSTNAME AGENT CONNECTED -> "${targetIP}"`);
+      
+        // Récupère le client WebSocket de l'agent cible
+        const targetClient = agents.get(targetIP);
+      
+        if (targetClient && targetClient.readyState === WebSocket.OPEN) {
+          const payload = JSON.stringify({
+            type: 'command',
+            command: command
+          });
+      
+          targetClient.send(payload);
+      
+          console.log(`[🎯] Commande envoyée à ${targetIP} -> "${command}"`);
+        } else {
+          console.log(`[❌] Agent ${targetIP} non trouvé ou déconnecté.`);
+        }
+      
+      
+
+
+      } 
+      
+      
+      else {
+        // Cas par défaut : relay message
+        console.log(`[🔁] Message standard reçu :`, msg);
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(msg);
+          }
+        });
       }
-    });
+  
+    } catch (err) {
+      console.error("[⛔] Erreur parsing JSON :", err.message);
+    }
+  });
+  
+
+
+
+
+  ws.on('close', () => {
+    console.log('Client Disconnected');
   });
 
-    // Gérer la fermeture propre du WebSocket
-    ws.on('close', () => {
-        console.log('Client Deconnected');
-    });
 
 
-  // Envoi d'une commande après la connexion du client
+
+  
+
+
+  /* COMMAND AUTO 
+  
   setTimeout(() => {
     const command = {
       type: 'command',
-      command: 'caja /' // Commande à exécuter côté client
+      command: ''
     };
-    ws.send(JSON.stringify(command)); // Envoie la commande au client
-    console.log('Command Send:', command.command);
-  }, 5000); // Envoie la commande après 5 secondes de connexion
+    ws.send(JSON.stringify(command));
+    console.log('Command Sent:', command.command);
+  }, 5000);
+*/
+
 });
 
-// Écoute sur le port 9000
-server.listen(9000, '192.168.43.226', () => {
-  console.log('Server Websocket is available : ws://192.168.43.225:9000');
+
+server.listen(9000, localIP, () => {
+  console.log(`Server Websocket is available : ws://${localIP}:9000`);
 });
