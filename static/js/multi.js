@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.43.226:9000';
+const SERVER_URL = 'ws://192.168.10.167:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -31,7 +31,7 @@ function sendCommand(hostname) {
     console.log(`[🟢] Command sent to ${hostname} ->`, cmd);
     input.value = ''; // Reset input
   } else {
-    console.warn('[🔴] Impossible d\'envoyer la commande. WebSocket non connecté.');
+    console.warn('Impossible to send command');
   }
 }
 
@@ -237,11 +237,11 @@ function updateMachineCard(data, hostname) {
       <div class="card-inter">${batteryStatus}</div>
 
       
-      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
+      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} established</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
 
    
-      <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
+      <div class="full-card-inter"><span class="section-title"></span><br>${outboundTrafficDetails}</div>
 
 
       
@@ -250,8 +250,6 @@ function updateMachineCard(data, hostname) {
   <input id="commandInput_${hostname}" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
   <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">Envoyer</button>
 </div>
-
-
 
 
 
@@ -301,20 +299,22 @@ function createNewMachineCard(data, hostname) {
       <div class="card-inter">${batteryStatus}</div>
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
-      <div class="full-card-inter"><span class="section-title">Outbound</span><br>${data.outbound_traffic.length}<br>${outboundTrafficDetails}</div>
+      <div class="full-card-inter"><span class="section-title"></span>${outboundTrafficDetails}</div>
 
 
 
       <div style="margin-top: 20px;">
-
-
   <input id="commandInput_${hostname}" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
   <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">Envoyer</button>
 </div>
 
 
+
 </div>
+
   `;
+
+  
   dashboard.appendChild(card);
   machines[hostname] = {
     card,

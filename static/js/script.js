@@ -65,7 +65,7 @@ let socket;
 let reconnectInterval = 5000; // 5 secondes avant de retenter
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://192.168.43.226:8000/ws/monitor/');
+    socket = new WebSocket('ws://192.168.10.167:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected', 'color: lime');
@@ -951,7 +951,7 @@ socket.onmessage = function (e) {
         case "bandwidth":
             const bandwidthContainer = document.getElementById('bandwidth-container');
             const dosElement = document.getElementById('dos');
-
+            const total_data = document.getElementById('total_data');
             // Initialisation du graphe s'il n'existe pas
             if (!window.bandwidthChartInitialized) {
                 const canvas = document.createElement('canvas');
@@ -1075,10 +1075,15 @@ socket.onmessage = function (e) {
 
             // Met à jour les valeurs dans le bloc texte
             textDiv.innerHTML = `
-                        <span style="color:#4CAF50;">Sent ${data.sent} KB</span> 
-                        <span style="color:#FF7043;">Received ${data.received} KB</span> 
+                        <span style="color:#4CAF50;">${data.sent} KB</span> 
+                        <span style="color:#FF7043;"> ${data.received} KB</span> 
                         <span style="color:#2196F3;">Total ${data.total} KB</span>
+
+                        
+
                     `;
+
+                    total_data.textContent = `${data.total_data_mb} MB`;
 
             break;
 

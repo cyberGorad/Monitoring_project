@@ -422,12 +422,12 @@ async def receive(self, text_data):
                     subprocess.run(cmd2, check=True)
                     await self.send(json.dumps({
                         "type": "firewall_status",
-                        "iptables": f"L'adresse IP {ip} a été autorisée avec succès."
+                        "iptables": f"Access Granted for {ip} "
                     }))
                 except Exception as e:
                     await self.send(json.dumps({
                         "type": "firewall_status",
-                        "iptables": f"Erreur lors de l'ajout de l'IP: {str(e)}"
+                        "iptables": f"ERROR : {str(e)}"
                     }))
             else:
                 await self.send(json.dumps({
@@ -446,12 +446,12 @@ async def receive(self, text_data):
                         
                 await self.send(json.dumps({
                     "type": "firewall_status",
-                    "iptables": "Politique par défaut appliquée : tout bloqué sauf les IP autorisées."
+                    "iptables": "DEFAULT PROTECTION ACTIVATED."
                 }))
             except subprocess.CalledProcessError as e:
                 await self.send(json.dumps({
                     "type": "firewall_status",
-                    "iptables": f"Erreur lors de l'application de la politique : {str(e)}"
+                    "iptables": f"ERROR: {str(e)}"
                 }))
 
 
@@ -479,6 +479,7 @@ async def receive(self, text_data):
             "iptables": "Vrai",
             
             }
+
 
         try:
             if system == "Windows":
@@ -814,31 +815,37 @@ async def receive(self, text_data):
 
 
     async def monitor_bandwidth(self):
-        """Surveille la bande passante réseau ."""
+        """Surveille la bande passante réseau."""
         old_data = psutil.net_io_counters()
+
+        total_sent_bytes = 0
+        total_recv_bytes = 0
+
         while True:
             await asyncio.sleep(1)  # Intervalle de surveillance
             new_data = psutil.net_io_counters()
 
-            # Calculer les octets envoyés et reçus
             sent_bytes = new_data.bytes_sent - old_data.bytes_sent
             recv_bytes = new_data.bytes_recv - old_data.bytes_recv
             total_bytes = sent_bytes + recv_bytes
 
-            # Mettre à jour les anciennes données
             old_data = new_data
 
-            # Convertir les octets en kilooctets (KB) sous forme de float
-            sent_kb = sent_bytes / 1024.0  #  obtenir KB
+            total_sent_bytes += sent_bytes
+            total_recv_bytes += recv_bytes
+            total_data_bytes = total_sent_bytes + total_recv_bytes
+
+            sent_kb = sent_bytes / 1024.0
             recv_kb = recv_bytes / 1024.0
             total_kb = total_bytes / 1024.0
+            total_data_mb = total_data_bytes / (1024.0 * 1024.0)
 
-            # Envoyer les données au client via WebSocket en valeurs float
             await self.send(json.dumps({
                 "type": "bandwidth",
-                "sent": sent_kb,
-                "received": recv_kb,
-                "total": total_kb,
+                "sent": round(sent_kb, 2),
+                "received": round(recv_kb, 2),
+                "total": round(total_kb, 2),
+                "total_data_mb": round(total_data_mb, 2)
             }))
 
 

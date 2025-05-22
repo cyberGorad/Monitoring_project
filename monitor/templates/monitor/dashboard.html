@@ -236,7 +236,7 @@
 
 
         <div id="bandwidth-container" class="card">
-            <h3 id="dos" style="font-size: 14px;"><i class="fas fa-tachometer-alt" id="no" style="float: right; font-size: 24px; color: #00ff00;"></i></h3>
+            <h3 id="dos" style="font-size: 14px;"><i class="fas fa-tachometer-alt" id="no" style="float: right; font-size: 24px; color: #00ff00;"></i> <h6 id="total_data" style="position:absolute;font-size:12px;"></h6></h3>
             
             <p id="bandwidth-info">
 
@@ -401,13 +401,13 @@
 
         <div id="firewall" class="card">
 
-            <button onclick="setDefaultPolicy()">Activer Politique de Sécurité</button>
+            <button onclick="setDefaultPolicy()">Activate Protection</button>
 
 
 
             <h4>Add address authorised</h4>
             <input type="text" id="ip-input" placeholder="Ex: 192.168.1.10">
-            <button onclick="sendIP()">Autoriser IP</button>
+            <button onclick="sendIP()">grant</button>
         
             <div id="firewall-status"></div>
         </div>

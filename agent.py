@@ -6,7 +6,7 @@ import socket
 import os
 import websockets
 
-SERVER_URL = "ws://192.168.43.212:9000"
+SERVER_URL = "ws://192.168.10.195:9000"
 
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Micro Stream</title>
+</head>
+<body>
+  <h2>🎙️ Micro en direct depuis ton PC</h2>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const sampleRate = 44100;
+
+    socket.on('audio', function (data) {
+      const raw = atob(data);
+      const buffer = new Int16Array(raw.length / 2);
+      for (let i = 0; i < buffer.length; i++) {
+        buffer[i] = raw.charCodeAt(i * 2) + (raw.charCodeAt(i * 2 + 1) << 8);
+      }
+
+      const floatBuffer = new Float32Array(buffer.length);
+      for (let i = 0; i < buffer.length; i++) {
+        floatBuffer[i] = buffer[i] / 32768;
+      }
+
+      const audioBuffer = audioContext.createBuffer(1, floatBuffer.length, sampleRate);
+      audioBuffer.getChannelData(0).set(floatBuffer);
+
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.start();
+    });
+  </script>
+</body>
+</html>
