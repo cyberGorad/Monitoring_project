@@ -161,6 +161,11 @@ function updateMachineCard(data, hostname) {
 
   
     <div class="card-inter">${data.uptime}</div>
+
+    <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
+ 
+
+
       <div class="card-inter">${data.local_ip}</div>
       <div class="card-inter">${data.os}</div>
 
@@ -231,7 +236,7 @@ function updateMachineCard(data, hostname) {
 
 
       <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
-      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} send, ${data.bandwidth.received_kb}received</div>
+      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} kb, ${data.bandwidth.received_kb} kb</div>
 
 
       <div class="card-inter">${batteryStatus}</div>
@@ -287,6 +292,7 @@ function createNewMachineCard(data, hostname) {
   <div class="inter-container">
       <div class="card-inter">${data.local_ip}</div>
       <div class="card-inter">${data.uptime}</div>
+    <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
       <div class="card-inter">${data.os}</div>
       <div class="card-inter">${data.system_state}</div>
       <div class="card-inter">${data.internet_status}</div>

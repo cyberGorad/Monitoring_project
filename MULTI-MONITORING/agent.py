@@ -9,6 +9,9 @@ import datetime
 import socket
 import os
 import websockets
+from PIL import ImageGrab
+
+import base64
 
 SERVER_URL = "ws://192.168.10.167:9000"
 
@@ -180,14 +183,69 @@ async def get_disk_usage():
 
 
 
+
+total_sent_bytes = 0
+total_recv_bytes = 0
+
 async def get_bandwidth_usage():
-    old_data = psutil.net_io_counters()
+    global total_sent_bytes, total_recv_bytes
+
+    # Garder les compteurs précédents comme attributs de la fonction
+    if not hasattr(get_bandwidth_usage, "old"):
+        get_bandwidth_usage.old = psutil.net_io_counters()
+
     await asyncio.sleep(1)
-    new_data = psutil.net_io_counters()
+    new = psutil.net_io_counters()
+
+    # Delta instantané
+    sent = new.bytes_sent - get_bandwidth_usage.old.bytes_sent
+    recv = new.bytes_recv - get_bandwidth_usage.old.bytes_recv
+
+    # Mise à jour de old pour le prochain appel
+    get_bandwidth_usage.old = new
+
+    # Mise à jour du cumul
+    total_sent_bytes += sent
+    total_recv_bytes += recv
+
+    # Conversion
+    sent_kb = sent / 1024
+    recv_kb = recv / 1024
+    total_data_mb = (total_sent_bytes + total_recv_bytes) / (1024 * 1024)
+
     return {
-        "sent_kb": (new_data.bytes_sent - old_data.bytes_sent) / 1024.0,
-        "received_kb": (new_data.bytes_recv - old_data.bytes_recv) / 1024.0,
+        "sent_kb": round(sent_kb, 2),
+        "received_kb": round(recv_kb, 2),
+        "total_data_mb": round(total_data_mb, 2)
     }
+
+
+async def capture_and_send_screenshot():
+        # Capture écran
+    image = ImageGrab.grab()
+
+        # Sauvegarde dans un buffer mémoire (PNG)
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    buffer.seek(0)
+
+        # Encode en base64 pour transmission textuelle (optionnel)
+    img_b64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+        # Construire un message JSON (tu peux adapter selon ton protocole)
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return {
+        "type": "screenshot",
+        "timestamp": timestamp,
+        "image_b64": img_b64
+        }
+
+
+
+
+
+
+
 
 
 
