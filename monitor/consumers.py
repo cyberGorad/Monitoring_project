@@ -87,7 +87,7 @@ def get_machine_id():
             # Vérifier si l'adresse n'est pas une adresse de loopback
             if addr.family == socket.AF_INET and addr.address != '127.0.0.1':
                 return addr.address
-    return "offline"
+    
 
 
 
@@ -320,6 +320,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.RubberDuckyMonitor_task = asyncio.create_task(self.RubberDuckyMonitor())
         self.allow_connection_task = asyncio.create_task(self.allow_connection())
         self.check_firewall_status_task = asyncio.create_task(self.check_firewall_status())
+        self.check_internet_connection_task = asyncio.create_task(self.check_internet_connection())
 
       
 
@@ -340,6 +341,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.RubberDuckyMonitor_task.cancel()
         self.allow_connection_task.cancel()
         self.check_firewall_status_task.cancel()
+        self.check_internet_connection_task.cancel()
 
         
     """
@@ -406,6 +408,28 @@ async def receive(self, text_data):
             }))
 
     """
+
+
+    async def check_internet_connection(self):
+        while True:
+            try:
+                result = subprocess.run(["ping", "-c", "1", "8.8.8.8"],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+                status = "Up" if result.returncode == 0 else "Down"
+            except Exception as e:
+                status = "ERROR"
+
+
+            await self.send(json.dumps({
+                "type": "internet-status",
+                "internet_status": status,
+            }))
+            await asyncio.sleep(5)
+
+
+
+
 
     async def receive(self, text_data):
         data = json.loads(text_data)

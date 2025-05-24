@@ -50,6 +50,7 @@ function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
         overallIcon = "fa-skull-crossbones";
         overallColor = "red";
         overallStatusText = "Critical";
+        playAudio('/static/critical.mp3');
     }
 
     return {
@@ -63,9 +64,10 @@ function evaluateSystemState(cpu, ram, disks, bandwidth = null) {
 // WebSocket initialization
 let socket;
 let reconnectInterval = 5000; // 5 secondes avant de retenter
+let lastInternetStatus = null;  // statut précédent
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://192.168.10.167:8000/ws/monitor/');
+    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected', 'color: lime');
@@ -226,6 +228,7 @@ socket.onmessage = function (e) {
                 systemStatus.textContent = "N/A";
                 headerStatus.style.boxShadow = "none";
             }
+            
 
             break;
 
@@ -839,6 +842,29 @@ socket.onmessage = function (e) {
             };
             break;
 
+           
+
+            case "internet-status":
+                
+                const internetstatus = document.getElementById('internet-status');
+                
+                // Jouer le son seulement si le statut change
+                if (data.internet_status !== lastInternetStatus) {
+                    if (data.internet_status === "Up") {
+                        internetstatus.style.color = "#00FF00";
+                        playAudio('/static/internet_up.mp3');
+                    } else if(data.internet_status === "Down") {
+                        internetstatus.style.color = "red";
+                        playAudio('/static/internet_down.mp3');
+                    }
+            
+                    internetstatus.innerHTML = `<i class="fas fa-globe"></i> Internet: ${data.internet_status}`;
+            
+                    lastInternetStatus = data.internet_status;
+                }
+                break;
+            
+
 
         case "connections":
             const connectionsList = document.getElementById('connections-list');
@@ -1405,7 +1431,7 @@ async function getScanResults(scanId, scanResults) {
         `;
 
     } catch (error) {
-        scanResults.innerHTML = `<p>Error: ${error.message}</p>`;
+        scanResults.innerHTML = `<p>Error: ${error.message} or offline</p>`;
     }
 }
 

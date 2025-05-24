@@ -34,6 +34,7 @@
     
     <!-- VOCAL COMMAND JS -->
     <script src="/static/js/vocal_command.js"></script>
+    
     <link rel="stylesheet" href="/static/offline-mode/notyf.min.css">
 
 
@@ -104,7 +105,10 @@
                         </div>
 
                         <div class="menu-links" id="menuLinks">
+                            <span id="toggle-sound" class="audiobtn">🔈 vocal: active</span>
+                            
                             <span id="machine-id"></span>
+                            <span id="internet-status"></span>
                             <a id="home_btn" href="{% url 'index' %}"">Home</a>
                             <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
                             <a id="home_btn" href="{% url 'setting' %}">Settings</a>
@@ -147,6 +151,8 @@
 
 
   
+
+
     
         <div class="container content">
 
@@ -449,6 +455,8 @@
     <script src="/static/js/animate/startup.js"></script>
     <script src="/static/js/animate/outboundFunction.js"></script>
     <script src="/static/js/animate/etablishedFunction.js"></script>
+
+    <script src="/static/js/sound-settings.js"></script>
 
 
     <script src="/static/js/copy.js"></script>

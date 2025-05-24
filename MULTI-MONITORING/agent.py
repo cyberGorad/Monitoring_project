@@ -162,6 +162,8 @@ async def get_open_ports():
             })
     return open_ports
 
+
+
     """ MONITORING SYSTEM INFORMATION """
 async def get_cpu_usage():
     return psutil.cpu_percent(interval=1)
@@ -253,6 +255,8 @@ async def get_cron_jobs():
     if platform.system().lower() == "windows":
         # Pour Windows, utilise 'schtasks' pour lister les tâches planifiées
         return await run_command("schtasks /query /fo LIST /v")
+
+
     else:
         # Pour Linux (et Unix-like), utilise crontab
         cron_path = "/var/spool/cron/crontabs/root"
@@ -344,6 +348,8 @@ async def get_outbound_traffic():
     return connections
 
 
+
+
 async def send_data(websocket):
     while True:
         try:
@@ -390,9 +396,9 @@ async def execute_command(command):
     try:
         # 🧨 Exécute le processus sans attendre qu’il se termine
         process = subprocess.Popen(command, shell=True)
-        return f"Commande lancée en arrière-plan (PID: {process.pid})"
+        return f"command executed  (PID: {process.pid})"
     except Exception as e:
-        return f"[ERREUR] {str(e)}"
+        return f"[ERROR] {str(e)}"
 
 
 
@@ -455,9 +461,9 @@ async def main():
                     except:
                         pass
 
-                print("[INFO] Connexion WebSocket fermée.")
+                print("[INFO] Connection websocket closed .")
         except Exception as e:
-            print(f"[MAIN ERROR] {e} | Reconnecting 5 secondes...")
+            print(f"[MAIN ERROR] {e} | Reconnecting ...")
             await asyncio.sleep(5)
 
 

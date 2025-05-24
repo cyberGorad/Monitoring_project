@@ -98,7 +98,7 @@ wss.on('connection', (ws, req) => {
       
       else {
         // Cas par défaut : relay message
-        console.log(`MESSAGE STANDARD RECEIVED :`, msg);
+        console.log(`MESSAGE  RECEIVED :`, msg);
         wss.clients.forEach(client => {
           if (client.readyState === WebSocket.OPEN) {
             client.send(msg);
@@ -107,7 +107,7 @@ wss.on('connection', (ws, req) => {
       }
   
     } catch (err) {
-      console.error("[⛔] Erreur parsing JSON :", err.message);
+      console.error("[⛔] ERROR JSON :", err.message);
     }
   });
   

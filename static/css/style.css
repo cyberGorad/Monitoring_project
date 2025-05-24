@@ -81,6 +81,10 @@
             margin-right: 15px;
         }
 
+        #internet-status {
+            color: white;
+            margin-right: 15px;
+        }
         @media (max-width: 600px) {
             .menu-links {
                 display: none;
@@ -333,7 +337,7 @@
         margin-bottom: 20px;
         margin-top: 2px;
         box-shadow: 0 5px 5px #00ff00; /* Ombre verte uniquement en bas */
-        transition: box-shadow 0.5s ease, background-color 0.5s ease;
+        transition: box-shadow 1s ease, background-color 1s ease;
     }
 
 
@@ -568,5 +572,27 @@
     
     
     /* THEME SELECT END */
+
+
+    /* AUDIO SETTINGS */
+
+    .audiobtn {
+       
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    
+    .btn:hover {
+        background-color: white;
+        color: #00FF00;
+    }
+    /* AUDIO SETTINGS */
+    
+                               
  
   
