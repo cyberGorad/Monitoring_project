@@ -20,10 +20,10 @@ def index(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, "Connexion réussie.")
+                messages.success(request, "Connected successfully")
                 return redirect('index')  # redirige après login
             else:
-                messages.error(request, "Nom d'utilisateur ou mot de passe incorrect.")
+                messages.error(request, "System ERROR")
     else:
         form = LoginForm()
 

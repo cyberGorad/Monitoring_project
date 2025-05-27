@@ -13,7 +13,11 @@ from PIL import ImageGrab
 
 import base64
 
+
 SERVER_URL = "ws://192.168.10.167:9000"
+
+
+
 
 
 async def send_register(websocket):
@@ -301,6 +305,10 @@ async def check_internet_connection():
     except Exception as e:
         return "Down"
 
+
+
+        
+
 async def get_temperature():
     # Vérification si le système supporte la récupération de la température
     sensors = psutil.sensors_temperatures()
@@ -382,7 +390,7 @@ async def send_data(websocket):
             }
 
             await websocket.send(json.dumps(data))
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"[SEND CLOSED ERROR] {e}")
             raise e  # IMPORTANT pour que le task meurt et qu'on quitte asyncio.wait

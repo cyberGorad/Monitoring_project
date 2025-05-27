@@ -321,6 +321,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.allow_connection_task = asyncio.create_task(self.allow_connection())
         self.check_firewall_status_task = asyncio.create_task(self.check_firewall_status())
         self.check_internet_connection_task = asyncio.create_task(self.check_internet_connection())
+        self.get_active_ssh_sessions_task = asyncio.create_task(self.get_active_ssh_sessions())
 
       
 
@@ -342,6 +343,7 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         self.allow_connection_task.cancel()
         self.check_firewall_status_task.cancel()
         self.check_internet_connection_task.cancel()
+        self.get_active_ssh_sessions_task.cancel()
 
         
     """
@@ -408,6 +410,66 @@ async def receive(self, text_data):
             }))
 
     """
+
+
+
+
+
+
+    async def get_active_ssh_sessions(self):
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                'ss', '-tnp',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await proc.communicate()
+
+            if proc.returncode != 0:
+                print("ERROR: :", stderr.decode())
+                return
+
+            print("SSH connection actives :\n")
+            for line in stdout.decode().splitlines():
+                if ':22' in line and 'ESTAB' in line and 'sshd' in line:
+                    # Extraction IP distante (peer)
+                    peer_match = re.search(r'\s(\[::ffff:(\d+\.\d+\.\d+\.\d+)\]|(\d+\.\d+\.\d+\.\d+)):(\d+)\s+users', line)
+                    if peer_match:
+                        ip = peer_match.group(2) if peer_match.group(2) else peer_match.group(3)
+                    else:
+                        ip = "remote IP unknown"
+
+                    # Extraction PID du premier sshd dans users
+                    pid_match = re.search(r'users:\(\("sshd",pid=(\d+)', line)
+                    if pid_match:
+                        pid = pid_match.group(1)
+
+                        ps_proc = await asyncio.create_subprocess_exec(
+                            'ps', '-o', 'user=', '-p', pid,
+                            stdout=asyncio.subprocess.PIPE
+                        )
+                        user_out, _ = await ps_proc.communicate()
+                        user = user_out.decode().strip()
+                    else:
+                        pid = None
+                        user = "user unknown"
+
+                    print(f"➡️  users : {user} | IP : {ip} | PID : {pid}")
+
+        except Exception as e:
+            print("Erreur lors de l’analyse des connexions SSH :", e)
+
+        await self.send(json.dumps({
+            "type": "ssh_user",
+            "user": user,
+            "ip": ip,
+            "pid":pid,
+        }))
+        await asyncio.sleep(5)
+
+
+
+
 
 
     async def check_internet_connection(self):

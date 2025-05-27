@@ -34,6 +34,13 @@
 
             <div class="menu-links" id="menuLinks">
 
+<div class="state_container" style="margin-right: 10px;background-color: black;border-radius: 10px;">
+              <span id="goodMachinesCount"></span>
+              <span id="mediumMachinesCount"></span>
+              <span id="criticalMachinesCount"></span>
+</div>
+
+
                 <div id="agent-count" class="agent-counter">
                   🖧 Machine connected : <span id="agent-number">0</span>
                 </div>
@@ -41,6 +48,7 @@
                 <span id="machine-id"></span>
                 <a id="home_btn" href="{% url 'index' %}">Home</a>
                 <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
+
 
 
                 <div id="settings-menu">
@@ -61,6 +69,8 @@
                 </div>
 
             </div>
+
+
 
             <img src="/static/IA.jpeg" alt="gora" class="menu-avatar">
         </div>
@@ -87,10 +97,11 @@
 
 
 
+
     
       <div class="command-container" style="margin-top: 20px;">
-        <input id="commandInputAll" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
-        <button onclick="sendCommandAll()" style="padding: 5px 10px;">Send to all machines</button>
+        <input id="commandInputAll" type="text" placeholder="[command broadcast]" style="width: 300px; padding: 5px;" />
+        <button onclick="sendCommandAll()" style="padding: 5px 10px;">execute to all</button>
       </div>
 
 
@@ -113,64 +124,8 @@
         <span></span>
       </div>
     </div>
-    <style>
-  .parent {
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 
-  .loading {
-    --speed-of-animation: 0.9s;
-    --gap: 6px;
-    --first-color: #00FF00;
-    --second-color: #00FF00;
-    --third-color: #00FF00;
-    --fourth-color: #00FF00;
-    --fifth-color: #00FF00;
-
-    display: flex;
-    gap: var(--gap);
-  }
-
-.loading span {
- width: 4px;
- height: 50px;
- background: var(--first-color);
- animation: scale var(--speed-of-animation) ease-in-out infinite;
-}
-
-.loading span:nth-child(2) {
- background: var(--second-color);
- animation-delay: -0.8s;
-}
-
-.loading span:nth-child(3) {
- background: var(--third-color);
- animation-delay: -0.7s;
-}
-
-.loading span:nth-child(4) {
- background: var(--fourth-color);
- animation-delay: -0.6s;
-}
-
-.loading span:nth-child(5) {
- background: var(--fifth-color);
- animation-delay: -0.5s;
-}
-
-@keyframes scale {
- 0%, 40%, 100% {
-  transform: scaleY(0.05);
- }
-
- 20% {
-  transform: scaleY(1);
- }
-}
-    </style>
+    
 
  
 

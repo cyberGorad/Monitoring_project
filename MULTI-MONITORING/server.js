@@ -3,6 +3,14 @@ const WebSocket = require('ws');
 const os = require('os');
 
 
+
+function decompressBase64Gzip(b64data) {
+  const compressedBuffer = Buffer.from(b64data, 'base64');
+  const decompressedBuffer = zlib.gunzipSync(compressedBuffer);
+  return JSON.parse(decompressedBuffer.toString('utf-8'));
+}
+
+
 const agents = new Map(); // hostname => ws
 
 // Fonction pour récupérer l'IP locale (IPv4 non loopback)
@@ -39,8 +47,8 @@ wss.on('connection', (ws, req) => {
 
   /* CLIENT SPECIFIQUE */
   ws.on('message', (msg) => {
-    try {
-      const data = JSON.parse(msg);
+      try {
+        const data = JSON.parse(msg);
   
       if (data.type === 'broadcast_command') {
         // On envoie la commande à tous les clients connectés

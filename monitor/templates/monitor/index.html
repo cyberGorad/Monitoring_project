@@ -41,8 +41,10 @@
     </script>
 
 
+
+
       {% if user.is_authenticated %}
-        <h1>Welcome, {{ user.username }}</h1> 
+        <h1>Welcome {{ user.username }},</h1> 
       {% else %}
           <h1 style="color: red;">Acces Denied</h1>
       {% endif %}
@@ -53,146 +55,9 @@
 
       <video autoplay muted loop id="bg-video">
         <source src="/static/back.mp4" type="video/mp4">
-        Ton navigateur ne supporte pas la vidéo HTML5.
+        ERROR NAVIGATOR
       </video>
       
-      <style>
-        #bg-video {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          min-width: 100%;
-          min-height: 100%;
-          width: auto;
-          height: auto;
-          transform: translate(-50%, -50%);
-          z-index: -1;
-          }
-        body, html {
-          margin: 0;
-          padding: 0;
-          height: 100%;
-          overflow: hidden; /* optionnel */
-          font-family: monospace;
-
-        }
-      
-        h1, a, button {
-          z-index: 1;
-          position: relative;
-        }
-
-
-
-
-
-          /* --- Login Section Styling --- */
-        #login-section {
-            position: fixed; /* Fixed position to overlay */
-            right: 2px;
-            top: 20%;
-            transform: translate(-50%, -50%); /* Base centering */
-            filter: blur(0px) brightness(1);  /* Add this for filter animation base */
-            width: 90%;
-            max-width: 400px; /* Max width for the form */
-            background-color: rgba(0, 10, 0, 0.85); /* Dark semi-transparent green */
-            border: 1px solid #0f0;
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
-            padding: 30px;
-            border-radius: 5px;
-            z-index: 100; /* Ensure it's above other content */
-
-            /* --- Initially Hidden --- */
-            opacity: 0;
-            pointer-events: none; /* Prevent interaction while hidden */
-        }
-
-        #login-section h2 {
-            color: #0f0;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 5px #0f0;
-        }
-
-        #login-section form p {
-            margin-bottom: 15px;
-        }
-
-        #login-section label { /* Style labels if your form rendering generates them */
-             display: block;
-             margin-bottom: 5px;
-             color: #0f0;
-         }
-
-        #login-section input[type="text"],
-        #login-section input[type="password"] {
-            width: calc(100% - 20px); /* Adjust width considering padding */
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border: 1px solid #0a0;
-            color: #0f0;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-         #login-section input[type="text"]:focus,
-         #login-section input[type="password"]:focus {
-             outline: none;
-             box-shadow: 0 0 10px #0f0;
-             border-color: #0f0;
-         }
-
-        #login-section button[type="submit"] {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #0f0;
-            border: none;
-            color: #000;
-            font-family: monospace;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 3px;
-            margin-top: 10px;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        #login-section button[type="submit"]:hover {
-             background-color: #fff;
-             box-shadow: 0 0 15px #0f0;
-         }
-
-         #login-section .messages { /* Style Django messages */
-             list-style: none;
-             padding: 0;
-             margin-top: 15px;
-             text-align: center;
-         }
-          #login-section .messages li {
-              color: #ff4444; /* Error color */
-              background-color: rgba(255, 0, 0, 0.1);
-              border: 1px solid #ff4444;
-              padding: 8px;
-              border-radius: 3px;
-              margin-bottom: 5px;
-          }
-          /* Add styles for other message levels (info, success, warning) if needed */
-
-          #close-login { /* Style for the close button */
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: #0f0;
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: color 0.3s, text-shadow 0.3s;
-          }
-          #close-login:hover {
-              color: #fff;
-              text-shadow: 0 0 10px #0f0;
-          }
-      </style>
     <!-- ACCOUNT AND LOGO -->  
     <div class="container">
       <div class="top-right">
@@ -214,7 +79,7 @@
                   {% else %}
                   <form action="{% url 'logout' %}" method="post" style="margin-top: 20px;">
                     {% csrf_token %}
-                    <button type="submit" style="cursor: pointers;color: #00ff00;"><h3>Logout</h3></button>
+                    <button type="submit" style="cursor: pointers;color: #00ff00;"><h3><i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i>Logout</h3></button>
                 </form>
                 
                   {% endif %}
@@ -255,8 +120,12 @@
             <span id="leftArrow" class="arrow"></span>
           </button><br><br><br>
 
-          <a href="{% url 'multi' %}" style="text-align: center;">Monitor All</a>
+
+          <a href="{% url 'multi' %}" style="text-align: center;">Multimonitor</a>
+
       <br><br>
+
+
   </div>
     {% else %}
     <div style="padding: 20px;">
@@ -267,17 +136,24 @@
         </button>
       </div>
 
-        <a style="pointer-events: none; text-align: center;text-decoration: none;" title="Connexion requise">Monitor All</a>
+
+        <a style="pointer-events: none; text-align: center;text-decoration: none;" title="Connexion requise">Multimonitor</a>
+
 
     {% endif %}
 
 
 
       <!-- === Commande vocale === -->
-  <div class="status" style="background:transparent; color:lime; padding:10px; margin-bottom:10px; border-radius:5px;text-align:center;width:100%">
-    <span id="status" style="color:white"> 🎙️ Commande vocale inactive</span>
-    <button onclick="startVoice()" class="btn btn-sm btn-outline-light">Activer</button>
+  <div class="status" style="background:transparent;font-size: 12px; color:lime; padding:10px; margin-bottom:10px; border-radius:5px;text-align:center;width:100%">
+    <span id="status" style="color:white"> 🎙️ Vocal command disabled</span>
+    <button onclick="startVoice()" class="btn btn-sm btn-outline-light" style="font-size:12px ;">Activate</button>
   </div>
+
+  
+
+
+
 
 
 
@@ -286,7 +162,7 @@
          <form method="POST">
           {% csrf_token %}
           {{ form.as_p }}
-          <button type="submit">Se connecter</button>
+          <button type="submit">connect</button>
       </form>
 
 

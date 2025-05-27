@@ -5,7 +5,7 @@
         /*  background-image: url(/static/globe.jpeg);*/
         background-size: cover;
         color: #00ff00;
-        font-family: 'Courier New', Courier, monospace;
+        font-family: 'JetBrains Mono', monospace;
         margin: 0;
         padding: 0;
         display: flex;
@@ -23,8 +23,9 @@
     a {
         text-decoration: none;
         color: #00ff00;
-        font-size: 1.2rem;
+        font-size: 12px;
         border: 2px solid #00ff00;
+        background-color: #000;
         padding: 10px 20px;
         border-radius: 5px;
         transition: background-color 0.3s, color 0.3s;
@@ -33,22 +34,16 @@
     a:hover {
         background-color: #00ff00;
         color: black;
-    }
+        transform: scale(1.05);
+        transition: 0.2s ease-in-out;
+        }
 
     a:active {
         background-color: #007f00;
     }
 
 
-    img:hover{
 
-    background: linear-gradient(145deg, #1b1b1b, #2b2b2b);
-    border-color: #00ff00;
-    box-shadow: 0 0 15px #00ff00, 0 0 30px rgba(0, 255, 0, 0.5), 0 0 50px rgba(0, 255, 0, 0.3);
-    transform: scale(1.05);
-    transition: all 0.3s ease-in-out;
-
-    }
 
     /* From Uiverse.io by Navarog21 */ 
     button {
@@ -57,9 +52,9 @@
     height: 4em;
     outline: none;
     transition: 0.1s;
-    background-color: transparent;
+    background-color:transparent;
     border: none;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     color: #ddebf0;
     }
@@ -215,3 +210,136 @@
         }
     }
 
+
+
+
+
+
+
+
+
+  
+    #bg-video {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+      }
+  
+    h1, a, button {
+      z-index: 1;
+      position: relative;
+    }
+
+      /* --- Login Section Styling --- */
+    #login-section {
+        position: fixed; /* Fixed position to overlay */
+        right: 2px;
+        top: 20%;
+        transform: translate(-50%, -50%); /* Base centering */
+        filter: blur(0px) brightness(1);  /* Add this for filter animation base */
+        width: 90%;
+        max-width: 400px; /* Max width for the form */
+        background-color: rgba(0, 10, 0, 0.85); /* Dark semi-transparent green */
+        border: 1px solid #0f0;
+        box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+        padding: 30px;
+        border-radius: 5px;
+        z-index: 100; /* Ensure it's above other content */
+
+        /* --- Initially Hidden --- */
+        opacity: 0;
+        pointer-events: none; /* Prevent interaction while hidden */
+    }
+
+    #login-section h2 {
+        color: #0f0;
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 0 0 5px #0f0;
+    }
+
+    #login-section form p {
+        margin-bottom: 15px;
+    }
+
+    #login-section label { /* Style labels if your form rendering generates them */
+         display: block;
+         margin-bottom: 5px;
+         color: #0f0;
+     }
+
+    #login-section input[type="text"],
+    #login-section input[type="password"] {
+        width: calc(100% - 20px); /* Adjust width considering padding */
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #0a0;
+        color: #0f0;
+        border-radius: 3px;
+        font-family: monospace;
+    }
+     #login-section input[type="text"]:focus,
+     #login-section input[type="password"]:focus {
+         outline: none;
+         box-shadow: 0 0 10px #0f0;
+         border-color: #0f0;
+     }
+
+    #login-section button[type="submit"] {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background-color: #0f0;
+        border: none;
+        color: #000;
+        font-family: monospace;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 3px;
+        margin-top: 10px;
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+    #login-section button[type="submit"]:hover {
+         background-color: #fff;
+         box-shadow: 0 0 15px #0f0;
+     }
+
+     #login-section .messages { /* Style Django messages */
+         list-style: none;
+         padding: 0;
+         margin-top: 15px;
+         text-align: center;
+     }
+      #login-section .messages li {
+          color: #ff4444; /* Error color */
+          background-color: rgba(255, 0, 0, 0.1);
+          border: 1px solid #ff4444;
+          padding: 8px;
+          border-radius: 3px;
+          margin-bottom: 5px;
+      }
+      /* Add styles for other message levels (info, success, warning) if needed */
+
+      #close-login { /* Style for the close button */
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: #0f0;
+        font-size: 1.5em;
+        cursor: pointer;
+        transition: color 0.3s, text-shadow 0.3s;
+      }
+      #close-login:hover {
+          color: #fff;
+          text-shadow: 0 0 10px #0f0;
+      }
+  

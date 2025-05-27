@@ -67,6 +67,57 @@ function sendCommandAll() {
 
 
 
+function countMachineStates() {
+  let goodCount = 0;
+  let mediumCount = 0;
+  let criticalCount = 0;
+
+  // Parcourez toutes les machines enregistrées
+  for (const hostname in machines) {
+    if (machines.hasOwnProperty(hostname)) {
+      const machineData = machines[hostname];
+      // Utilisez la propriété 'systemState' que nous avons ajoutée
+      if (machineData.systemState) {
+        if (machineData.systemState === 'Good') {
+          goodCount++;
+        } else if (machineData.systemState === 'Medium') {
+          mediumCount++;
+        } else if (machineData.systemState === 'Critical') {
+          criticalCount++;
+        }
+      }
+    }
+  }
+
+  // Affichez les résultats (par exemple, dans la console)
+  console.log(`Machines Good: ${goodCount}`);
+  console.log(`Machines Medium: ${mediumCount}`);
+  console.log(`Machines Critical: ${criticalCount}`);
+
+  // Optionnel : Mettez à jour des éléments HTML si vous avez des emplacements pour afficher ces chiffres
+  // Exemple (ajoutez ces éléments à votre HTML avec les IDs correspondants) :
+   if (document.getElementById('goodMachinesCount')) {
+     document.getElementById('goodMachinesCount').innerHTML = `<i class="fas fa-globe"></i> Good: ${goodCount}`;
+     document.getElementById('goodMachinesCount').style.marginRight = "5px";  
+     document.getElementById('goodMachinesCount').style.color = "green"; 
+     document.getElementById('goodMachinesCount').style.fontSize = "14px";    
+
+   }
+   if (document.getElementById('mediumMachinesCount')) {
+     document.getElementById('mediumMachinesCount').innerHTML = `<i class="fas fa-globe"></i> Medium: ${mediumCount}`;
+     document.getElementById('mediumMachinesCount').style.marginRight = '5px';
+     document.getElementById('mediumMachinesCount').style.color = 'orange';
+     document.getElementById('mediumMachinesCount').style.fontSize = "14px";
+     
+   }
+   if (document.getElementById('criticalMachinesCount')) {
+     document.getElementById('criticalMachinesCount').innerHTML= `<i class="fas fa-globe"></i> Critical: ${criticalCount}`;
+     document.getElementById('criticalMachinesCount').style.marginRight = "5px";
+     document.getElementById('criticalMachinesCount').style.color = "red";
+     document.getElementById('criticalMachinesCount').style.fontSize = "14px";
+   }
+}
+
 
 function connectWebSocket() {
   ws = new WebSocket(SERVER_URL);
@@ -141,8 +192,10 @@ function updateMachineCard(data, hostname) {
   const batteryStatus = buildBatteryStatus(data.battery_data);
 
 
-
-
+    // Ajoutez cette ligne pour stocker l'état
+    if (machines[hostname]) { // S'assurer que l'objet existe déjà
+      machines[hostname].systemState = data.system_state;
+    }
 
   machines[hostname].card.innerHTML = `
 
@@ -158,76 +211,70 @@ function updateMachineCard(data, hostname) {
   };">
 
 
+  <div class="card-inter" style="
+
+  color: ${
+    data.system_state === 'Good'
+      ? 'green'
+      : data.system_state === 'Medium'
+      ? 'orange'
+      : data.system_state === 'Critical' 
+      ? 'red'
+      :'grey'
+  };
+">
+  ${data.system_state}
+</div>
+
+
+<div class="card-inter">${data.local_ip}</div>
+
+<div class="card-inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
+${data.internet_status}
+</div>
 
   
-    <div class="card-inter">${data.uptime}</div>
+  <div class="card-inter">${data.uptime}</div>
 
-    <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
+  <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
  
+  <div class="card-inter" style="
+
+  color: ${
+    data.cpu >= 80
+      ? 'red'     // vert foncé
+      : data.cpu > 60
+      ? 'orange' 
+      : data.cpu < 60
+      ? 'green'    // orange foncé
+      : 'white'     // rouge foncé
+  };
+">
+  <strong>CPU</strong> ${data.cpu ?? 'N/A'} %
+</div>
 
 
-      <div class="card-inter">${data.local_ip}</div>
+
+
+<div class="card-inter" style="
+
+color: ${
+data.ram < 60
+  ? 'green'     // vert foncé
+  : data.ram < 80
+  ? 'orange'     // orange foncé
+  : 'red'     // rouge foncé
+};
+">
+<strong>RAM</strong> ${data.ram ?? 'N/A'} %
+</div>
+
+
       <div class="card-inter">${data.os}</div>
 
 
 
-      <div class="card-inter" style="
-
-      color: ${
-        data.system_state === 'Good'
-          ? 'green'
-          : data.system_state === 'Medium'
-          ? 'orange'
-          : data.system_state === 'Critical' 
-          ? 'red'
-          :'grey'
-      };
-    ">
-      ${data.system_state}
-    </div>
-    
-
-
-
-      <div class="card-inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
-        ${data.internet_status}
-      </div>
-
-
-
       <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
-      <div class="card-inter" style="
-
-      color: ${
-        data.cpu >= 80
-          ? 'red'     // vert foncé
-          : data.cpu > 60
-          ? 'orange' 
-          : data.cpu < 60
-          ? 'green'    // orange foncé
-          : 'white'     // rouge foncé
-      };
-    ">
-      <strong>CPU</strong> ${data.cpu ?? 'N/A'} %
-    </div>
-
-    
-
-
-    <div class="card-inter" style="
-
-  color: ${
-    data.ram < 60
-      ? 'green'     // vert foncé
-      : data.ram < 80
-      ? 'orange'     // orange foncé
-      : 'red'     // rouge foncé
-  };
-">
-  <strong>RAM</strong> ${data.ram ?? 'N/A'} %
-</div>
-
-
 
 
 
@@ -252,8 +299,8 @@ function updateMachineCard(data, hostname) {
       
 
       <div style="margin-top: 20px;">
-  <input id="commandInput_${hostname}" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
-  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">Envoyer</button>
+  <input id="commandInput_${hostname}" type="text" placeholder="[command for this machine]" style="width: 300px; padding: 5px;" />
+  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">execute</button>
 </div>
 
 
@@ -268,6 +315,8 @@ function updateMachineCard(data, hostname) {
 
   `;
   machines[hostname].lastSeen = Date.now();
+
+  countMachineStates();
 }
 
 
@@ -289,34 +338,116 @@ function createNewMachineCard(data, hostname) {
   const batteryStatus = buildBatteryStatus(data.battery_data);
 
   card.innerHTML = `
-  <div class="inter-container">
-      <div class="card-inter">${data.local_ip}</div>
-      <div class="card-inter">${data.uptime}</div>
-    <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
+  <div class="inter-container" style="
+  box-shadow:  0 4px 8px ${
+    data.system_state === 'Good'
+      ? 'green'
+      : data.system_state === 'Medium'
+      ? 'orange'
+      : data.system_state === 'Critical'
+      ? 'red'
+      : 'grey'
+  };">
+
+
+  <div class="card-inter" style="
+
+  color: ${
+    data.system_state === 'Good'
+      ? 'green'
+      : data.system_state === 'Medium'
+      ? 'orange'
+      : data.system_state === 'Critical' 
+      ? 'red'
+      :'grey'
+  };
+">
+  ${data.system_state}
+</div>
+
+
+<div class="card-inter">${data.local_ip}</div>
+
+<div class="card-inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
+${data.internet_status}
+</div>
+
+  
+  <div class="card-inter">${data.uptime}</div>
+
+  <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
+ 
+  <div class="card-inter" style="
+
+  color: ${
+    data.cpu >= 80
+      ? 'red'     // vert foncé
+      : data.cpu > 60
+      ? 'orange' 
+      : data.cpu < 60
+      ? 'green'    // orange foncé
+      : 'white'     // rouge foncé
+  };
+">
+  <strong>CPU</strong> ${data.cpu ?? 'N/A'} %
+</div>
+
+
+
+
+<div class="card-inter" style="
+
+color: ${
+data.ram < 60
+  ? 'green'     // vert foncé
+  : data.ram < 80
+  ? 'orange'     // orange foncé
+  : 'red'     // rouge foncé
+};
+">
+<strong>RAM</strong> ${data.ram ?? 'N/A'} %
+</div>
+
+
       <div class="card-inter">${data.os}</div>
-      <div class="card-inter">${data.system_state}</div>
-      <div class="card-inter">${data.internet_status}</div>
+
+
+
       <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
-      <div class="card-inter"><strong>CPU</strong> ${data.cpu ?? 'N/A'} %</div>
-      <div class="card-inter"><strong>RAM</strong> ${data.ram ?? 'N/A'} %</div>
-      <div class="card-inter">DISK ${diskDetails}</div>
+
+
+
+<div class="card-inter">DISK ${diskDetails}</div>
+
+
+
       <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
-      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} send, ${data.bandwidth.received_kb}received</div>
+      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} kb, ${data.bandwidth.received_kb} kb</div>
+
+
       <div class="card-inter">${batteryStatus}</div>
-      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} établies</div>
+
+      
+      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} established</div>
       <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
-      <div class="full-card-inter"><span class="section-title"></span>${outboundTrafficDetails}</div>
+
+   
+      <div class="full-card-inter"><span class="section-title"></span><br>${outboundTrafficDetails}</div>
 
 
+      
 
       <div style="margin-top: 20px;">
-  <input id="commandInput_${hostname}" type="text" placeholder="Tape ta commande ici..." style="width: 300px; padding: 5px;" />
-  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">Envoyer</button>
+  <input id="commandInput_${hostname}" type="text" placeholder="[command for this machine]" style="width: 300px; padding: 5px;" />
+  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">execute</button>
 </div>
 
 
 
 </div>
+
+
+
 
   `;
 
@@ -324,12 +455,14 @@ function createNewMachineCard(data, hostname) {
   dashboard.appendChild(card);
   machines[hostname] = {
     card,
-    lastSeen: Date.now()
+    lastSeen: Date.now(),
+    systemState: data.system_state // Stockez l'état ici lors de la création
   };
 
 
 
   updateAgentCount(); // 🔁 Met à jour le compteur
+  countMachineStates();
 }
 
 
@@ -402,13 +535,6 @@ function buildBatteryStatus(batteryData) {
     </div>
   `;
 }
-
-
-
-
-
-
-
 
 
 // Connexion initiale
