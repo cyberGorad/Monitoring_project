@@ -14,7 +14,7 @@ from PIL import ImageGrab
 import base64
 
 
-SERVER_URL = "ws://192.168.10.167:9000"
+SERVER_URL = "ws://192.168.10.195:9000"
 
 
 

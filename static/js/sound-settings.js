@@ -14,6 +14,6 @@ toggleSoundButton.addEventListener('click', () => {
 soundEnabled = !soundEnabled;
 
 // Mettre à jour l'affichage du bouton
-toggleSoundButton.innerHTML = soundEnabled ? "🔈 Son: Activé" : "🔇 Vocal desactivated";
+toggleSoundButton.innerHTML = soundEnabled ? "🔈 Vocal: Activated" : "🔇 Vocal desactivated";
 });
 

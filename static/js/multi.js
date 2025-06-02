@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.10.167:9000';
+const SERVER_URL = 'ws://192.168.10.195:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -171,7 +171,8 @@ function connectWebSocket() {
 
   ws.onclose = () => {
     console.warn('⚠️ CONNECTION CLOSED');
-    noMachine.textContent = "Waiting for machines ...";
+    noMachine.textContent = "[Waiting for machines]";
+    noMachine.style.fontSize = "12px";
     setTimeout(connectWebSocket, reconnectInterval); // Essayer de se reconnecter
     reconnectInterval = Math.min(reconnectInterval * 2, 5000); // Double le délai de reconnexion
   };
@@ -540,15 +541,26 @@ function buildBatteryStatus(batteryData) {
 // Connexion initiale
 connectWebSocket();
 
-// Supprimer les machines inactives
+// Supprimer les machines inactives avec animation de sortie
 setInterval(() => {
   const now = Date.now();
   for (const [hostname, machine] of Object.entries(machines)) {
     if (now - machine.lastSeen > TIMEOUT) {
-      dashboard.removeChild(machine.card);
-      delete machines[hostname];
-      console.log(`❌ Machine "${hostname}" retirée pour inactivité`);
-      updateAgentCount(); // 🔁 Met à jour le compteur
+      const card = machine.card;
+      
+      // 🔁 Appliquer l'animation de sortie
+      card.style.animation = 'futuristicExit 0.7s forwards'; // ou 'glitchExit'
+      
+      // ⏳ Supprimer après la durée de l’animation
+      setTimeout(() => {
+        if (card.parentNode) {
+          card.parentNode.removeChild(card);
+        }
+        delete machines[hostname];
+        console.log(`❌ Machine "${hostname}" retirée pour inactivité`);
+        updateAgentCount();
+      }, 700); // Correspond à la durée de l'animation
     }
   }
 }, 2000);
+

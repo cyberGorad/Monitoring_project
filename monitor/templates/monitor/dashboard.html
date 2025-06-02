@@ -7,7 +7,7 @@
     <title>Home-IDS-GORAD</title>
     <script src="/static/offline-mode/chart.js"></script>
     <script src="/static/offline-mode/axios.min.js"></script>
-    <script src="/static/js/music-background.js"></script>
+    
     <script src="/static/offline-mode/chartjs-plugin-datalabels"></script>
 
 
@@ -29,6 +29,9 @@
     <link rel="stylesheet" href="/static/css/loader-init.css">
     <script src="/static/js/script.js"></script>
     <script src="/static/js/welcome.js"></script>
+
+
+    
     
 
     
@@ -105,13 +108,30 @@
                         </div>
 
                         <div class="menu-links" id="menuLinks">
-                            <span id="toggle-sound" class="audiobtn">🔈 vocal: active</span>
+
                             
+                            <span id="toggle-sound" class="audiobtn" style="font-size: 12px;">🔈 vocal: active</span>
+            
                             <span id="machine-id"></span>
                             <span id="internet-status"></span>
                             <a id="home_btn" href="{% url 'index' %}"">Home</a>
                             <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
-                            <a id="home_btn" href="{% url 'setting' %}">Settings</a>
+
+
+
+
+                            <a id="home_btn">Settings</a>
+
+                                    <div id="modal" class="modal hidden">
+                                    <div class="modal-content">
+                                        <span id="close_modal" class="close">&times;</span>
+                                        <h2>⚙️ Paramètres</h2>
+                                        <p>Voici les paramètres que tu peux modifier...</p>
+                                    </div>
+                                    </div>
+  
+
+
 
                             
 
@@ -353,12 +373,23 @@
                 <div id="usb-table" class="card"  >
                     <h3 style="color: #00ff00;">Usb Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
                     <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
+                    <div class="three-body">
+                        <div class="three-body__dot"></div>
+                        <div class="three-body__dot"></div>
+                        <div class="three-body__dot"></div>
+                    </div>
+
         
                 </div>
         
                 <div id="typer-info" class="card" data-aos="fade-left">
                     <h3 style="color: #00ff00;">Typer Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
                     <p id="typer-alert" style="color:red;font-size: 12px;"></p>
+                    <div class="three-body">
+                        <div class="three-body__dot"></div>
+                        <div class="three-body__dot"></div>
+                        <div class="three-body__dot"></div>
+                    </div>
         
                 </div>
         
@@ -381,11 +412,10 @@
 
         <div id="file-info" class="large-card" >
             
-            <h2><i class="fas fa-rocket"></i>File monitoring</h2>
+            <h3 style="color: #00ff00;">Special cybergorad <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
             
-            <div id="startup-details">
-                
-            </div>
+
+
         </div>
 
 
@@ -395,25 +425,29 @@
         <div id="file-scan-container" class="card"  >
             <h3>
                 File Scan
-                <i class="fas fa-search" style="float: right; font-size: 24px; color: #00ff00;"></i>
+                <i class="fas fa-search" style="float: right; font-size: 24px; color: #00ff00;border-radius: 10px;"></i>
             </h3>
             
-            <input type="file" id="file-upload" />
-
-            <button onclick="scanFile()" style="background-color: #00ff00;border-radius: 10%;">Scan File</button>
+            <input type="file" id="file-upload" style="color: #00ff00;background-color: black;border-radius: 10px;"/>
+            <br>
+            <p style="font-size: 12px;">upload the file to scan </p>
+            
+            <button onclick="scanFile()" style="background-color:black;color:#00ff00;border-radius: 10px;">Scan File</button>
             <div id="scan-results"></div>
         </div>
 
 
         <div id="firewall" class="card">
 
-            <button onclick="setDefaultPolicy()">Activate Protection</button>
+            <button onclick="setDefaultPolicy()" style="border-radius: 10px;background-color: black;color: #00ff00;">Activate Protection</button>
 
 
 
-            <h4>Add address authorised</h4>
-            <input type="text" id="ip-input" placeholder="Ex: 192.168.1.10">
-            <button onclick="sendIP()">grant</button>
+            <p style="font-size: 12px;">Add address authorised</p>
+            <input type="text" id="ip-input" placeholder="[Ip address]">
+            <br><br>
+
+            <button onclick="sendIP()" style="border-radius: 10px;background-color: black;color: #00ff00;">grant</button>
         
             <div id="firewall-status"></div>
         </div>
@@ -435,7 +469,7 @@
         <img src="/static/IA.jpeg" width="50px" height="50px" alt="GORA_DETAILS">
 
         <!-- Contenu de la réponse -->
-        <button id="copy-gemini-response" style="position:relative;float: right;top: 10px;">Copy</button>
+        <button id="copy-gemini-response" style="position:relative;float: right;top: 10px;background-color: black;color: #00ff00;border-radius: 10px;border: none;">Copy</button>
         <p id="gemini-response-text" style="margin-top: 10px;"></p>
 
         <!-- Bouton copier -->
@@ -455,8 +489,15 @@
     <script src="/static/js/animate/startup.js"></script>
     <script src="/static/js/animate/outboundFunction.js"></script>
     <script src="/static/js/animate/etablishedFunction.js"></script>
+    <script src="/static/js/animate/closebtn.js"></script>
 
-    <script src="/static/js/sound-settings.js"></script>
+    <script src="/static/js/music-background.js"></script>
+
+    <!-- SETTINGS JS -->
+    <script src="/static/js/settings.js"></script>
+  
+
+
 
 
     <script src="/static/js/copy.js"></script>

@@ -542,6 +542,8 @@ async def receive(self, text_data):
 
 
 
+
+
     def is_valid_ip(self, ip):
         try:
             ipaddress.ip_address(ip)
@@ -581,9 +583,9 @@ async def receive(self, text_data):
             elif system == "Linux":
                 result = subprocess.run(['which', 'iptables'], stdout=subprocess.PIPE)
                 if result.stdout.decode().strip():
-                    firewall_status["iptables"] = "Iptables installed"
+                    firewall_status["iptables"] = ""
                 else:
-                    firewall_status["iptables"] = "Iptables Not installeds"
+                    firewall_status["iptables"] = "Iptables Not installed"
 
         except Exception as e:
             print(f"ERROR:FATAL {e}")
@@ -670,7 +672,7 @@ async def receive(self, text_data):
                 )
 
         def start_listener():
-            print("[*] Surveillance des frappes (anti-Rubber Ducky) activée...")
+            print("[*] RUBBER DUCKY MONITOR ACTIVATED SUCCESSFULLY ")
             with Listener(on_press=on_press) as listener:
                 listener.join()
 
@@ -679,7 +681,7 @@ async def receive(self, text_data):
         # Boucle async qui reçoit les alertes
         while True:
             data = await queue.get()
-            print(f"[DEBUG] Alerte détectée : {data}")  # 🔥 Maintenant ça va s'afficher
+
             await self.send(json.dumps(data))
 
 
