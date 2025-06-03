@@ -6,7 +6,7 @@ const toggleSoundButton = document.getElementById('toggle-sound');
 
 toggleSoundButton.addEventListener('click', () => {
     soundEnabled = !soundEnabled;
-    toggleSoundButton.textContent = soundEnabled ? '🔊 Son Activé' : '🔇 Son Désactivé';
+    toggleSoundButton.textContent = soundEnabled ? '🔊 sound enabled' : '🔇 sound disabled';
 });
 
 function playAudio(src) {

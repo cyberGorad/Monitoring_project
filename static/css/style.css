@@ -450,7 +450,6 @@
         box-shadow: 0 0 20px #0f0;
         position: relative;
         text-align: center;
-
         animation: fadeIn 0.4s ease-in-out;
     }
     
@@ -629,3 +628,40 @@
 /* SETTINGS MODALS END */      
  
   
+
+
+
+
+/* TOOLTIPS SHUTDOWN */
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #00FF00;
+    text-align: center;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 100px;
+
+    position: absolute;
+    z-index: 1;
+    bottom: -35px; /* en bas */
+    left: 30%;
+    right: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+/* TOOLTIPS SHUTDOWN END */

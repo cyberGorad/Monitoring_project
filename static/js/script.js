@@ -98,7 +98,7 @@ function sendIP() {
     const ip = document.getElementById("ip-input").value.trim();
 
     if (!ip) {
-        alert("Adresse IP invalide.");
+        alert("IP NOT VALID");
         return;
     }
 
@@ -109,9 +109,9 @@ function sendIP() {
 
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(payload));
-        console.log('%c[>] IP envoyée au backend: ' + ip, 'color: gold');
+        console.log('%c[>] IP send to backend ' + ip, 'color: gold');
     } else {
-        alert("WebSocket non connecté.");
+        alert("WebSocket not connected");
     }
 }
 
@@ -121,6 +121,32 @@ function setDefaultPolicy() {
         type: "set_policy"
     }));
 }
+function clearRules() {
+    const payload = {
+        type: "clear_rules"  // Ce type devra être géré dans ton fichier `consumers.py`
+    };
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(payload));
+        console.log('%c[>] rules firewall send (send to backend)', 'color: red');
+    } else {
+        alert("WebSocket not connected.");
+    }
+}
+
+function shutdown() {
+    const payload = {
+        type: "shutdown"
+    };
+    
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(payload));
+        console.log("shutdown function sended to backend");
+    } else {
+        alert("websocket Not connected");
+    }
+}
+
 
 
 
@@ -139,18 +165,18 @@ socket.onmessage = function (e) {
 
 
 
-        case "rubber_ducky":
-            const typerElement = document.getElementById("typer-alert");
-            const typerAlert = data.message;
-            const botTime = data.timestamp;
-
-            // Crée un nouvel élément <div> ou <li> pour chaque alerte
-            const alertItem = document.createElement("div"); // ou "li" si tu veux une <ul>
-            alertItem.textContent = ` ${typerAlert}`;
-
-            // Ajoute au conteneur
-            typerElement.appendChild(alertItem);
-
+            case "rubber_ducky":
+                const typerElement = document.getElementById("typer-alert");
+                const typerAlert = data.message;
+                const botTime = data.timestamp;
+            
+                // Vérifie que le message n'est pas undefined, null ou vide
+                if (typeof typerAlert !== "undefined" && typerAlert !== null && typerAlert.trim() !== "") {
+                    const alertItem = document.createElement("div");
+                    alertItem.textContent = ` ${typerAlert}`;
+                    typerElement.appendChild(alertItem);
+                }
+                break;
 
 
 
@@ -409,7 +435,7 @@ socket.onmessage = function (e) {
                     const promptText = `
                 Agis en tant qu'analyste système expert. Analyse les processus suivants :
                 ${processData}
-                Tu es un agent de maintenance IA dans un IDS. Si le système est lent, propose une commande shell à exécuter pour libérer la mémoire ou CPU. Retourne uniquement les commandes bash sans explication.
+                Tu es un agent de maintenance IA dans un IDS. Si le système est lent, propose une commande shell à exécuter exemple: pkill process. Retourne uniquement les commandes bash sans explication.
                 `;
 
                     const apiKey = "AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg";
@@ -445,9 +471,6 @@ socket.onmessage = function (e) {
                     modal.style.display = "block";
                 });
                 processElement.appendChild(button);
-
-
-
 
 
 

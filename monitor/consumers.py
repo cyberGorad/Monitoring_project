@@ -490,7 +490,16 @@ async def receive(self, text_data):
             await asyncio.sleep(5)
 
 
-
+    async def run_cmd(*cmd):
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+        if process.returncode != 0:
+            raise Exception(stderr.decode())
+        return stdout.decode()
 
 
     async def receive(self, text_data):
@@ -518,7 +527,7 @@ async def receive(self, text_data):
             else:
                 await self.send(json.dumps({
                     "type": "firewall_status",
-                    "iptables": "Adresse IP invalide."
+                    "iptables": "IP NOT VALID"
                 }))
 
         elif type_action == "set_policy":
@@ -532,13 +541,45 @@ async def receive(self, text_data):
                         
                 await self.send(json.dumps({
                     "type": "firewall_status",
-                    "iptables": "DEFAULT PROTECTION ACTIVATED."
+                    "iptables": "All connection disabled"
                 }))
             except subprocess.CalledProcessError as e:
                 await self.send(json.dumps({
                     "type": "firewall_status",
                     "iptables": f"ERROR: {str(e)}"
                 }))
+        elif type_action == "clear_rules":  # attention à la casse et au nom ici
+            try:
+                
+                reset1 = ["sudo", "iptables", "-P", "INPUT", "ACCEPT"]
+                reset2 = ["sudo", "iptables", "-P", "OUTPUT", "ACCEPT"]
+                reset3 = ["sudo", "iptables", "-F"]  # flush all rule
+                subprocess.run(reset1, check=True)
+                subprocess.run(reset2, check=True)
+                subprocess.run(reset3, check=True)
+
+
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": "clear success!"
+                }))
+            except subprocess.CalledProcessError as e:
+                await self.send(json.dumps({
+                    "type": "firewall_status",
+                    "iptables": f"ERROR : Try again: {str(e)}"
+                }))
+
+        elif type_action == "shutdown":
+            try:
+
+                shutdown = ["sudo", "init", "0"]
+                subprocess.run(shutdown, check=True)
+
+            except error as e:
+                print(f'ERROR: {e}')
+
+
+
 
 
 

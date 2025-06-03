@@ -122,13 +122,6 @@
 
                             <a id="home_btn">Settings</a>
 
-                                    <div id="modal" class="modal hidden">
-                                    <div class="modal-content">
-                                        <span id="close_modal" class="close">&times;</span>
-                                        <h2>⚙️ Paramètres</h2>
-                                        <p>Voici les paramètres que tu peux modifier...</p>
-                                    </div>
-                                    </div>
   
 
 
@@ -163,6 +156,49 @@
                             document.getElementById("menuLinks").classList.toggle("show");
                         }
                     </script>
+
+                <div class="tooltip-container">
+                    <a id="log_btn" onclick="shutdown()" style="cursor: pointer; color: red;">
+                        <i class="fas fa-power-off" style="font-size: 16px; margin-left: 5px;"></i>
+                    </a>
+                    <span class="tooltip-text">You system will shutdown !</span>
+                </div>
+                <style>
+                    .tooltip-container {
+                        position: relative;
+                        display: inline-block;
+                    }
+                    
+                    .tooltip-container .tooltip-text {
+                        visibility: hidden;
+                        width: 120px;
+                        background-color: black;
+                        color: #00FF00;
+                        text-align: center;
+                        padding: 5px 8px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        margin-right: 100px;
+                    
+                        position: absolute;
+                        z-index: 1;
+                        bottom: -35px; /* en bas */
+                        left: 30%;
+                        right: 50%;
+                        transform: translateX(-50%);
+                        opacity: 0;
+                        transition: opacity 0.3s;
+                    }
+                    
+                    .tooltip-container:hover .tooltip-text {
+                        visibility: visible;
+                        opacity: 1;
+                    }
+                    </style>
+
+
+
+
 
                     </div>
             </header>
@@ -440,7 +476,9 @@
         <div id="firewall" class="card">
 
             <button onclick="setDefaultPolicy()" style="border-radius: 10px;background-color: black;color: #00ff00;">Activate Protection</button>
-
+           
+           <!-- DESACTIVATE FIREWALL -->
+            <button onclick="clearRules()" style="border-radius: 10px;background-color: black;color: #00ff00;">clear rules</button>
 
 
             <p style="font-size: 12px;">Add address authorised</p>
@@ -448,8 +486,8 @@
             <br><br>
 
             <button onclick="sendIP()" style="border-radius: 10px;background-color: black;color: #00ff00;">grant</button>
-        
-            <div id="firewall-status"></div>
+        <br>    
+            <div id="firewall-status" style="font-size: 12px;color: white;"></div>
         </div>
         
 
