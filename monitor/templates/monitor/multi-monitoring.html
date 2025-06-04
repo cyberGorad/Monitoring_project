@@ -98,12 +98,18 @@
 
 
 
-    
-      <div class="command-container" style="margin-top: 20px;">
-        <input id="commandInputAll" type="text" placeholder="[command broadcast]" style="width: 300px; padding: 5px;" />
-        <button onclick="sendCommandAll()" style="padding: 5px 10px;">execute to all</button>
-      </div>
+    <div class="func_container" >
+        <div class="command-container" style="margin-top: 20px;">
+          <input id="commandInputAll" type="text" placeholder="[command broadcast]" style="width: 300px; padding: 5px;" />
+          <button onclick="sendCommandAll()" style="padding: 5px 10px;">execute to all</button>
+        </div>
 
+        <div class="message-container" style="margin-top: 20px;">
+          <input id="messageInputAll" type="text" placeholder="[Message for all machines]" style="width: 300px; padding: 5px;" />
+          <button onclick="sendMessageAll()" style="padding: 5px 10px;background-color: black;border-radius: 6px;border: 1px solid #0f0;color: #00FF00;">Send message</button>
+        </div>
+
+    </div>
 
 
     <div id="dashboard">

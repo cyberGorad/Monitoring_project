@@ -115,16 +115,24 @@
                             <span id="machine-id"></span>
                             <span id="internet-status"></span>
                             <a id="home_btn" href="{% url 'index' %}"">Home</a>
-                            <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
 
 
 
-
-                            <a id="home_btn">Settings</a>
-
-  
+                           
 
 
+
+                
+                            <div class="dropdown">
+                                <button class="dropbtn">settings</button>
+                                <div class="dropdown-content">
+                                  <a href="#">Link 1</a>
+                                  <a href="#">Link 2</a>
+                                  <a href="#">Link 3</a>
+                                </div>
+                              </div>
+                             
+       
 
                             
 
@@ -163,41 +171,6 @@
                     </a>
                     <span class="tooltip-text">You system will shutdown !</span>
                 </div>
-                <style>
-                    .tooltip-container {
-                        position: relative;
-                        display: inline-block;
-                    }
-                    
-                    .tooltip-container .tooltip-text {
-                        visibility: hidden;
-                        width: 120px;
-                        background-color: black;
-                        color: #00FF00;
-                        text-align: center;
-                        padding: 5px 8px;
-                        border-radius: 4px;
-                        font-size: 12px;
-                        margin-right: 100px;
-                    
-                        position: absolute;
-                        z-index: 1;
-                        bottom: -35px; /* en bas */
-                        left: 30%;
-                        right: 50%;
-                        transform: translateX(-50%);
-                        opacity: 0;
-                        transition: opacity 0.3s;
-                    }
-                    
-                    .tooltip-container:hover .tooltip-text {
-                        visibility: visible;
-                        opacity: 1;
-                    }
-                    </style>
-
-
-
 
 
                     </div>

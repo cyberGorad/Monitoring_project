@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.10.195:9000';
+const SERVER_URL = 'ws://192.168.43.226:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -61,6 +61,32 @@ function sendCommandAll() {
   console.log("[🟢] Command sent to all:", commandText);
 
   cmdInput.value = '';
+}
+
+
+function sendMessageAll() {
+  const msgInput = document.getElementById('messageInputAll');
+  const msgText = msgInput.value.trim();
+
+  if (!msgText) {
+    alert("Print correct text");
+    return;
+  }
+
+  if (ws.readyState !== WebSocket.OPEN) {
+    alert("Cannot send message yet!");
+    return;
+  }
+
+  const message = {
+    type: 'message',
+    message: msgText
+  };
+
+  ws.send(JSON.stringify(message));
+  console.log("[🟢] Messsage sent to all:", msgText);
+
+  msgInput.value = '';
 }
 
 
@@ -275,7 +301,7 @@ data.ram < 60
 
 
 
-      <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
+    
 
 
 
@@ -291,7 +317,7 @@ data.ram < 60
 
       
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} established</div>
-      <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
+      <div class="full-card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
 
    
       <div class="full-card-inter"><span class="section-title"></span><br>${outboundTrafficDetails}</div>
@@ -299,10 +325,11 @@ data.ram < 60
 
       
 
+
       <div style="margin-top: 20px;">
   <input id="commandInput_${hostname}" type="text" placeholder="[command for this machine]" style="width: 300px; padding: 5px;" />
   <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">execute</button>
-</div>
+      </div>
 
 
 
@@ -414,7 +441,7 @@ data.ram < 60
 
 
 
-      <div class="card-inter"><strong>🖥️ Temp :</strong> ${data.temperature}</div>
+
 
 
 
@@ -430,7 +457,7 @@ data.ram < 60
 
       
       <div class="card-inter"><strong>Connection</strong> ${data.connections.length} established</div>
-      <div class="card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
+      <div class="full-card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
 
    
       <div class="full-card-inter"><span class="section-title"></span><br>${outboundTrafficDetails}</div>

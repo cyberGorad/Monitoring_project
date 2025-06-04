@@ -85,11 +85,11 @@
             color: white;
             margin-right: 15px;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 900px) {
             .menu-links {
                 display: none;
                 flex-direction: column;
-                background-color: #333;
+                background-color: black;
                 position: absolute;
                 top: 50px;
                 right: 0;
@@ -98,15 +98,17 @@
                 z-index: 99;
                 width: 300px;
                 font-size: 12px;
+                transition: 1s ease-in-out;
             }
 
             .menu-links.show {
                 display: flex;
+                transition: 1s ease-in-out;
             }
 
             .burger {
                 display: flex;
-                animation: expandCard 0.6s ease;
+                transition: 1s ease-in-out;
             }
 
             .menu-avatar {
@@ -665,3 +667,50 @@
     opacity: 1;
 }
 /* TOOLTIPS SHUTDOWN END */
+
+
+
+
+
+/* SETTINGS BUTTON BEGIN*/
+
+.dropbtn {
+
+  color: green;
+ 
+  font-size: 12px;
+  border: none;
+  margin-right: 10px;
+  background-color: transparent;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  text-align: center;
+  background-color: black;
+  color: #00FF00;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  transition: 1s ease-in-out;
+  margin-top: 10px;
+}
+
+.dropdown-content a {
+  color: #00FF00;
+
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: rgb(110, 126, 110);}
+
+.dropdown:hover .dropdown-content {display: block;}
+
+/* SETTING BUTTON END */

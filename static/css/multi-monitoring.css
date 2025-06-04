@@ -259,6 +259,13 @@ h1 {
 
 /* BOUTTON TO SEND COMMAND TO ALL MACHINE  */
 
+.func_container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
 .command-container {
 margin-top: 40px;
 display: flex;
@@ -266,6 +273,28 @@ justify-content: center;
 align-items: center;
 gap: 10px;
 }
+
+
+.message-container {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  }
+
+
+  .message-container input {
+    width: 300px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: monospace;
+    background-color: #111;
+    color:#0F0;
+  }
+
+
 
 .command-container input {
 width: 300px;
@@ -291,6 +320,22 @@ transition: background-color 0.2s ease;
 background-color: #0f0;
 color: #000;
 }
+
+
+.messsage-container button {
+  padding: 10px 15px;
+  background-color: black;
+  color: #0f0;
+  border: 1px solid #0f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  }
+  
+  .message-container button:hover {
+  background-color: #0f0;
+  color: #000;
+  }
 
 
 
