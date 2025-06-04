@@ -21,18 +21,20 @@ import base64
 
 
 # L'URL de l'API PHP qui retourne l'adresse du serveur WebSocket
-API_URL = "https://tsilavina.alwaysdata.net/urls.php"  # Adapte ce chemin selon ton setup
+API_URL = "https://tsilavina.alwaysdata.net/urls.php"
 
-try:
-    # Requête GET vers le PHP
-    response = requests.get(API_URL)
-    data = response.json()
+while True:
+    try:
+        response = requests.get(API_URL, timeout=5)  # timeout pour éviter blocage
+        data = response.json()
+        SERVER_URL = data["url"].replace("http://", "ws://")
+        print(f"[+] URL récupérée : {SERVER_URL}")
+        break  # Succès, on sort de la boucle
 
-    # Récupère l'URL WebSocket
-    SERVER_URL = data["url"].replace("http://", "ws://")  # si le serveur renvoie http
-
-except error as e:
-    print(f"error {e} ")
+    except Exception as e:
+        print(f"[-] Erreur : {e}")
+        print("[*] Nouvelle tentative dans 5 secondes...")
+        time.sleep(5)
 
 
 
