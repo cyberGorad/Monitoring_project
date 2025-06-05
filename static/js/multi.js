@@ -90,6 +90,17 @@ function sendMessageAll() {
 }
 
 
+function getCpuColor(cpu) {
+  if (cpu >= 80) return 'red';
+  if (cpu >= 60) return 'orange';
+  return 'green';
+}
+
+function getRamColor(ram) {
+  if (ram >= 80) return 'red';
+  if (ram >= 60) return 'orange';
+  return 'green';
+}
 
 
 
@@ -123,21 +134,21 @@ function countMachineStates() {
   // Optionnel : Mettez à jour des éléments HTML si vous avez des emplacements pour afficher ces chiffres
   // Exemple (ajoutez ces éléments à votre HTML avec les IDs correspondants) :
    if (document.getElementById('goodMachinesCount')) {
-     document.getElementById('goodMachinesCount').innerHTML = `<i class="fas fa-globe"></i> Good: ${goodCount}`;
+     document.getElementById('goodMachinesCount').innerHTML = `<i class="fas fa-leaf"></i> Good: ${goodCount}`;
      document.getElementById('goodMachinesCount').style.marginRight = "5px";  
      document.getElementById('goodMachinesCount').style.color = "green"; 
      document.getElementById('goodMachinesCount').style.fontSize = "14px";    
 
    }
    if (document.getElementById('mediumMachinesCount')) {
-     document.getElementById('mediumMachinesCount').innerHTML = `<i class="fas fa-globe"></i> Medium: ${mediumCount}`;
+     document.getElementById('mediumMachinesCount').innerHTML = `<i class="fas fa-lightbulb"></i> Medium: ${mediumCount}`;
      document.getElementById('mediumMachinesCount').style.marginRight = '5px';
      document.getElementById('mediumMachinesCount').style.color = 'orange';
      document.getElementById('mediumMachinesCount').style.fontSize = "14px";
      
    }
    if (document.getElementById('criticalMachinesCount')) {
-     document.getElementById('criticalMachinesCount').innerHTML= `<i class="fas fa-globe"></i> Critical: ${criticalCount}`;
+     document.getElementById('criticalMachinesCount').innerHTML= `<i class="fas fa-skull-crossbones"></i> Critical: ${criticalCount}`;
      document.getElementById('criticalMachinesCount').style.marginRight = "5px";
      document.getElementById('criticalMachinesCount').style.color = "red";
      document.getElementById('criticalMachinesCount').style.fontSize = "14px";
@@ -225,7 +236,7 @@ function updateMachineCard(data, hostname) {
     }
 
   machines[hostname].card.innerHTML = `
-  <p style="position:absolute;">${
+  <p style="position:absolute;"><i class="fas fa-globe"></i> ${
     data.agent_type === 'lan'
     ? 'LAN'
     :data.agent_type === 'wan'
@@ -234,6 +245,23 @@ function updateMachineCard(data, hostname) {
 
 
 }<p>
+
+
+
+
+<div style="display:flex;flex-direction:row;margin-left:100px;height:10px;margin-top:3px;">
+
+  <i class="fas fa-arrow-up" style="color: #00FF00;font-size:10px;"></i> 
+  <span style="color: #93c5fd;font-size:11px;">${data.bandwidth.sent_kb} KB</span>
+
+  <i class="fas fa-arrow-down" style="color: white;margin-left:10px;font-size:10px;"></i> 
+  <span style="color: #6ee7b7;font-size:11px;">${data.bandwidth.received_kb} KB</span>
+</div>
+
+
+
+
+<div class="batery">${batteryStatus}</div>
 
   <div class="inter-container" style="
   box-shadow:  0 4px 8px ${
@@ -246,90 +274,116 @@ function updateMachineCard(data, hostname) {
       : 'grey'
   };">
 
+  <div class="column-card-inter">
+      <div class="inter" style="
+      color: ${
+        data.system_state === 'Good'
+          ? 'green'
+          : data.system_state === 'Medium'
+          ? 'orange'
+          : data.system_state === 'Critical' 
+          ? 'red'
+          :'grey'
+      };
+    ">
+      ${data.system_state === 'Good'
+    ? '<i class="fas fa-leaf"></i> Good'
+    :data.system_state === 'Medium'
+    ? '<i class="fas fa-leaf"></i> Medium'
+    :data.system_state === 'Critical'
+    ? '<i class="fas fa-leaf"></i> Critical'
+    :'error'
+    }
+    </div>
 
-  <div class="card-inter" style="
-
-  color: ${
-    data.system_state === 'Good'
-      ? 'green'
-      : data.system_state === 'Medium'
-      ? 'orange'
-      : data.system_state === 'Critical' 
-      ? 'red'
-      :'grey'
-  };
-">
-  ${data.system_state}
-</div>
+    <div class="inter" style="font-size:10px;margin-right:1px;">${data.local_ip}</div>
+  </div>
 
 
-<div class="card-inter">${data.local_ip}</div>
-
-<div class="card-inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
-${data.internet_status}
-</div>
-
+  <div class="column-card-inter">
+    <div class="inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
+    ${data.internet_status === 'Up'
+    ? '<i class="fas fa-wifi"></i> Up'
+    : '<i class="fas fa-times-circle"></i> Down'
   
+  }
+    </div>
+      <div class="inter">${data.bandwidth.total_data_mb} Mb</div>
+  </div>
+
+
+
   <div class="card-inter">${data.uptime}</div>
 
-  <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
+
+
+  <div class="card-inter"><p>Connection</p> ${data.connections.length} established</div>
  
-  <div class="card-inter" style="
 
-  color: ${
-    data.cpu >= 80
-      ? 'red'     // vert foncé
-      : data.cpu > 60
-      ? 'orange' 
-      : data.cpu < 60
-      ? 'green'    // orange foncé
-      : 'white'     // rouge foncé
-  };
-">
-  <strong>CPU</strong> ${data.cpu ?? 'N/A'} %
+
+  <div class="row-card-inter">
+  <div class="circle-chart">
+    <svg viewBox="0 0 36 36" class="circular-chart ${getCpuColor(data.cpu)}">
+      <path class="circle-bg"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <path class="circle"
+            stroke-dasharray="${data.cpu}, 100"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <text x="18" y="20.35" class="percentage">${data.cpu ?? 'N/A'}%</text>
+    </svg>
+    <p>CPU</p>
+  </div>
+
+  <div class="circle-chart">
+    <svg viewBox="0 0 36 36" class="circular-chart ${getRamColor(data.ram)}">
+      <path class="circle-bg"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <path class="circle"
+            stroke-dasharray="${data.ram}, 100"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <text x="18" y="20.35" class="percentage">${data.ram ?? 'N/A'}%</text>
+    </svg>
+    <p>RAM</p>
+  </div>
 </div>
 
 
+      
 
 
-<div class="card-inter" style="
 
-color: ${
-data.ram < 60
-  ? 'green'     // vert foncé
-  : data.ram < 80
-  ? 'orange'     // orange foncé
-  : 'red'     // rouge foncé
-};
-">
-<strong>RAM</strong> ${data.ram ?? 'N/A'} %
-</div>
+<div class="card-inter">${data.os}</div>
 
 
-      <div class="card-inter">${data.os}</div>
+
+    
+<div class="card-inter">${diskDetails}</div>
 
 
+
+      <div class="middle-card-inter">open port :</p> ${data.open_ports.length}<br> ${openPortsDetails}</div>
+
+      
 
     
 
 
 
-<div class="card-inter">DISK ${diskDetails}</div>
 
-
-
-      <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
-      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} kb, ${data.bandwidth.received_kb} kb</div>
-
-
-      <div class="card-inter">${batteryStatus}</div>
-
+    <div class="full-card-inter"><span class="section-title"></span>${outboundTrafficDetails}</div>
       
-      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} established</div>
       <div class="full-card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
 
    
-      <div class="full-card-inter"><span class="section-title"></span><br>${outboundTrafficDetails}</div>
+      
 
 
       
@@ -355,11 +409,6 @@ data.ram < 60
 
   countMachineStates();
 }
-
-
-
-
-
 
 
 
@@ -461,14 +510,11 @@ data.ram < 60
 
 
 
-
-
-
 <div class="card-inter">DISK ${diskDetails}</div>
 
 
 
-      <div class="middle-card-inter"><strong>Open Ports:</strong>${data.open_ports.length} open<br>${openPortsDetails}</div>
+      <div class="middle-card-inter">open : ${data.open_ports.length}<br>${openPortsDetails}</div>
       <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} kb, ${data.bandwidth.received_kb} kb</div>
 
 
@@ -516,15 +562,27 @@ data.ram < 60
 
 
 
-// Fonction pour construire la liste des ports ouverts
 function buildOpenPortsDetails(openPorts) {
-  let openPortsDetails = '<ul>';
+  let openPortsDetails = '<div style="display: flex; flex-direction: column; gap: 6px;">';
+
   openPorts.forEach(p => {
-    openPortsDetails += `<li>Port: ${p.port} | PID: ${p.pid ?? "N/A"} | Processus: ${p.process}</li>`;
+    openPortsDetails += `
+      <div style="display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 6px;">
+        <i class="fas fa-plug" style="color:#00FF00;"></i>
+        <span><p>Port</p> ${p.port}</span>
+
+        <i class="fas fa-microchip" style="color:#00FF00;"></i>
+        <span><p>pid</p> ${p.pid ?? "N/A"}</span>
+
+        <i class="fas fa-cogs" style="color:#00FF00;"></i>
+        <span><p>Proc</p> ${p.process}</span>
+      </div>`;
   });
-  openPortsDetails += '</ul>';
+
+  openPortsDetails += '</div>';
   return openPortsDetails;
 }
+
 
 // Fonction pour construire les détails des disques avec couleurs dynamiques
 function buildDiskDetails(disk) {
@@ -540,7 +598,7 @@ function buildDiskDetails(disk) {
         ? 'red'
         : 'white';
 
-    diskDetails += `<li style="color: ${color};"><strong>${mount}</strong> : ${percent}% utilisé</li>`;
+    diskDetails += `<li style="color: ${color};font-size: 8px;margin-top:5px;"><p>${mount}</p> ${percent}%</li>`;
   }
 
   diskDetails += '</ul>';
@@ -548,15 +606,38 @@ function buildDiskDetails(disk) {
 }
 
 
-// Fonction pour construire les détails du trafic sortant
 function buildOutboundTrafficDetails(outboundTraffic) {
-  let outboundTrafficDetails = '<ul>';
+  let outboundTrafficDetails = `
+    <style>
+      .process-small {
+        font-size: 12px;
+        color: #00FF00;
+      }
+      .process-icon {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #00FF00;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+    </style>
+    <ul>
+  `;
   outboundTraffic.forEach(c => {
-    outboundTrafficDetails += `<li>Local: ${c.local} → Remote: ${c.remote} | Processus: ${c.process}</li>`;
+    outboundTrafficDetails += `
+      <li>
+        Local: ${c.local} → Remote: ${c.remote} | Processus: 
+        <span class="process-icon"></span>
+        <span class="process-small">${c.process}</span>
+      </li>`;
   });
   outboundTrafficDetails += '</ul>';
   return outboundTrafficDetails;
 }
+
+
 
 // Fonction pour construire les détails de la batterie avec double couleur dynamique
 function buildBatteryStatus(batteryData) {
@@ -576,9 +657,9 @@ function buildBatteryStatus(batteryData) {
 
 
   return `
-    <div>
-      <strong>Battery:</strong> <span style="color: ${percentColor};">${batteryData.battery_percent}%</span><br>
-      <strong>Battery Status:</strong> <span style="color: ${statusColor};">${batteryData.battery_status}</span><br>
+    <div style="display:flex;justify-content:right; flex-direction: row;font-size:9px;margin-bottom:2px;">
+      <p><i class="fas fa-battery-full"></i>:</p> <span style="color: ${percentColor};">${batteryData.battery_percent}%</span>
+      <p style="margin-left:5px;"><i class="fas fa-plug"></i>:</p> <span style="color: ${statusColor};">${batteryData.battery_status}</span>
     </div>
   `;
 }

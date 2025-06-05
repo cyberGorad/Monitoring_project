@@ -470,6 +470,7 @@ async def execute_command(command):
         return f"[ERROR] {str(e)}"
 
 
+#root.after(10000, root.destroy)
 # ======================
 # 📢 Fonction pour afficher une popup/message
 # ======================
@@ -496,7 +497,7 @@ def show_popup(message):
         msg_label.place(relx=0.5, rely=0.5, anchor="center")  # ✅ Centre parfaitement dans la fenêtre
 
         # ✅ Ferme automatiquement après 10 secondes
-        root.after(10000, root.destroy)
+     
         root.mainloop()
 
     Thread(target=popup).start()

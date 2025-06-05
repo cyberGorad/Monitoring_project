@@ -177,7 +177,8 @@ h1 {
 }
 
 .card-inter {
-  background-color: #080F0D;
+  background-color: black;
+  border-radius: 10px;
   width: 22%;
   padding: 15px;
 
@@ -199,8 +200,9 @@ h1 {
 
 
 .full-card-inter {
-  background-color: #080F0D;  /* Gris foncé plus neutre */
+  background-color: black;  /* Gris foncé plus neutre */
   border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
   width: 90%;
   padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
@@ -216,7 +218,7 @@ h1 {
 }
 
 .middle-card-inter {
-  background-color: #080F0D;  /* Gris foncé plus neutre */
+  background-color: black;  /* Gris foncé plus neutre */
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
   width: 45%;
@@ -228,8 +230,54 @@ h1 {
   overflow-y: auto;
   color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
   font-family: 'Inter', sans-serif;
+  border-radius: 10px;
 
   transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
+}
+
+.row-card-inter {
+  background-color: black;  /* Gris foncé plus neutre */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+  width: 45%;
+  padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+  border: 1px solid #444444;  /* Bordure plus discrète */
+  text-align: center;
+  box-sizing: border-box;
+  height: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  overflow-y: auto;
+  color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+  font-family: 'Inter', sans-serif;
+  border-radius: 10px;
+
+  transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
+
+}
+
+.column-card-inter {
+  background-color: black;  /* Gris foncé plus neutre */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Ombre douce et subtile */
+  width: 22%;
+  padding: 15px;  /* Un peu plus d'espace interne pour une meilleure aération */
+  border: 1px solid #444444;  /* Bordure plus discrète */
+  text-align: center;
+  box-sizing: border-box;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  overflow-y: auto;
+  color: #ffffff;  /* Texte en blanc pour contraster sur le fond sombre */
+  font-family: 'Inter', sans-serif;
+  border-radius: 10px;
+
+  transition: all 0.6s ease-in-out;  /* Transition douce pour les effets */
+
 }
 
 
@@ -456,3 +504,42 @@ transform: scaleY(1);
 
 
 /* EN ANIMATION CARD */
+
+
+
+
+
+
+.circular-chart {
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  margin: 7px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 4.5;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke 0.3s ease;
+}
+
+.percentage {
+  fill: white;
+  font-size: 7px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+
+.circular-chart.green .circle { stroke: #00cc66; }
+.circular-chart.orange .circle { stroke: #ff9900; }
+.circular-chart.red .circle { stroke: #e60000; }
