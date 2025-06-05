@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.43.226:9000';
+const SERVER_URL = 'ws://192.168.10.220:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -225,6 +225,15 @@ function updateMachineCard(data, hostname) {
     }
 
   machines[hostname].card.innerHTML = `
+  <p style="position:absolute;">${
+    data.agent_type === 'lan'
+    ? 'LAN'
+    :data.agent_type === 'wan'
+    ? 'WAN'
+    :'error'
+
+
+}<p>
 
   <div class="inter-container" style="
   box-shadow:  0 4px 8px ${
@@ -366,6 +375,16 @@ function createNewMachineCard(data, hostname) {
   const batteryStatus = buildBatteryStatus(data.battery_data);
 
   card.innerHTML = `
+  <p style="position:absolute;">${
+    data.agent_type === 'lan'
+    ? 'LAN'
+    :data.agent_type === 'wan'
+    ? 'WAN'
+    :'error'
+
+
+}<p>
+
   <div class="inter-container" style="
   box-shadow:  0 4px 8px ${
     data.system_state === 'Good'

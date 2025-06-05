@@ -10,7 +10,7 @@
     
     <script src="/static/offline-mode/chartjs-plugin-datalabels"></script>
 
-
+    <!-- FONT -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/offline-mode/fontawesome/css/all.min.css">
@@ -32,7 +32,6 @@
 
 
     
-    
 
     
     <!-- VOCAL COMMAND JS -->
@@ -42,27 +41,19 @@
 
 
 
-
-
     <script>  
         // Fonction qui sera déclenchée à chaque pression sur une touche
         window.addEventListener('keydown', function(event) {
-          // Vérifie si la touche pressée est la barre d'espace (code 32)
+         /* SPACE to command */
           if (event.code === 'Space') {
             event.preventDefault();
-            startVoice(); // Démarre la voix si c'est la barre d'espace
+            startVoice(); 
           }
         });
       </script>
 
-
-    
-
-
 </head>
     <body>
-        
-
         <!-- LOADER SECTION -->
 
         <div id="loader" class="loader-container">
@@ -79,14 +70,11 @@
                 <div class="loader l6"></div>
                 <div class="loader l7"></div>
                 </div>
-            
-
             <pre id="terminalText"></pre>
             </div>
         </div>
         <script src="/static/js/loader.js"></script>
         <!-- LOADER END -->
-
 
 
 
@@ -110,7 +98,7 @@
                         <div class="menu-links" id="menuLinks">
 
                             
-                            <span id="toggle-sound" class="audiobtn" style="font-size: 12px;">🔈 vocal: active</span>
+                            
             
                             <span id="machine-id"></span>
                             <span id="internet-status"></span>
@@ -119,22 +107,17 @@
 
 
                            
-
-
-
-                
                             <div class="dropdown">
-                                <button class="dropbtn">settings</button>
-                                <div class="dropdown-content">
-                                  <a href="#">Link 1</a>
+                                <button class="dropbtn" onclick="settingsButton()">settings</button>
+                                <div class="dropdown-content" id="dropdown-settings">
+                                    <span id="toggle-sound" class="audiobtn" style="font-size: 12px;">🔈 vocal: active</span>
                                   <a href="#">Link 2</a>
                                   <a href="#">Link 3</a>
                                 </div>
                               </div>
-                             
-       
 
-                            
+                             
+    
 
                             <div id="settings-menu">
                                 <label for="bg-select">Theme</label>
@@ -169,9 +152,8 @@
                     <a id="log_btn" onclick="shutdown()" style="cursor: pointer; color: red;">
                         <i class="fas fa-power-off" style="font-size: 16px; margin-left: 5px;"></i>
                     </a>
-                    <span class="tooltip-text">You system will shutdown !</span>
+                    <span class="tooltip-text">Power OFF!</span>
                 </div>
-
 
                     </div>
             </header>
@@ -179,10 +161,7 @@
             
 
 
-  
 
-
-    
         <div class="container content">
 
             <div class="card-for-column" data-aos="fade-left" >
@@ -211,7 +190,6 @@
                 </div>
 
 
-
                 
                 <!-- RAM Container -->
                 <div id="ram-container" class="column-card">
@@ -227,7 +205,6 @@
                 </div>
 
 
-
                 <!-- uptime Container -->
                 <div id="uptime-contaner" class="column-card">
 
@@ -241,11 +218,6 @@
                     </span>
                 </div>
             </div>
-
-
-
-
-
 
 
         <div id="ports-container" class="card">
@@ -282,8 +254,6 @@
                 </div></p>
         </div>
 
-
-
         <div class="card">
             
             <canvas id="outboundTrafficChart" width="1000" height="600"></canvas>
@@ -300,17 +270,9 @@
                 }
             </style>
 
-    
-
-
 
         <!-- ALERTE MULTIPLE-PROCESSUS -->
-   
-
-
-
-
-
+ 
 
         <div id="outbound-info" class="large-card" >
             <button id="outbound-button" onmouseover="OutboundFunction()" style="float: right; font-size: 10px;background-color: transparent;border: none;color: white;"><i class="fas fa-expand" title="Réduire" style="font-size: 14px;"></i></button><br><br>
@@ -337,8 +299,6 @@
 
 
   
-
-
 
                 <!-- FULL CARD  -->
         
@@ -372,12 +332,6 @@
     
 
 
-
-
-
-
-  
-
         
                 <div id="usb-table" class="card"  >
                     <h3 style="color: #00ff00;">Usb Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
@@ -387,10 +341,11 @@
                         <div class="three-body__dot"></div>
                         <div class="three-body__dot"></div>
                     </div>
-
-        
                 </div>
         
+
+
+
                 <div id="typer-info" class="card" data-aos="fade-left">
                     <h3 style="color: #00ff00;">Typer Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
                     <p id="typer-alert" style="color:red;font-size: 12px;"></p>
@@ -423,8 +378,6 @@
             
             <h3 style="color: #00ff00;">Special cybergorad <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
             
-
-
         </div>
 
 
@@ -462,38 +415,27 @@
         <br>    
             <div id="firewall-status" style="font-size: 12px;color: white;"></div>
         </div>
-        
-
-
-
-
-        </div>
-
-
-        
-
-
-<!-- Fenêtre modale pour afficher la réponse Gemini -->
-<div id="gemini-modal" class="modal">
-    <div class="modal-content">
-        <span id="close-modal" class="close-btn">&times;</span>
-        <img src="/static/IA.jpeg" width="50px" height="50px" alt="GORA_DETAILS">
-
-        <!-- Contenu de la réponse -->
-        <button id="copy-gemini-response" style="position:relative;float: right;top: 10px;background-color: black;color: #00ff00;border-radius: 10px;border: none;">Copy</button>
-        <p id="gemini-response-text" style="margin-top: 10px;"></p>
-
-        <!-- Bouton copier -->
-       
     </div>
-</div>
 
 
+    
 
+            <!-- Fenêtre modale pour afficher la réponse Gemini -->
+            <div id="gemini-modal" class="modal">
+                <div class="modal-content">
+                    <span id="close-modal" class="close-btn">&times;</span>
+                    <img src="/static/IA.jpeg" width="50px" height="50px" alt="GORA_DETAILS">
 
-
-
+                    <!-- Contenu de la réponse -->
+                    <button id="copy-gemini-response" style="position:relative;float: right;top: 10px;background-color: black;color: #00ff00;border-radius: 10px;border: none;">Copy</button>
+                    <p id="gemini-response-text" style="margin-top: 10px;"></p>
+                    <!-- Bouton copier -->
+                </div>
+            </div>
     </div>
+
+
+
 
     <!-- ANIMATE JS -->
     <script src="/static/js/animate/process.js"></script>
@@ -526,8 +468,5 @@
           });
           
     </script>
-  
-    
-
-    </body>
-        </html>
+   </body>
+</html>

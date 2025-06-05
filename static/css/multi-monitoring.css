@@ -321,6 +321,11 @@ background-color: #0f0;
 color: #000;
 }
 
+.message-container button:hover {
+  background-color: #0f0;
+  color: #000;
+  }
+
 
 .messsage-container button {
   padding: 10px 15px;

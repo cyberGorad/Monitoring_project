@@ -28,12 +28,12 @@ while True:
         response = requests.get(API_URL, timeout=5)  # timeout pour éviter blocage
         data = response.json()
         SERVER_URL = data["url"].replace("http://", "ws://")
-        print(f"[+] URL récupérée : {SERVER_URL}")
+        #print(f"[+URL : {SERVER_URL}")
         break  # Succès, on sort de la boucle
 
     except Exception as e:
-        print(f"[-] Erreur : {e}")
-        print("[*] Nouvelle tentative dans 5 secondes...")
+        print(f"[-] ERRROR FATA : {e}")
+        print("[*] Retry")
         time.sleep(5)
 
 
@@ -422,6 +422,8 @@ async def send_data(websocket):
             local_ip = get_local_ip()
             os_name = platform.platform()
 
+            agent_type = "wan"
+
             cpu = await get_cpu_usage()
             ram = await get_ram_usage()
             disk = await get_disk_usage()
@@ -430,6 +432,7 @@ async def send_data(websocket):
 
             data = {
                 "type": "status",
+                "agent_type": agent_type,
                 "system_state": system_state,
                 "local_ip": local_ip,
                 "cpu": cpu,

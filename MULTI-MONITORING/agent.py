@@ -408,8 +408,11 @@ async def send_data(websocket):
             bandwidth = await get_bandwidth_usage()
             system_state = evaluate_system_state(cpu, ram, disk, bandwidth)
 
+            agent_type = "lan"
+
             data = {
                 "type": "status",
+                "agent_type": agent_type,
                 "system_state": system_state,
                 "local_ip": local_ip,
                 "cpu": cpu,

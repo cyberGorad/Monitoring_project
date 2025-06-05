@@ -123,12 +123,15 @@ def run_curl_command():
         return None
 
 """ GET STARTUP APPS AND SERVICES """
+"""autostart_files": run_command("cat ~/.config/autostart/*.desktop 2>/dev/null || echo 'Aucun .desktop'"),"""
 def get_linux_startup_info():
     return {
         "systemd_enabled_services": run_command("systemctl list-unit-files --type=service --state=enabled"),
-        """autostart_files": run_command("cat ~/.config/autostart/*.desktop 2>/dev/null || echo 'Aucun .desktop'"),"""
+
         "cron_reboot_entries": run_command("crontab -l | grep '@reboot' || echo 'Aucun cron @reboot'")
     }
+
+
 def get_windows_startup_info():
     return {
         "startup_registry_current_user": run_command("reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
@@ -920,12 +923,7 @@ async def receive(self, text_data):
             raise
 
             
-            
-            
-
-                
-
-
+        
 
     async def monitor_connections(self):
 
@@ -1015,6 +1013,8 @@ async def receive(self, text_data):
                                 "details": cron_content.strip()
                             }
                             await self.send(json.dumps(alert_message))
+
+
 
         elif platform.system().lower() == "windows":
             previous_output = ""

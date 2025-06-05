@@ -67,7 +67,7 @@ let reconnectInterval = 5000; // 5 secondes avant de retenter
 let lastInternetStatus = null;  // statut précédent
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
+    socket = new WebSocket('ws://192.168.10.220:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected', 'color: lime');
@@ -257,9 +257,6 @@ socket.onmessage = function (e) {
             
 
             break;
-
-
-
 
 
 
@@ -509,7 +506,6 @@ socket.onmessage = function (e) {
                 table.appendChild(row);
             });
             wrapper.appendChild(table);
-
 
 
 
