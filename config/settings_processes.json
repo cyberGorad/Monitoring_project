@@ -1,0 +1,11 @@
+{
+    "allowed_process": [
+        "firefox-esr",
+        "chrome",
+        "curl",
+        "daphne",
+        "node",
+        "python3",
+        "postgres"
+    ]
+}

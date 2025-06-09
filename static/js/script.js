@@ -67,7 +67,7 @@ let reconnectInterval = 5000; // 5 secondes avant de retenter
 let lastInternetStatus = null;  // statut précédent
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://192.168.10.220:8000/ws/monitor/');
+    socket = new WebSocket('ws://0.0.0.0:8000/ws/monitor/');
 
     socket.onopen = () => {
         console.log('%c[+] WebSocket connected', 'color: lime');
@@ -147,7 +147,18 @@ function shutdown() {
     }
 }
 
-
+function getCpuColor(cpu) {
+    if (cpu >= 80) return 'red';
+    if (cpu >= 60) return 'orange';
+    return 'green';
+  }
+  
+  function getRamColor(ram) {
+    if (ram >= 80) return 'red';
+    if (ram >= 60) return 'orange';
+    return 'green';
+  }
+  
 
 
 
@@ -216,8 +227,49 @@ socket.onmessage = function (e) {
             const diskUsage = data.disk_usage;
             const bandwidthUsage = data.bandwidth_usage;
             const uptime = data.uptime;
-            cpuTextElement.textContent = `CPU  ${cpuUsage}%`;
-            ramTextElement.textContent = `RAM ${ramUsage}%`;
+            cpuTextElement.innerHTML = `
+            <p style="position:absolute;font-size:10px;padding-right:10px;color:white;">CPU</p> 
+            
+                <div class="row-card-inter">
+            <div class="circle-chart">
+                <svg viewBox="0 0 36 36" class="circular-chart ${getCpuColor(data.cpu_usage)}">
+                <path class="circle-bg"
+                        d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle"
+                        stroke-dasharray="${data.cpu_usage}, 100"
+                        d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">${data.cpu_usage ?? 'N/A'}%</text>
+                </svg>
+                    </div>
+
+            `;
+
+
+
+            ramTextElement.innerHTML = ` 
+            <p style="position:absolute;font-size:10px;margin-right:10px;color:white;">RAM</p>           
+            <div class="row-card-inter">
+            <div class="circle-chart">
+              <svg viewBox="0 0 36 36" class="circular-chart ${getCpuColor(data.ram_usage)}">
+                <path class="circle-bg"
+                      d="M18 2.0845
+                         a 15.9155 15.9155 0 0 1 0 31.831
+                         a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle"
+                      stroke-dasharray="${data.ram_usage}, 100"
+                      d="M18 2.0845
+                         a 15.9155 15.9155 0 0 1 0 31.831
+                         a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">${data.ram_usage ?? 'N/A'}%</text>
+              </svg>
+            </div>`;
+
+
+
             uptimeTextElement.textContent = `UPTIME ${uptime}`;
 
             const state = evaluateSystemState(cpuUsage, ramUsage, diskUsage, bandwidthUsage);
@@ -502,10 +554,25 @@ socket.onmessage = function (e) {
                             <td>${p.memory_mb}</td>
                             <td>${p.memory_percent}</td>
                             <td>${p.alert ? "⚠️" : ""}</td>
+                            <td><button class="kill-btn" style="border-radius:10px;background-color:black;color:#00FF00;" data-pid="${p.pid}">Kill</button></td>
                         `;
                 table.appendChild(row);
             });
             wrapper.appendChild(table);
+            
+            // 🧠 Ajoute le comportement des boutons "Kill"
+document.querySelectorAll(".kill-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const pid = btn.dataset.pid;
+        if (confirm(`Ready to killl this process? ${pid} ?`)) {
+            // Envoie la commande au backend via WebSocket ou fetch
+            socket.send(JSON.stringify({
+                type: "kill-process",
+                pid: parseInt(pid)
+            }));
+        }
+    });
+});
 
 
 
@@ -706,6 +773,12 @@ socket.onmessage = function (e) {
 
         case "ports":
             const openPortsList = document.getElementById('open-ports');
+            const counting_port = document.getElementById('count_port');
+            counting_port.innerHTML = `
+            <p style="color:white;">Open:${data.total_open_ports}</p>
+            <p style="margin-left:3px;color:red;">Alert:${data.total_unauthorized_ports}</p>
+            
+            `;
             openPortsList.innerHTML = ''; // Effacer la liste existante
 
             // Créer l'élément d'en-tête s'il n'existe pas
@@ -1458,7 +1531,7 @@ async function getScanResults(scanId, scanResults) {
 
 
 // Fonction pour démarrer la musique de fond
-function startBackgroundMusic(src, volume = 0.1) {
+/*function startBackgroundMusic(src, volume = 0.1) {
     const audio = document.createElement('audio');
     audio.src = src;
     audio.loop = true; // La musique tourne en boucle
@@ -1475,6 +1548,7 @@ function startBackgroundMusic(src, volume = 0.1) {
 
 // Appeler la fonction avec la source de votre musique et le volume
 startBackgroundMusic('/static/background.mp3', 0.1);
+*/
 
 
 

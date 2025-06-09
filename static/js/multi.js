@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.10.220:9000';
+const SERVER_URL = 'ws://192.168.43.226:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -289,9 +289,9 @@ function updateMachineCard(data, hostname) {
       ${data.system_state === 'Good'
     ? '<i class="fas fa-leaf"></i> Good'
     :data.system_state === 'Medium'
-    ? '<i class="fas fa-leaf"></i> Medium'
+    ? '<i class="fas fa-lightbulb"></i> Medium'
     :data.system_state === 'Critical'
-    ? '<i class="fas fa-leaf"></i> Critical'
+    ? '<i class="fas fa-skull-crossbones"></i> Critical'
     :'error'
     }
     </div>

@@ -110,11 +110,42 @@
                             <div class="dropdown">
                                 <button class="dropbtn" onclick="settingsButton()">settings</button>
                                 <div class="dropdown-content" id="dropdown-settings">
+                           
+
+
                                     <span id="toggle-sound" class="audiobtn" style="font-size: 12px;">🔈 vocal: active</span>
-                                  <a href="#">Link 2</a>
-                                  <a href="#">Link 3</a>
+                                    <br>
+                                    <span id="toggleMusicBtn" style="color: white;font-size: 12px;">Enable music</span>
+
+     
                                 </div>
                               </div>
+
+
+
+                            
+                              <div class="dropdown">
+                                <button class="dropbtn" onclick="configurationsButton()">Configurations</button>
+                                <div class="dropdown-content" id="dropdown-configurations">
+                                    <br>
+                                    <p>>>Select Port configuration</p>
+                                  <!-- Upload pour ports autorisés -->
+                                  <input type="file" id="uploadPortJson" accept=".json">
+                                   <button onclick="sendPortConfig()" style="background-color: black;color: #00ff00;border-radius: 10px;">Upload Ports</button>
+
+                              
+                                 <!-- Upload pour processus autorisés -->
+                                  <br>
+                                     <p>>>Select Process configuration</p>
+                                  <input type="file" id="uploadProcessJson" accept=".json" style="margin-top: 3px;">
+                                  <button onclick="sendProcessConfig()" style="background-color: black;color: #00ff00;border-radius: 10px;">Upload Process</button>
+                                  <br>
+ 
+                                </div>
+                              </div>
+
+                              <a id="helpb_btn" href="https://ids-gorad-web.onrender.com"">Help</a>
+                              
 
                              
     
@@ -167,6 +198,8 @@
             <div class="card-for-column" data-aos="fade-left" >
                 <!-- CPU Container -->
                 <div id="cpu-container" class="column-card" >
+
+                    
                     
                     <span id="cpu-text" style="color: #00ff00; font-size: 20px; font-weight: bold;">
                         <div class="three-body">
@@ -176,6 +209,9 @@
                             </div>
                     </span>
                 </div>
+
+
+                
 
                 <!-- Disk Container -->
                 <div id="disk-container" class="column-card" >
@@ -221,9 +257,12 @@
 
 
         <div id="ports-container" class="card">
-            <i class="fas fa-plug" style="float: left; font-size: 24px; color: #00ff00;"></i>
-            <h3>
-                Open Ports
+            <i class="fas fa-plug" style="float: right; font-size: 24px; color: #00ff00;"></i>
+            <div id="count_port" style="position: absolute;font-size: 8px;display: flex;flex-direction: row;justify-content: right;"></div>
+            <h3 style="margin-left: 10px;">
+                
+                Ports
+                
                 
             </h3>
             
@@ -444,10 +483,15 @@
     <script src="/static/js/animate/etablishedFunction.js"></script>
     <script src="/static/js/animate/closebtn.js"></script>
 
-    <script src="/static/js/music-background.js"></script>
+    <script src="/static/js/music-background.js"></script> 
 
     <!-- SETTINGS JS -->
     <script src="/static/js/settings.js"></script>
+
+    <!-- CONFIGURATIONS JS-->
+    <script src="/static/js/configuration.js"></script>
+    <script src="/static/js/upload_configurations.js"></script>
+    <script src="/static/js/upload_process_configurations.js"></script>
   
 
 
@@ -468,5 +512,47 @@
           });
           
     </script>
+
+
+<!-- MUSIQUE -->
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+    let audio = null;
+    let musicPlaying = false;
+
+    function startBackgroundMusic(src, volume = 1) {
+        audio = document.createElement('audio');
+        audio.src = src;
+        audio.loop = true;
+        audio.volume = volume;
+        audio.style.display = 'none';
+        document.body.appendChild(audio);
+        console.log('🎧 Musique de fond prête (en pause)');
+    }
+
+    startBackgroundMusic('/static/background.mp3', 1);
+
+    const toggleBtn = document.getElementById('toggleMusicBtn');
+    toggleBtn.addEventListener('click', () => {
+        if (!musicPlaying) {
+            audio.play().then(() => {
+                toggleBtn.textContent = 'Disable music';
+                musicPlaying = true;
+                
+            }).catch(err => {
+                console.error('Erreur lors de la lecture :', err);
+            });
+        } else {
+            audio.pause();
+            toggleBtn.textContent = 'Enable music';
+            musicPlaying = false;
+            console.log('🔇 Musique désactivée');
+        }
+    });
+});
+</script>
+
+</script>
    </body>
 </html>

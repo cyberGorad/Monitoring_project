@@ -699,6 +699,7 @@
   z-index: 1;
   transition: 3s ease-in-out;
   margin-top: 10px;
+  height: auto;
 }
 .show-dropdown-content {
   display: flex;
@@ -725,8 +726,55 @@
 
 .dropdown-content a:hover {background-color: rgb(110, 126, 110);}
 
+#toggleMusicBtn {
+    cursor: pointer;
+}
+
 
 
 
 
 /* SETTING BUTTON END */
+
+
+
+
+
+/* chart cpu , RAM */
+.circular-chart {
+    width: 70px;
+    height: 70px;
+    display: inline-block;
+    margin: 7px;
+  }
+  
+  .circle-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 4.5;
+    box-shadow: 0px 8px 16px 0px #00FF00;
+ 
+  }
+  
+  .circle {
+    fill: none;
+    stroke-width: 4.5;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: stroke 0.3s ease;
+    box-shadow: 0px 8px 16px 0px #00FF00;
+
+  }
+  
+  .percentage {
+    fill: white;
+    font-size: 7px;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  
+  
+  .circular-chart.green .circle { stroke: #1B5E20; box-shadow: 0px 8px 16px 0px #00FF00; }
+  .circular-chart.orange .circle { stroke: orange; }
+  .circular-chart.red .circle { stroke: red; }

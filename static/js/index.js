@@ -87,20 +87,3 @@ window.addEventListener('keydown', function(event) {
     }
 });
 
-
-Swal.fire({
-    title: 'GORA',
-    text: "{{ message|escapejs }}",
-    icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% else %}info{% endif %}',
-    background: 'black',
-    color: '#00ff00',
-    confirmButtonColor: '#00ff00',
-    timer: 5000,
-    timerProgressBar: true,
-    showClass: {
-      popup: 'animate__animated animate__zoomIn'
-    },
-    hideClass: {
-      popup: 'animate__animated animate__zoomOut'
-    }
-  });

@@ -5,6 +5,8 @@ import subprocess
 import psutil
 import socket
 import datetime
+
+
 import time
 import platform
 import pyudev
@@ -14,6 +16,9 @@ from pynput.keyboard import Listener, Key
 from scapy.all import sniff, IP, TCP
 from collections import defaultdict
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+CONFIG_PATH_PORTS = "config/settings_ports.json"
+CONFIG_PATH_PROCESSES = "config/settings_processes.json"
 
 
 
@@ -297,6 +302,8 @@ class MultiMonitorConsumer(AsyncWebsocketConsumer):
         
     
         await self.accept()
+        await self.load_allowed_ports()
+        await self.load_allowed_process()
 
 
         await self.send(json.dumps({"type": "firewall_status", "iptables": "Ready to receive IPs."}))
@@ -475,21 +482,26 @@ async def receive(self, text_data):
 
 
 
+
     async def check_internet_connection(self):
         while True:
             try:
-                result = subprocess.run(["ping", "-c", "1", "8.8.8.8"],
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
-                status = "Up" if result.returncode == 0 else "Down"
+                process = await asyncio.create_subprocess_exec(
+                    "ping", "-c", "3", "8.8.8.8",
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                stdout, stderr = await process.communicate()
+
+                status = "Up" if process.returncode == 0 else "Down"
             except Exception as e:
                 status = "ERROR"
-
 
             await self.send(json.dumps({
                 "type": "internet-status",
                 "internet_status": status,
             }))
+
             await asyncio.sleep(5)
 
 
@@ -503,6 +515,62 @@ async def receive(self, text_data):
         if process.returncode != 0:
             raise Exception(stderr.decode())
         return stdout.decode()
+
+
+
+#ALLOWED PORTS
+
+    
+    async def save_allowed_ports(self, ports):
+        config = {"allowed_ports": ports}
+        with open(CONFIG_PATH_PORTS, "w") as f:
+            json.dump(config, f, indent=4)
+
+    async def save_allowed_process(self, process):
+        config = {"allowed_process": process}
+        with open(CONFIG_PATH_PROCESSES, "w") as f:
+            json.dump(config, f, indent=4)
+
+
+
+    async def load_allowed_ports(self):
+        try:
+            if os.path.exists(CONFIG_PATH_PORTS):
+                with open(CONFIG_PATH_PORTS, "r") as f:
+                    config = json.load(f)
+                    ports = config.get("allowed_ports", [])
+                    if isinstance(ports, list) and all(isinstance(p, int) for p in ports):
+                        self.allowed_ports = set(ports)
+                        print("[Config load success] =>", self.allowed_ports)
+                    else:
+                        self.allowed_ports = set()
+            else:
+                self.allowed_ports = set()
+        except Exception as e:
+            print("[ERROR]", str(e))
+            self.allowed_ports = set()
+
+
+    async def load_allowed_process(self):
+        try:
+            if os.path.exists(CONFIG_PATH_PROCESSES):
+                with open(CONFIG_PATH_PROCESSES, "r") as f:
+                    config = json.load(f)
+                    process = config.get("allowed_process", [])
+                    if isinstance(process, list) and all(isinstance(p, str) for p in process):
+                        self.allowed_processes = set(process)
+                        print("[Config load success] =>", self.allowed_processes)
+                    else:
+                        self.allowed_processes = set()
+            else:
+                self.allowed_processes = set()
+        except Exception as e:
+            print("[ERROR]", str(e))
+            self.allowed_processes = set()
+
+
+
+
 
 
     async def receive(self, text_data):
@@ -578,8 +646,110 @@ async def receive(self, text_data):
                 shutdown = ["sudo", "init", "0"]
                 subprocess.run(shutdown, check=True)
 
+
+
+
             except error as e:
                 print(f'ERROR: {e}')
+        elif type_action == "kill-process":
+            print("KILL PROCESS")
+            pid = data["pid"]
+            try:
+                p = psutil.Process(pid)
+                p.kill()  # ou p.kill() si tu veux forcer  / p.terminate()
+                await self.send(json.dumps({
+                    "type": "process-killed",
+                    "pid": pid,
+                    "status": "success"
+                }))
+            except Exception as e:
+                await self.send(json.dumps({
+                    "type": "process-killed",
+                    "pid": pid,
+                    "status": "error",
+                    "message": str(e)
+                }))
+
+
+
+        elif type_action == "upload_port_config":
+            global authorized_ports
+            try:
+                # Récupérer le contenu JSON brut envoyé depuis le front (ex: {type: ..., allowed_ports: [...]})
+                ports = data.get("allowed_ports", [])
+
+                # Vérifier que c'est bien une liste d'entiers
+                if isinstance(ports, list) and all(isinstance(p, int) for p in ports):
+                    # Sauvegarder dans un fichier (optionnel mais utile)
+                    await self.save_allowed_ports(ports)
+
+                    # Mettre à jour les ports autorisés dans l'objet WebSocket consumer
+                    self.allowed_ports = set(ports)
+                    authorized_ports = set(ports)
+
+                    # 🔥 Print dans la console du serveur pour debug
+                    print("[🔐 PORTS AUTORISÉS MAJ] =>", authorized_ports)
+
+                    # Réponse au client WebSocket
+                    await self.send(json.dumps({
+                        "type": "upload_response",
+                        "status": "success",
+                        "message": "Ports autorisés mis à jour en live."
+                    }))
+                else:
+                    await self.send(json.dumps({
+                        "type": "upload_response",
+                        "status": "error",
+                        "message": "Format des ports invalide. Liste d'entiers attendue."
+                    }))
+                    
+            except Exception as e:
+                print("[❌ ERREUR upload_port_config] =>", str(e))
+                await self.send(json.dumps({
+                    "type": "upload_response",
+                    "status": "error",
+                    "message": f"Erreur côté serveur: {str(e)}"
+                }))
+
+
+        elif type_action == "upload_process_config":
+            global authorized_process
+            try:
+                # Récupérer le contenu JSON brut envoyé depuis le front (ex: {type: ..., allowed_ports: [...]})
+                process = data.get("allowed_process", [])
+
+                # Vérifier que c'est bien une liste d'entiers
+                if isinstance(process, list) and all(isinstance(p, str) for p in process):
+                    # Sauvegarder dans un fichier (optionnel mais utile)
+                    await self.save_allowed_process(process)
+
+                    # Mettre à jour les ports autorisés dans l'objet WebSocket consumer
+                    self.allowed_process = set(process)
+                    authorized_process = set(process)
+
+                    # 🔥 Print dans la console du serveur pour debug
+                    print("[🔐 PROCESS AUTORISÉS MAJ] =>", authorized_process)
+
+                    # Réponse au client WebSocket
+                    await self.send(json.dumps({
+                        "type": "upload_response",
+                        "status": "success",
+                        "message": "Process updated."
+                    }))
+                else:
+                    await self.send(json.dumps({
+                        "type": "upload_response",
+                        "status": "error",
+                        "message": "Error when updating process"
+                    }))
+                    
+            except Exception as e:
+                print("[❌ ERREUR upload_port_config] =>", str(e))
+                await self.send(json.dumps({
+                    "type": "upload_response",
+                    "status": "error",
+                    "message": f"ERROR 500: {str(e)}"
+                }))
 
 
 
@@ -594,11 +764,6 @@ async def receive(self, text_data):
             return True
         except ValueError:
             return False
-
-
-
-
-
 
 
 
@@ -644,15 +809,12 @@ async def receive(self, text_data):
 
 
     async def allow_connection(self):
-        # Liste blanche des noms de processus autorisés
-        allowed_processes = {"firefox-esr", "chrome", "curl", "daphne", "node", "python3"}
+        allowed_processes = getattr(self, "allowed_processes", set())
+        print(f"PROCESSUS ALLOWED DE CYBERGORAD : {allowed_processes}")
+
         seen = set()
 
         while True:
-            # Utilisation d'asyncio pour rendre non-bloquant
-              # Remplace time.sleep() par asyncio.sleep()
-
-            # Liste des processus non autorisés
             unauthorized_processes = []
 
             for conn in psutil.net_connections(kind='inet'):
@@ -661,8 +823,8 @@ async def receive(self, text_data):
                     try:
                         proc = psutil.Process(pid)
                         name = proc.name().lower()
+
                         if name not in allowed_processes:
-                            # Collecter les informations du processus non autorisé
                             unauthorized_processes.append({
                                 "pid": pid,
                                 "name": name,
@@ -673,15 +835,32 @@ async def receive(self, text_data):
 
                     seen.add(pid)
 
-            # Si des processus non autorisés ont été trouvés, envoyer une alerte sous forme JSON
             if unauthorized_processes:
-                await self.send(json.dumps({
+                data_to_send = {
                     "type": "unauthorized_processes_alert",
                     "processes": unauthorized_processes,
-                }))
+                }
+
+                # Envoi async (attention : self.send doit être une coroutine fonctionnelle)
+                await self.send(json.dumps(data_to_send))
+
+                # Log dans fichier (création dossier si besoin)
+                try:
+                    log_dir = "log"
+                    os.makedirs(log_dir, exist_ok=True)
+                    log_path = os.path.join(log_dir, "network_alerts.log")
+
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                    with open(log_path, "a", encoding="utf-8") as logfile:
+                        logfile.write(f"[{timestamp}] {json.dumps(data_to_send)}\n")
+
+            
+
+                except Exception as e:
+                    print(f"[ERROR LOG NETWORKS : {e}")
 
             await asyncio.sleep(2)
-            
 
 
 
@@ -725,6 +904,20 @@ async def receive(self, text_data):
         # Boucle async qui reçoit les alertes
         while True:
             data = await queue.get()
+
+            try:
+                log_dir = "log"
+                os.makedirs(log_dir, exist_ok=True)
+                log_path = os.path.join(log_dir, "rubber_alerts.log")
+
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                with open(log_path, "a", encoding="utf-8") as logfile:
+                    logfile.write(f"[{timestamp}] {json.dumps(data)}\n")
+            except error as e:
+                print(f'ERROR RUBBER DUCKY {e}')
+
+            
 
             await self.send(json.dumps(data))
 
@@ -787,9 +980,10 @@ async def receive(self, text_data):
 
 
 
-
+#authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293, 5432]
     async def monitor_ports(self):
-        authorized_ports = [22, 80, 443, 53, 8000, 2610, 953, 1716, 33293, 5432]
+
+
         reported_ports = set()
         alert_responses = []
 
@@ -800,19 +994,41 @@ async def receive(self, text_data):
                     process_name = psutil.Process(conn.pid).name() if conn.pid else "Inconnu"
                     open_ports.append({"port": conn.laddr.port, "pid": conn.pid, "process": process_name})
 
+            authorized_ports = getattr(self, "allowed_ports", set())
+
             unauthorized_ports = [
                 port for port in open_ports if port["port"] not in authorized_ports
             ]
+
+            total_open_ports = len(open_ports)
+            total_unauthorized_ports = len(unauthorized_ports)
 
             for port in unauthorized_ports:
                 if port["port"] not in reported_ports:
                     reported_ports.add(port["port"])
 
+
                     alert_text = (
                         f"Alerte : Port non autorisé détecté - "
                         f"Port: {port['port']}, Processus: {port['process']}"
                     )
-                    print(alert_text)
+
+                    try:
+                        log_dir = "log"
+                        os.makedirs(log_dir, exist_ok=True)  # Crée le dossier s'il n'existe pas
+                        port_log_path = os.path.join(log_dir, "ports_alerts.log")
+
+                        # 🕒 Formatage de l'horodatage
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                        # 📂 Écriture append dans le fichier log
+                        with open(port_log_path, "a", encoding="utf-8") as logfile:
+                            logfile.write(f"[{timestamp}] {alert_text}\n")
+
+                    except Exception as e:
+                        print(f"[ERROR] WRITE FILE PORT  : {e}")
+
+
 
                     # Appel async non-bloquant
                     curl_cmd = f"""
@@ -849,6 +1065,8 @@ async def receive(self, text_data):
             # Envoi WebSocket async
             await self.send(json.dumps({
                 "type": "ports",
+                "total_open_ports": total_open_ports,
+                "total_unauthorized_ports": total_unauthorized_ports,
                 "open_ports": open_ports,
                 "alerts": unauthorized_ports,
                 "alert_responses": alert_responses,
@@ -914,6 +1132,23 @@ async def receive(self, text_data):
                             "devpath": device.device_path,
                             "node": device.device_node
                         }
+
+                        try:
+                            log_dir = "log"
+                            os.makedirs(log_dir, exist_ok=True)  # Crée le dossier s'il n'existe pas
+                            port_log_path = os.path.join(log_dir, "usb_alerts.log")
+
+                            # 🕒 Formatage de l'horodatage
+                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                            # 📂 Écriture append dans le fichier log
+                            with open(port_log_path, "a", encoding="utf-8") as logfile:
+                                logfile.write(f"[{timestamp}] {event_data}\n")
+
+                        except Exception as e:
+                            print(f"[ERROR] WRITE FILE USB  : {e}")
+
+
                         await self.send(json.dumps(event_data))
                 except asyncio.TimeoutError:
                     # Pas d'événement : boucle continue, permet cancel propre
@@ -935,7 +1170,6 @@ async def receive(self, text_data):
                 "connections": connections,
             }))
             await asyncio.sleep(5)
-
 
 
 
@@ -1005,6 +1239,8 @@ async def receive(self, text_data):
                         last_mod_times[user_cron] = current_mtime
                         cron_content = run_command(f"crontab -l -u {user_cron}")
                         if cron_content:
+
+
                             alert_message = {
                                 "type": "cron_modification",
                                 "os": "linux",
@@ -1012,6 +1248,20 @@ async def receive(self, text_data):
                                 "message": f"Modification detected in cron jobs for user '{user_cron}'",
                                 "details": cron_content.strip()
                             }
+                            try:
+                                log_dir = "log"
+                                os.makedirs(log_dir, exist_ok=True)
+                                cron_log_path = os.path.join(log_dir, "cron_alerts.log")
+
+                                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                                with open(cron_log_path, "a", encoding="utf-8") as logfile:
+                                    logfile.write(f"[{timestamp}] {json.dumps(alert_message)}\n")
+                            except error as e:
+                                print(f'ERROR CRON LOG {e}')
+
+
+                            
                             await self.send(json.dumps(alert_message))
 
 
