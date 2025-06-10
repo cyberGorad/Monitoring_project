@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.43.226:9000';
+const SERVER_URL = 'ws://192.168.10.232:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -104,6 +104,32 @@ function getRamColor(ram) {
 
 
 
+function displayCommandResult(result) {
+  const container = document.getElementById("commandOutput");
+
+  const resultBox = document.createElement("div");
+  resultBox.className = "command-result";
+  resultBox.style.cssText = `
+    background: #000;
+    color: #0f0;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-top: 10px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    border-radius: 5px;
+  `;
+  resultBox.textContent = result;
+
+  container.prepend(resultBox); // Ajoute en haut
+}
+
+
+
+
+
+
+
 function countMachineStates() {
   let goodCount = 0;
   let mediumCount = 0;
@@ -188,6 +214,14 @@ function connectWebSocket() {
       return;
     }
 
+
+
+      if (data.type === "command_result") {
+        displayCommandResult(data.result);
+        return;
+  }
+        
+
     const hostname = data.local_ip || 'Inconnu';
 
     if (machines[hostname]) {
@@ -228,6 +262,11 @@ function updateMachineCard(data, hostname) {
   const diskDetails = buildDiskDetails(data.disk);
   const outboundTrafficDetails = buildOutboundTrafficDetails(data.outbound_traffic);
   const batteryStatus = buildBatteryStatus(data.battery_data);
+  const processalert = displayUnauthorizedProcesses(data.allow_connection?.processes);
+
+
+
+
 
 
     // Ajoutez cette ligne pour stocker l'état
@@ -236,6 +275,8 @@ function updateMachineCard(data, hostname) {
     }
 
   machines[hostname].card.innerHTML = `
+
+
   <p style="position:absolute;"><i class="fas fa-globe"></i> ${
     data.agent_type === 'lan'
     ? 'LAN'
@@ -245,6 +286,20 @@ function updateMachineCard(data, hostname) {
 
 
 }<p>
+
+
+
+<div id="commandOutput">
+
+</div>
+
+
+
+
+
+
+
+      
 
 
 
@@ -317,6 +372,10 @@ function updateMachineCard(data, hostname) {
 
 
 
+  
+
+
+
   <div class="card-inter"><p>Connection</p> ${data.connections.length} established</div>
  
 
@@ -371,6 +430,15 @@ function updateMachineCard(data, hostname) {
 
       <div class="middle-card-inter">open port :</p> ${data.open_ports.length}<br> ${openPortsDetails}</div>
 
+
+
+      <div class="middle-card-inter">${processalert}</div>
+
+
+      
+      
+
+
       
 
     
@@ -389,9 +457,9 @@ function updateMachineCard(data, hostname) {
       
 
 
-      <div style="margin-top: 20px;">
+      <div style="margin-top: 20px;margin-bottom:20px;">
   <input id="commandInput_${hostname}" type="text" placeholder="[command for this machine]" style="width: 300px; padding: 5px;" />
-  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">execute</button>
+  <button onclick="sendCommand('${hostname}')" style="background-color:black; border-radius:10px;color:#00FF00;padding: 5px 10px;">execute</button>
       </div>
 
 
@@ -417,14 +485,22 @@ function createNewMachineCard(data, hostname) {
 
   const card = document.createElement('div');
   card.className = 'card';
+  
 
   const openPortsDetails = buildOpenPortsDetails(data.open_ports);
   const diskDetails = buildDiskDetails(data.disk);
   const outboundTrafficDetails = buildOutboundTrafficDetails(data.outbound_traffic);
   const batteryStatus = buildBatteryStatus(data.battery_data);
 
+  const processalert = displayUnauthorizedProcesses(data.allow_connection?.processes);
+
+
+
   card.innerHTML = `
-  <p style="position:absolute;">${
+
+  
+  
+  <p style="position:absolute;"><i class="fas fa-globe"></i> ${
     data.agent_type === 'lan'
     ? 'LAN'
     :data.agent_type === 'wan'
@@ -433,6 +509,37 @@ function createNewMachineCard(data, hostname) {
 
 
 }<p>
+
+
+
+<div id="commandOutput">
+
+</div>
+
+
+
+
+
+
+
+      
+
+
+
+
+<div style="display:flex;flex-direction:row;margin-left:100px;height:10px;margin-top:3px;">
+
+  <i class="fas fa-arrow-up" style="color: #00FF00;font-size:10px;"></i> 
+  <span style="color: #93c5fd;font-size:11px;">${data.bandwidth.sent_kb} KB</span>
+
+  <i class="fas fa-arrow-down" style="color: white;margin-left:10px;font-size:10px;"></i> 
+  <span style="color: #6ee7b7;font-size:11px;">${data.bandwidth.received_kb} KB</span>
+</div>
+
+
+
+
+<div class="batery">${batteryStatus}</div>
 
   <div class="inter-container" style="
   box-shadow:  0 4px 8px ${
@@ -445,99 +552,144 @@ function createNewMachineCard(data, hostname) {
       : 'grey'
   };">
 
+  <div class="column-card-inter">
+      <div class="inter" style="
+      color: ${
+        data.system_state === 'Good'
+          ? 'green'
+          : data.system_state === 'Medium'
+          ? 'orange'
+          : data.system_state === 'Critical' 
+          ? 'red'
+          :'grey'
+      };
+    ">
+      ${data.system_state === 'Good'
+    ? '<i class="fas fa-leaf"></i> Good'
+    :data.system_state === 'Medium'
+    ? '<i class="fas fa-lightbulb"></i> Medium'
+    :data.system_state === 'Critical'
+    ? '<i class="fas fa-skull-crossbones"></i> Critical'
+    :'error'
+    }
+    </div>
 
-  <div class="card-inter" style="
-
-  color: ${
-    data.system_state === 'Good'
-      ? 'green'
-      : data.system_state === 'Medium'
-      ? 'orange'
-      : data.system_state === 'Critical' 
-      ? 'red'
-      :'grey'
-  };
-">
-  ${data.system_state}
-</div>
+    <div class="inter" style="font-size:10px;margin-right:1px;">${data.local_ip}</div>
+  </div>
 
 
-<div class="card-inter">${data.local_ip}</div>
-
-<div class="card-inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
-${data.internet_status}
-</div>
-
+  <div class="column-card-inter">
+    <div class="inter" style="color: ${data.internet_status === 'Up' ? 'green' : 'red'};">
+    ${data.internet_status === 'Up'
+    ? '<i class="fas fa-wifi"></i> Up'
+    : '<i class="fas fa-times-circle"></i> Down'
   
+  }
+    </div>
+      <div class="inter">${data.bandwidth.total_data_mb} Mb</div>
+  </div>
+
+
+
   <div class="card-inter">${data.uptime}</div>
 
-  <div class="card-inter">${data.bandwidth.total_data_mb} Mb</div>
+
+
+  
+
+
+
+  <div class="card-inter"><p>Connection</p> ${data.connections.length} established</div>
  
-  <div class="card-inter" style="
 
-  color: ${
-    data.cpu >= 80
-      ? 'red'     // vert foncé
-      : data.cpu > 60
-      ? 'orange' 
-      : data.cpu < 60
-      ? 'green'    // orange foncé
-      : 'white'     // rouge foncé
-  };
-">
-  <strong>CPU</strong> ${data.cpu ?? 'N/A'} %
+
+  <div class="row-card-inter">
+  <div class="circle-chart">
+    <svg viewBox="0 0 36 36" class="circular-chart ${getCpuColor(data.cpu)}">
+      <path class="circle-bg"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <path class="circle"
+            stroke-dasharray="${data.cpu}, 100"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <text x="18" y="20.35" class="percentage">${data.cpu ?? 'N/A'}%</text>
+    </svg>
+    <p>CPU</p>
+  </div>
+
+  <div class="circle-chart">
+    <svg viewBox="0 0 36 36" class="circular-chart ${getRamColor(data.ram)}">
+      <path class="circle-bg"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <path class="circle"
+            stroke-dasharray="${data.ram}, 100"
+            d="M18 2.0845
+               a 15.9155 15.9155 0 0 1 0 31.831
+               a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <text x="18" y="20.35" class="percentage">${data.ram ?? 'N/A'}%</text>
+    </svg>
+    <p>RAM</p>
+  </div>
 </div>
 
-
-
-
-<div class="card-inter" style="
-
-color: ${
-data.ram < 60
-  ? 'green'     // vert foncé
-  : data.ram < 80
-  ? 'orange'     // orange foncé
-  : 'red'     // rouge foncé
-};
-">
-<strong>RAM</strong> ${data.ram ?? 'N/A'} %
-</div>
-
-
-      <div class="card-inter">${data.os}</div>
-
-
-
-
-<div class="card-inter">DISK ${diskDetails}</div>
-
-
-
-      <div class="middle-card-inter">open : ${data.open_ports.length}<br>${openPortsDetails}</div>
-      <div class="card-inter"><strong>Bandwith</strong> ${data.bandwidth.sent_kb} kb, ${data.bandwidth.received_kb} kb</div>
-
-
-      <div class="card-inter">${batteryStatus}</div>
 
       
-      <div class="card-inter"><strong>Connection</strong> ${data.connections.length} established</div>
+
+
+
+<div class="card-inter">${data.os}</div>
+
+
+
+    
+<div class="card-inter">${diskDetails}</div>
+
+
+
+      <div class="middle-card-inter">open port :</p> ${data.open_ports.length}<br> ${openPortsDetails}</div>
+
+
+
+      <div class="middle-card-inter">${processalert}</div>
+
+
+      
+      
+
+
+      
+
+    
+
+
+
+
+    <div class="full-card-inter"><span class="section-title"></span>${outboundTrafficDetails}</div>
+      
       <div class="full-card-inter"><span class="section-title">Cron</span><br>${data.cron_jobs}</div>
 
    
-      <div class="full-card-inter"><span class="section-title"></span><br>${outboundTrafficDetails}</div>
+      
 
 
       
 
-      <div style="margin-top: 20px;">
+
+      <div style="margin-top: 20px;margin-bottom:20px;">
   <input id="commandInput_${hostname}" type="text" placeholder="[command for this machine]" style="width: 300px; padding: 5px;" />
-  <button onclick="sendCommand('${hostname}')" style="padding: 5px 10px;">execute</button>
-</div>
+  <button onclick="sendCommand('${hostname}')" style="background-color:black; border-radius:10px;color:#00FF00;padding: 5px 10px;">execute</button>
+      </div>
 
 
 
 </div>
+
+
 
 
 
@@ -582,6 +734,34 @@ function buildOpenPortsDetails(openPorts) {
   openPortsDetails += '</div>';
   return openPortsDetails;
 }
+
+
+function displayUnauthorizedProcesses(processesparam) {
+  // Sécurisation : si la donnée est null/undefined ou pas un tableau, on renvoie un message par défaut
+  if (!Array.isArray(processesparam) || processesparam.length === 0) {
+    return `<p>No process alert</p>`;
+  }
+
+  let alertprocess = '<div style="display: flex; flex-direction: column; gap: 6px;">';
+
+  processesparam.forEach(proc => {
+    alertprocess += `
+      <div style="display: flex; align-items: center;font-size:9px;border-radius: 6px;color:red;justify-content:space-around;">
+      <span> ${proc.name}</span>
+
+      <span>PID: ${proc.pid?? "N/A"}</span>
+
+
+    </div>`;
+  });
+
+  alertprocess += '</div>';
+  return alertprocess;
+}
+
+
+
+
 
 
 // Fonction pour construire les détails des disques avec couleurs dynamiques

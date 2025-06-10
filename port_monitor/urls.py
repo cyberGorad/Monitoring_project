@@ -16,12 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('multi', include('monitor.urls')),
     path('monitor/', include('monitor.urls')),
     path('', include('monitor.urls')),
-    path('log/', include('log_viewer.urls')),
+
 ]
+
+urlpatterns += static(settings.LOG_URL, document_root=settings.LOG_ROOT)
+
+
 

@@ -144,7 +144,30 @@
                                 </div>
                               </div>
 
-                              <a id="helpb_btn" href="https://ids-gorad-web.onrender.com"">Help</a>
+
+
+
+
+                              <div class="dropdown">
+                                <button class="dropbtn" onclick="downloadlog()">Log</button>
+                                <div class="dropdown-content" id="dropdown_log">
+                                    <p>>> Download logs</p>
+                                    <a href="/logfiles/ports_alerts.log" download>ports</a>
+                                    <a href="/logfiles/cron_alerts.log" download>Cron </a>
+                                    <a href="/logfiles/network_alerts.log" download>Process</a>
+                                    <a href="/logfiles/rubber_alerts.log" download>RubberDucky</a>
+                                    <a href="/logfiles/usb_alerts.log" download>USB</a>
+ 
+                                </div>
+                              </div>
+
+
+
+                              <a id="helpb_btn" href="https://ids-gorad-web.onrender.com">Help</a>
+
+                              
+
+                              
                               
 
                              
@@ -328,6 +351,7 @@
 
         <div id="cron-jobs-list" class="card">
             <h3>Tasks Scheduled <i class="fas fa-clock" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
+            <a href="/logfiles/cron_alerts.log" style="text-decoration: none;font-size: 10px;"  download>download logs </a>
             <div class="three-body">
                 <div class="three-body__dot"></div>
                 <div class="three-body__dot"></div>
@@ -375,6 +399,7 @@
                 <div id="usb-table" class="card"  >
                     <h3 style="color: #00ff00;">Usb Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
                     <div id="usb" style="color:#00ff00;font-size: 12px;"></div>
+                    <a href="/logfiles/usb_alerts.log" style="text-decoration: none;font-size: 10px;"  download>download logs </a>
                     <div class="three-body">
                         <div class="three-body__dot"></div>
                         <div class="three-body__dot"></div>
@@ -388,6 +413,7 @@
                 <div id="typer-info" class="card" data-aos="fade-left">
                     <h3 style="color: #00ff00;">Typer Monitor <i class="fas fa-rocket" style="float: right; font-size: 24px; color: #00ff00;"></i></h3> 
                     <p id="typer-alert" style="color:red;font-size: 12px;"></p>
+                    <a href="/logfiles/rubber_alerts.log" style="text-decoration: none;font-size: 10px;" download>download logs </a>
                     <div class="three-body">
                         <div class="three-body__dot"></div>
                         <div class="three-body__dot"></div>
@@ -492,6 +518,8 @@
     <script src="/static/js/configuration.js"></script>
     <script src="/static/js/upload_configurations.js"></script>
     <script src="/static/js/upload_process_configurations.js"></script>
+    <!-- LOG DROPDOWN -->
+    <script src="/static/js/log_download.js"></script>
   
 
 

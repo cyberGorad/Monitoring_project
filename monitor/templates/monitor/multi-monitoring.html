@@ -46,7 +46,28 @@
 
                 <span id="machine-id"></span>
                 <a id="home_btn" href="{% url 'index' %}">Home</a>
-                <a id="log_btn" href="{% url 'log' %}">Log Viewer</a>
+
+
+
+
+
+
+                                           
+                <div class="dropdown">
+                  <button class="dropbtn" onclick="outputButton()">output</button>
+                  <div class="dropdown-content" id="dropdown-settings">
+             
+
+
+
+                    <div id="commandOutput">
+                      <p>>> Command output</p>
+                    </div> 
+
+
+                  </div>
+                </div>
+   
 
 
 
@@ -97,22 +118,79 @@
 
 
 
-    <div class="func_container" >
+      <div class="func_container" style="position: relative;">
         <div class="command-container" style="margin-top: 20px;">
           <input id="commandInputAll" type="text" placeholder="[command broadcast]" style="width: 300px; padding: 5px;" />
           <button onclick="sendCommandAll()" style="padding: 5px 10px;">execute to all</button>
+          <button id="toggleBtn" onclick="toggleListbox()" style="padding: 5px 10px;">📂 Show Commands</button>
         </div>
+      
+        <!-- LISTBOX ABSOLUTE -->
+        <div id="listboxContainer" style="
+            display: none;
+            position: absolute;
+            top: 70px; /* Ajuste selon ton layout */
+            left: 10px;
+            z-index: 100;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+          ">
+          <label for="commandList" style="color: #fff;">Automated command</label><br>
+          <select id="commandList" size="5" style="width: 310px; padding: 5px;" onclick="selectAndClose()">
+            <option value="sfc /scannow">sfc /scannow -> check disk</option>
+            <option value="del /q /f /s %TEMP%\*">del /q /f /s %TEMP%\* -> Delete temp files</option>
+            <option value="chkdsk C: /F /R /X">chkdsk C: /F /R /X -> verify disk</option>
+            <option value="ipconfig /flushdns">ipconfig /flushdns -> clean network cache</option>
+            <option value="del /q /f /s C:\Windows\Temp\*">del /q /f /s C:\Windows\Temp\* -> clean system cache</option>
+          </select>
+        </div>
+
+        <script>
+          function toggleListbox() {
+            const box = document.getElementById('listboxContainer');
+            box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+          }
+        
+          function selectAndClose() {
+            const list = document.getElementById('commandList');
+            const selectedCommand = list.value;
+            document.getElementById('commandInputAll').value = selectedCommand;
+        
+            // Referme la box après sélection
+            document.getElementById('listboxContainer').style.display = 'none';
+          }
+        
+          function sendCommandAll() {
+            const command = document.getElementById('commandInputAll').value;
+            console.log("📡 Broadcasting command:", command);
+            // Ton code d'envoi ici
+          }
+        </script>
+        
+
+
+      
 
         <div class="message-container" style="margin-top: 20px;">
           <input id="messageInputAll" type="text" placeholder="[Message for all machines]" style="width: 300px; padding: 5px;" />
           <button onclick="sendMessageAll()" style="padding: 5px 10px;background-color: black;border-radius: 6px;border: 1px solid #0f0;color: #00FF00;">Send message</button>
         </div>
-  
+        
+
+        
 
     </div>
 
 
+
+
+
+
     <div id="dashboard">
+
 <!-- CARD HERE -->
     </div>
 
@@ -132,6 +210,7 @@
 
   </div>
   <script src="/static/js/multi.js"></script> 
+  <script src="/static/js/output_js.js"></script>
  
 </body>
 </html>

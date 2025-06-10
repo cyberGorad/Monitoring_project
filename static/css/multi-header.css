@@ -63,7 +63,7 @@ body {
         margin-right: 15px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 900px) {
         .menu-links {
             display: none;
             flex-direction: column;

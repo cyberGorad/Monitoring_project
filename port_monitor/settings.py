@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -125,6 +126,12 @@ USE_TZ = True
 
 # Chemin d'accès aux fichiers statiques
 STATIC_URL = '/static/'
+
+# 🔥 Ajoute ça pour les fichiers .log
+LOG_URL = '/logfiles/'  # tu choisis le nom
+LOG_ROOT = os.path.join(BASE_DIR, 'log')
+
+
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'

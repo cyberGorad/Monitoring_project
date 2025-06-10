@@ -396,6 +396,59 @@ async def get_uptime():
 
 
 
+import aiohttp
+async def fetch_allowed_processes():
+    try:
+        url = "https://tsilavina.alwaysdata.net/config_process.php"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    json_data = await response.json()
+                    return set(proc.lower() for proc in json_data.get("allowed_processes", []))
+                else:
+                    print(f"[X] Erreur HTTP {response.status}")
+    except Exception as e:
+        print(f"[X] Erreur lors de la récupération des processus autorisés : {e}")
+    return set()
+
+
+
+
+async def allow_connection():
+    allowed_processes = await fetch_allowed_processes()
+
+
+    print(f"PROCESSUS ALLOWED DE CYBERGORAD : {allowed_processes}")
+
+    seen = set()
+    unauthorized_processes = []
+
+    for conn in psutil.net_connections(kind='inet'):
+        pid = conn.pid
+        if pid and pid not in seen:
+            try:
+                proc = psutil.Process(pid)
+                name = proc.name().lower()
+
+                if name not in allowed_processes:
+                    unauthorized_processes.append({
+                        "pid": pid,
+                        "name": name,
+                        "status": "unauthorized"
+                    })
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+            seen.add(pid)
+
+    # ✅ Toujours retourner un dict avec la même structure
+    return {
+        "type": "unauthorized_processes_alert",
+        "processes": unauthorized_processes  # Liste vide si rien à signaler
+    }
+
+
+
 
 async def get_outbound_traffic():
     connections = []
@@ -445,7 +498,8 @@ async def send_data(websocket):
                 "outbound_traffic": await get_outbound_traffic(),
                 "battery_data": await get_battery_status(),
                 "internet_status": await check_internet_connection(),
-
+                "allow_connection": await allow_connection(),
+     
                 "os": get_os(),
                 "uptime": await get_uptime(),
             }
@@ -463,44 +517,56 @@ async def send_data(websocket):
 
 async def execute_command(command):
     try:
-        # 🧨 Exécute le processus sans attendre qu’il se termine
-        process = subprocess.Popen(command, shell=True)
-        return f"command executed  (PID: {process.pid})"
+        # Exécution du processus et capture des sorties stdout et stderr
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()  # Attend la fin du process et récupère la sortie
+
+        local_ip = get_local_ip()
+
+        # Décodage des bytes en string
+        output = stdout.decode('utf-8').strip()
+        error = stderr.decode('utf-8').strip()
+
+        if output and error:
+            return f"{local_ip} >>  {output}  \n[stderr]\n  {error} "
+        elif output:
+            return f"{local_ip} >> \n {output} "
+        elif error:
+            return f"{local_ip} >> [stderr]\n  {error}" 
+        else:
+            return f"{local_ip} >> command executed (PID: {process.pid}), but no output returned "
+
     except Exception as e:
-        return f"[ERROR] {str(e)}"
+        return f"{local_ip} >> [ERROR] {str(e)} "
 
 
-#root.after(10000, root.destroy)
+
 # ======================
 # 📢 Fonction pour afficher une popup/message
 # ======================
+# root.after(10000, root.destroy)
 def show_popup(message):
     os_type = platform.system()
 
     def popup():
         root = tk.Tk()
-        root.title("🔐 DÉPARTEMENT INFORMATIQUE")
-        root.geometry("500x250")  # ✅ Taille plus grande
+        root.title(">> MESSAGE DU DEPARTEMENT INFORMATIQUE:")
+        root.geometry("1366x768")  
         root.resizable(False, False)
-        root.configure(bg="#1e1e1e")
+        root.configure(bg="black")
 
         # ✅ Centrage vertical et horizontal
         msg_label = tk.Label(
             root,
             text=message,
-            bg="#1e1e1e",
-            fg="white",
-            font=("Segoe UI", 14, "bold"),  # Police plus grande et en gras
+            bg="black",
+            fg="green",
+            font=("Fira Code", 14, "bold"),  # Police plus grande et en gras
             wraplength=460,
             justify="center"  # ✅ Centre horizontalement
         )
         msg_label.place(relx=0.5, rely=0.5, anchor="center")  # ✅ Centre parfaitement dans la fenêtre
 
-        # ✅ Ferme automatiquement après 10 secondes
-     
-        root.mainloop()
-
-    Thread(target=popup).start()
 
 # ======================
 # 🧠 Nouveau : Gérer réception de message texte
@@ -525,11 +591,18 @@ async def receive_commands(websocket):
                 command = data.get("command")
                 print(f"[COMMANDE RECEIVED] {command}")
                 result = await execute_command(command)
+                local_ip = get_local_ip() 
                 response = {
                     "type": "command_result",
-                    "result": result
+                    "result": result,
+                    "ip" : local_ip 
                 }
+                print(f"IP : {local_ip}")
+                #print(f"RESULT COMMAND : {response}")
+
+
                 await websocket.send(json.dumps(response))
+
 
             elif data.get("type") == "message":
                 await handle_text_message(data)

