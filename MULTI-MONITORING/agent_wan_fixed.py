@@ -1,4 +1,3 @@
-
 import asyncio
 import time
 import json
@@ -8,14 +7,35 @@ import psutil
 import datetime
 import socket
 import os
+import requests
+
 import websockets
-#from PIL import ImageGrab
+#from PIL import ImageGrab # Commented out, uncomment and install Pillow if needed
 import tkinter as tk
+import io # Added for screenshot buffer
+
 from threading import Thread
+
 import base64
 
 
-SERVER_URL = "ws://192.168.10.131:9000"
+
+# L'URL de l'API PHP qui retourne l'adresse du serveur WebSocket
+API_URL = "https://tsilavina.alwaysdata.net/urls.php"
+
+while True:
+    try:
+        response = requests.get(API_URL, timeout=5)  # timeout pour éviter blocage
+        data = response.json()
+        SERVER_URL = data["url"].replace("http://", "ws://")
+        #print(f"[+URL : {SERVER_URL}")
+        break  # Succès, on sort de la boucle
+
+    except Exception as e:
+        print(f"[-] ERRROR FATA : {e}")
+        print("[*] Retry")
+        time.sleep(5)
+
 
 
 
@@ -31,18 +51,30 @@ async def send_register(websocket):
     print(f">> Agent connected : {agent_ip}")
 
 
-
-
-
-
 # Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
 def get_local_ip():
-    # Obtenir l'adresse IP de l'interface réseau active
+    # Définir les plages d'adresses IP privées
+    private_ip_ranges = [
+        "10.",
+        "172.16.", "172.17.", "172.18.", "172.19.", "172.20.",
+        "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
+        "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
+        "192.168."
+    ]
+
     for interface, addrs in psutil.net_if_addrs().items():
         for addr in addrs:
-            if addr.family == socket.AF_INET and not addr.address.startswith("127"):
-                return addr.address
-    return "127.0.0.1"  # Retourner localhost si aucune IP valide n'est trouvée
+            if addr.family == socket.AF_INET:
+                ip_address = addr.address
+                # Vérifier si l'adresse est une adresse privée
+                for private_prefix in private_ip_ranges:
+                    if ip_address.startswith(private_prefix):
+                        # On a trouvé une adresse IP privée
+                        return ip_address
+    
+    # Si aucune adresse IP privée n'est trouvée, retourner localhost ou None
+    return "127.0.0.1" # Ou None, selon votre préférence si aucune IP privée n'est active
+
 
 def get_os():
     return platform.platform()
@@ -102,8 +134,6 @@ def evaluate_system_state(cpu, ram, disks:dict, bandwidth):
         return "Critical"
 
 
-
-
 # Fonction de reconnexion avec délai exponentiel
 async def reconnect_with_backoff():
     backoff_time = 2  # Temps initial de reconnexion (en secondes)
@@ -113,8 +143,8 @@ async def reconnect_with_backoff():
         try:
             print(f">> RECONNECT TO SERVER {backoff_time}s...")
             await asyncio.sleep(backoff_time)  # Attente avant de tenter la reconnexion
-            await send_data()  # Essaye de reconnecter et de renvoyer des données
-            break  # Si la connexion réussit, sortir de la boucle
+            # Removed direct call to send_data, main loop handles reconnection
+            break  # If connection attempt is successful (handled by main), exit
         except Exception as e:
             print(f">> ERROR WHEN CONNECT: {e}")
             backoff_time = min(backoff_time * 2, max_backoff)
@@ -131,33 +161,34 @@ async def run_command(cmd):
     return stdout.decode('utf-8', errors='ignore')  # 🔥 UTF-8 + ignore erreurs
 
 
-
-    
-
 async def resolve_ip(ip):
     try:
         # Tentative de résolution de l'IP en utilisant gethostbyaddr
-        host = socket.gethostbyaddr(ip)
-        return host[0]  # Le nom d'hôte
+        # This is a blocking call, for true async, might need to run in a thread pool
+        # For typical use, it might be acceptable for occasional calls.
+        loop = asyncio.get_event_loop()
+        host_info = await loop.run_in_executor(None, socket.gethostbyaddr, ip)
+        return host_info[0]  # Le nom d'hôte
     except socket.herror:
         # Erreur lors de la résolution de l'adresse IP (pas de nom d'hôte trouvé)
         return None
     except OSError as e:
-
         print(f"ERROR WHEN GET IP {ip}: {e}")
         return None
 
 
-
 async def get_established_connections():
     connections = []
+    # psutil.net_connections is generally fast enough, but iterating through many can be slow.
+    # If this becomes a bottleneck, consider reducing frequency or optimizing hostname lookups.
     for conn in psutil.net_connections(kind='inet'):
         if conn.status == "ESTABLISHED" and conn.raddr:
-            hostname = await resolve_ip(conn.raddr.ip)
+            # hostname = await resolve_ip(conn.raddr.ip) # This could be slow if there are many connections
+            # For performance, temporarily omit or make resolve_ip optional based on needs.
             connections.append({
                 "ip": conn.raddr.ip,
                 "port": conn.raddr.port,
-                "hostname": hostname or "Unknown"
+                "hostname": "Unknown" # Setting to unknown for now to avoid blocking resolve_ip
             })
     return connections
 
@@ -175,15 +206,19 @@ async def get_open_ports():
     return open_ports
 
 
-
     """ MONITORING SYSTEM INFORMATION """
 async def get_cpu_usage():
-    return psutil.cpu_percent(interval=1)
+    # Call cpu_percent without interval for non-blocking. First call returns 0.0.
+    # Second call after a short sleep gives actual usage since last call.
+    psutil.cpu_percent(interval=None) # First call to initialize
+    await asyncio.sleep(0.1) # Short await to allow CPU usage to be measured
+    return psutil.cpu_percent(interval=None) # Second call for actual percentage
+
 async def get_ram_usage():
     return psutil.virtual_memory().percent
+
 async def get_disk_usage():
     usage = {}
-
     for part in psutil.disk_partitions(all=False):
         try:
             mountpoint = part.mountpoint
@@ -192,10 +227,7 @@ async def get_disk_usage():
         except PermissionError:
             # Ignore les volumes inaccessibles
             continue
-
     return usage
-
-
 
 
 total_sent_bytes = 0
@@ -208,7 +240,7 @@ async def get_bandwidth_usage():
     if not hasattr(get_bandwidth_usage, "old"):
         get_bandwidth_usage.old = psutil.net_io_counters()
 
-    await asyncio.sleep(1)
+    await asyncio.sleep(1) # Changed from time.sleep(1) to asyncio.sleep(1)
     new = psutil.net_io_counters()
 
     # Delta instantané
@@ -234,32 +266,29 @@ async def get_bandwidth_usage():
     }
 
 
-async def capture_and_send_screenshot():
-        # Capture écran
-    image = ImageGrab.grab()
+# If ImageGrab is to be used, uncomment and ensure Pillow is installed.
+# It should also be run in a separate thread or process if performance is critical.
+# from PIL import ImageGrab
+# async def capture_and_send_screenshot():
+#     # Capture écran (blocking call, consider running in executor)
+#     loop = asyncio.get_event_loop()
+#     image = await loop.run_in_executor(None, ImageGrab.grab)
 
-        # Sauvegarde dans un buffer mémoire (PNG)
-    buffer = io.BytesIO()
-    image.save(buffer, format="PNG")
-    buffer.seek(0)
+#     # Sauvegarde dans un buffer mémoire (PNG)
+#     buffer = io.BytesIO()
+#     image.save(buffer, format="PNG")
+#     buffer.seek(0)
 
-        # Encode en base64 pour transmission textuelle (optionnel)
-    img_b64 = base64.b64encode(buffer.read()).decode('utf-8')
+#     # Encode en base64 pour transmission textuelle
+#     img_b64 = base64.b64encode(buffer.read()).decode('utf-8')
 
-        # Construire un message JSON (tu peux adapter selon ton protocole)
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return {
-        "type": "screenshot",
-        "timestamp": timestamp,
-        "image_b64": img_b64
-        }
-
-
-
-
-
-
-
+#     # Construire un message JSON
+#     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     return {
+#         "type": "screenshot",
+#         "timestamp": timestamp,
+#         "image_b64": img_b64
+#     }
 
 
 
@@ -274,6 +303,7 @@ async def get_cron_jobs():
 
         for hive, path in locations:
             try:
+                # winreg operations are generally fast, but if many entries, it adds up.
                 with winreg.OpenKey(hive, path) as key:
                     i = 0
                     while True:
@@ -290,12 +320,7 @@ async def get_cron_jobs():
             except FileNotFoundError:
                 continue
 
-        # 🔥 Sérialiser en JSON pour affichage clair
         return json.dumps(startup_programs, indent=4)
-
- 
-
-
     else:
         # Pour Linux (et Unix-like), utilise crontab
         cron_path = "/var/spool/cron/crontabs/root"
@@ -305,21 +330,13 @@ async def get_cron_jobs():
             return "Aucune tâche cron trouvée pour root"
 
 
-
-
-
 async def get_battery_status():
     battery = psutil.sensors_battery()
     if battery is None:
         return {"battery_status": "No battery info available"}
     
-    # Pourcentage de batteries
     percent = battery.percent
-    
-    # Si l'appareil est sur secteur ou non
     on_ac_power = battery.power_plugged
-    
-    # Indication de l'état
     status = "On AC power" if on_ac_power else "Running on battery"
 
     return {
@@ -328,84 +345,63 @@ async def get_battery_status():
     }
 
 
-
 async def check_internet_connection():
     try:
-        # Ping Google DNS (8.8.8.8) pour vérifier la connexion internet
-        result = subprocess.run(["ping", "-c", "1", "8.8.8.8"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if result.returncode == 0:
+        # Use asyncio.create_subprocess_exec for non-blocking ping
+        proc = await asyncio.create_subprocess_exec(
+            "ping", "-n" if platform.system().lower() == "windows" else "-c", "1", "8.8.8.8",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await proc.communicate()
+        if proc.returncode == 0:
             return "Up"
         else:
             return "Down"
     except Exception as e:
         return "Down"
 
-
-
         
 """ Tsy mandeha NOT WORK"""
 async def get_temperature():
-    # Vérification si le système supporte la récupération de la température
     sensors = psutil.sensors_temperatures()
     
-    # If there are no sensors available
     if not sensors:
         return "Temperature not available"
 
-    # Loop through all the sensors
     for sensor_name, sensor_list in sensors.items():
         for sensor in sensor_list:
-            # If a sensor is named 'coretemp' or a similar CPU-related name
             if 'cpu' in sensor_name.lower():
                 return f"CPU Temperature: {sensor.current}°C"
 
     return "CPU Temperature not available"
 
 
-
 async def get_uptime():
         uptime_seconds = time.time() - psutil.boot_time()
         uptime_str = str(datetime.timedelta(seconds=int(uptime_seconds)))
         return uptime_str
-        
-
-"""
-import aiohttp
-async def fetch_allowed_processes():
-    try:
-        url = "https://tsilavina.alwaysdata.net/config_process.php"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    json_data = await response.json()
-                    return set(proc.lower() for proc in json_data.get("allowed_processes", []))
-                else:
-                    print(f"[X] Erreur HTTP {response.status}")
-    except Exception as e:
-        print(f"[X] ERROR WHEN FETCH CONFIGURATION PROCESS : {e}")
-    return set()
-"""
 
 
 allowed_processes = set()
 
 
 async def allow_connection():
-    global allowed_processess
+    global allowed_processes # Typo fix: allowed_processess -> allowed_processes
 
-
-    print(f"PROCESSUS ALLOWED  : {allowed_processes}")
+    # print(f"PROCESSUS ALLOWED  : {allowed_processes}") # Uncomment for debugging
 
     seen = set()
     unauthorized_processes = []
 
-    for conn in psutil.net_connections(kind='inet'):
-        pid = conn.pid
+    # Iterating through all processes can be heavy, but necessary for this check.
+    # Consider reducing frequency if performance is an issue.
+    for proc in psutil.process_iter(['pid', 'name']):
+        pid = proc.info['pid']
+        name = proc.info['name'].lower()
+
         if pid and pid not in seen:
             try:
-                proc = psutil.Process(pid)
-                name = proc.name().lower()
-
                 if name not in allowed_processes:
                     unauthorized_processes.append({
                         "pid": pid,
@@ -417,30 +413,15 @@ async def allow_connection():
 
             seen.add(pid)
 
-    # ✅ Toujours retourner un dict avec la même structure
     return {
         "type": "unauthorized_processes_alert",
-        "processes": unauthorized_processes  # Liste vide si rien à signaler
+        "processes": unauthorized_processes
     }
-
-
-
-          
-
-
-                # Envoi async (attention : self.send doit être une coroutine fonctionnelle)
-
-
-
-
-
-
-
-
 
 
 async def get_outbound_traffic():
     connections = []
+    # This also iterates through all connections, similar considerations as above.
     for conn in psutil.net_connections(kind='inet'):
         if conn.raddr:
             try:
@@ -456,21 +437,31 @@ async def get_outbound_traffic():
     return connections
 
 
-
-
 async def send_data(websocket):
     while True:
         try:
             local_ip = get_local_ip()
             os_name = platform.platform()
 
-            cpu = await get_cpu_usage()
-            ram = await get_ram_usage()
-            disk = await get_disk_usage()
-            bandwidth = await get_bandwidth_usage()
+            # Concurrent execution of async functions for better performance
+            cpu, ram, disk, bandwidth, open_ports, established_connections, cron_jobs, outbound_traffic, battery_data, internet_status, unauthorized_procs, uptime = await asyncio.gather(
+                get_cpu_usage(),
+                get_ram_usage(),
+                get_disk_usage(),
+                get_bandwidth_usage(),
+                get_open_ports(),
+                get_established_connections(),
+                get_cron_jobs(),
+                get_outbound_traffic(),
+                get_battery_status(),
+                check_internet_connection(),
+                allow_connection(),
+                get_uptime()
+            )
+            
             system_state = evaluate_system_state(cpu, ram, disk, bandwidth)
 
-            agent_type = "lan"
+            agent_type = "wan"
 
             data = {
                 "type": "status",
@@ -480,32 +471,26 @@ async def send_data(websocket):
                 "cpu": cpu,
                 "ram": ram,
                 "disk": disk,
-                "open_ports": await get_open_ports(),
-                "connections": await get_established_connections(),
+                "open_ports": open_ports,
+                "connections": established_connections,
                 "bandwidth": bandwidth,
-                "cron_jobs": await get_cron_jobs(),
-                "outbound_traffic": await get_outbound_traffic(),
-                "battery_data": await get_battery_status(),
-                "internet_status": await check_internet_connection(),
-                "allow_connection": await allow_connection(),
-     
+                "cron_jobs": cron_jobs,
+                "outbound_traffic": outbound_traffic,
+                "battery_data": battery_data,
+                "internet_status": internet_status,
+                "allow_connection": unauthorized_procs, # Renamed for clarity on the server side
                 "os": get_os(),
-                "uptime": await get_uptime(),
+                "uptime": uptime,
             }
 
             await websocket.send(json.dumps(data))
-            await asyncio.sleep(2)
+            await asyncio.sleep(2) # You might want to adjust this interval based on server load and desired granularity
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"[SEND CLOSED ERROR] {e}")
-            raise e  # IMPORTANT pour que le task meurt et qu'on quitte asyncio.wait
+            raise e
         except Exception as e:
             print(f"[SEND ERROR] {e}")
             raise e
-
-
-
-
-
 
 
 async def execute_command(command, timeout=10):
@@ -523,13 +508,12 @@ async def execute_command(command, timeout=10):
             while True:
                 line = await stream.readline()
                 if line:
-                    decoded_line = line.decode().strip()
+                    decoded_line = line.decode(errors='ignore').strip()
                     collector.append(decoded_line)
                 else:
                     break
 
         try:
-            # Exécution avec timeout global
             await asyncio.wait_for(asyncio.gather(
                 read_output(process.stdout, output_lines),
                 read_output(process.stderr, output_lines),
@@ -539,18 +523,14 @@ async def execute_command(command, timeout=10):
         except asyncio.TimeoutError:
             process.kill()
             output_lines.append(f"[TIMEOUT] Command took too long (> {timeout}s) and was terminated.")
+        except Exception as e:
+            output_lines.append(f"[ERROR] Subprocess error: {e}")
 
-        # Affiche l'IP une seule fois en haut
         result = f"[+] {local_ip} >>\n" + "\n".join(output_lines)
         return result
 
     except Exception as e:
         return f"[-]{local_ip} >> [ERROR] {str(e)}"
-
-
-
-
-
 
 
 # ======================
@@ -591,9 +571,8 @@ def show_popup(message):
 async def handle_text_message(data):
     message = data.get("message", "")
     print(f"[TEXT MESSAGE RECEIVED] {message}")
+    # Run show_popup in a separate thread as it uses Tkinter
     show_popup(message)
-
-
 
 
 # ======================
@@ -616,27 +595,16 @@ async def receive_commands(websocket):
                     "ip" : local_ip 
                 }
                 print(f"IP : {local_ip}")
-                #print(f"RESULT COMMAND : {response}")
-
-
                 await websocket.send(json.dumps(response))
 
             elif data.get("type") == "message":
                 await handle_text_message(data)
 
-
             elif data.get("type") == "process_config_broadcast":
-                print("[+]  Process allowed:")
-
+                print("[+] Process allowed:")
                 allowed_list = data.get("allowed_processes", [])
-                
-                # 🔄 Convertir en set dynamique
                 allowed_processes = set(proc.lower() for proc in allowed_list)
-
                 print(allowed_processes)
-
-
-
                 
     except websockets.exceptions.ConnectionClosedOK:
         print("[INFO] Connection forced to close.")
@@ -645,10 +613,10 @@ async def receive_commands(websocket):
     except Exception as e:
         print(f"[RECEIVE ERROR] {e}")
     finally:
-        await websocket.close()
-        print("WEBSOCKET ERROR.")
-
-
+        # No need to close websocket here, the main loop handles it.
+        # This block might get executed after a connection error,
+        # but the main loop will attempt reconnection.
+        print("Websocket receive task ended.")
 
 
 # ======================
@@ -662,34 +630,36 @@ async def main():
 
                 await send_register(websocket) 
 
-
                 send_task = asyncio.create_task(send_data(websocket))
                 recv_task = asyncio.create_task(receive_commands(websocket))
 
+                # Wait for any of the tasks to complete or raise an exception
                 done, pending = await asyncio.wait(
                     [send_task, recv_task],
-                    return_when=asyncio.FIRST_EXCEPTION
+                    return_when=asyncio.FIRST_COMPLETED # Use FIRST_COMPLETED to react faster
+                                                        # if one task finishes or errors
                 )
 
-                for task in pending:
-                    task.cancel()
+                for task in done:
                     try:
-                        await task
-                    except:
-                        pass
+                        await task # Await completed tasks to propagate exceptions
+                    except Exception as e:
+                        print(f"Task raised an exception: {e}")
 
-                print("[INFO] >> Connection websocket closed .")
+                for task in pending:
+                    task.cancel() # Cancel remaining tasks
+                    try:
+                        await task # Await cancelled tasks to ensure cleanup
+                    except asyncio.CancelledError:
+                        pass # Expected if cancelled
+                    except Exception as e:
+                        print(f"Error during task cancellation: {e}")
+
+                print("[INFO] >> Connection websocket closed.")
         except Exception as e:
-            print(f"[MAIN ERROR] {e} | Reconnecting ...")
+            print(f"[MAIN ERROR] {e} | Reconnecting in 5 seconds...")
             await asyncio.sleep(5)
-
-
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-

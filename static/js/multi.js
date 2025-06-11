@@ -733,15 +733,15 @@ function buildOpenPortsDetails(openPorts) {
 
   openPorts.forEach(p => {
     openPortsDetails += `
-      <div style="display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 6px;">
-        <i class="fas fa-plug" style="color:#00FF00;"></i>
-        <span><p>Port</p> ${p.port}</span>
+      <div style="display: flex; align-items: center; padding: 6px 5px; border-radius: 6px;font-size:10px;justify-content:space-around;">
+ 
+        <span style="color:violet;"><p>Port</p> ${p.port}</span>
 
-        <i class="fas fa-microchip" style="color:#00FF00;"></i>
+
         <span><p>pid</p> ${p.pid ?? "N/A"}</span>
 
-        <i class="fas fa-cogs" style="color:#00FF00;"></i>
-        <span><p>Proc</p> ${p.process}</span>
+
+        <span style="color:green;"><p>Proc</p> ${p.process}</span>
       </div>`;
   });
 
@@ -753,10 +753,10 @@ function buildOpenPortsDetails(openPorts) {
 function displayUnauthorizedProcesses(processesparam) {
   // Sécurisation : si la donnée est null/undefined ou pas un tableau, on renvoie un message par défaut
   if (!Array.isArray(processesparam) || processesparam.length === 0) {
-    return `<p>No process alert</p>`;
+    return `<p style="color:white;font-size:10px;">No process alert</p>`;
   }
 
-  let alertprocess = '<div style="display: flex; flex-direction: column; gap: 6px;">';
+  let alertprocess = '<div style="display: flex; flex-direction: column; gap: 1px;">';
 
   processesparam.forEach(proc => {
     alertprocess += `
@@ -804,7 +804,7 @@ function buildOutboundTrafficDetails(outboundTraffic) {
   let outboundTrafficDetails = `
     <style>
       .process-small {
-        font-size: 12px;
+        font-size: 10px;
         color: #00FF00;
       }
       .process-icon {
@@ -819,18 +819,30 @@ function buildOutboundTrafficDetails(outboundTraffic) {
     </style>
     <ul>
   `;
+
+  // Utilisez un Set pour stocker les combinaisons uniques déjà affichées
+  const seenConnections = new Set();
+
   outboundTraffic.forEach(c => {
-    outboundTrafficDetails += `
-      <li>
-        Local: ${c.local} → Remote: ${c.remote} | Processus: 
-        <span class="process-icon"></span>
-        <span class="process-small">${c.process}</span>
-      </li>`;
+    // Créez une clé unique pour chaque connexion basée sur toutes les informations pertinentes
+    const connectionKey = `${c.local}-${c.remote}-${c.process}`;
+
+    // Vérifiez si cette connexion a déjà été affichée
+    if (!seenConnections.has(connectionKey)) {
+      // Si ce n'est pas le cas, ajoutez-la à l'ensemble et à la chaîne HTML
+      seenConnections.add(connectionKey);
+      outboundTrafficDetails += `
+        <li style="font-size:10px;">
+          Local: ${c.local} → Remote: ${c.remote} | Processus: 
+          <span class="process-icon"></span>
+          <span class="process-small">${c.process}</span>
+        </li>`;
+    }
   });
+
   outboundTrafficDetails += '</ul>';
   return outboundTrafficDetails;
 }
-
 
 
 // Fonction pour construire les détails de la batterie avec double couleur dynamique

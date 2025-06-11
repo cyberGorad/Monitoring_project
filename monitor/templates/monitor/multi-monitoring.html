@@ -220,10 +220,16 @@
               <option value="netsh advfirewall show allprofiles">Show firewall rules</option>
               <option value="netsh advfirewall reset">Reset firewall rules</option>
 
-              <option value='netsh advfirewall firewall add rule name="Allow_Chrome" dir=in program="C:\Program Files\Google\Chrome\Application\chrome.exe" action=allow'>Allow program</option>
-
+              <option value='netsh advfirewall firewall add rule name="rule name" dir=in program="path here ..." action=allow enable=yes profile=any'>Allow program</option>
+              <option value='netsh advfirewall firewall add rule name="rule name" dir=in program="path here..." action=block enable=yes profile=any'>block program</option>
               
               <!-- Tu peux en ajouter d'autres ici -->
+            </optgroup>
+
+            <optgroup label="Windows Defender automation">
+              <option value="'%ProgramFiles%\Windows Defender\MpCmdRun.exe'-Scan -ScanType 1">Speed scan</option>
+              <option value="'%ProgramFiles%\Windows Defender\MpCmdRun.exe' -Scan -ScanType 2">alls scan</option>
+
             </optgroup>
 
 
