@@ -48,7 +48,7 @@ function sendCommandAll() {
   }
 
   if (ws.readyState !== WebSocket.OPEN) {
-    alert("WebSocket non connecté !");
+    alert("WebSocket not connected !");
     return;
   }
 
@@ -118,11 +118,25 @@ function displayCommandResult(result) {
     font-family: monospace;
     white-space: pre-wrap;
     border-radius: 5px;
+    min-height: 50px;
   `;
-  resultBox.textContent = result;
 
-  container.prepend(resultBox); // Ajoute en haut
+  container.prepend(resultBox);
+
+  let index = 0;
+  const speed = 0.5; // vitesse en ms (plus petit = plus rapide)
+
+  function typeWriter() {
+    if (index <= result.length) {
+      resultBox.textContent = result.slice(0, index);
+      index++;
+      setTimeout(typeWriter, speed);
+    }
+  }
+
+  typeWriter();
 }
+
 
 
 

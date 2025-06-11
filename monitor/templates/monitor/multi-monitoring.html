@@ -39,6 +39,9 @@
               <span id="criticalMachinesCount"></span>
 </div>
 
+          <input type="file" id="uploadProcessJson" accept=".json" style="margin-top: 3px;">
+          <button onclick="sendProcessmultiConfig()" style="background-color: black;color: #00ff00;border-radius: 10px;margin-left: -50px;margin-right: 5px;">Upload Process</button>
+
 
                 <div id="agent-count" class="agent-counter">
                   🖧 Machine connected : <span id="agent-number">0</span>
@@ -46,6 +49,9 @@
 
                 <span id="machine-id"></span>
                 <a id="home_btn" href="{% url 'index' %}">Home</a>
+
+
+
 
 
 
@@ -60,9 +66,59 @@
 
 
 
+
+
                     <div id="commandOutput">
-                      <p>>> Command output</p>
-                    </div> 
+                      <div class="output-row">
+                        <p class="output-text">>> Command output</p>
+                    
+                        <div class="leds">
+                          <div class="led led-green"></div>
+                          <div class="led led-red"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <style>
+
+                      .output-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                      }
+                  
+                    
+                      .leds {
+                        display: flex;
+                        gap: 1px;
+                      }
+                    
+                      .led {
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 50%;
+                        animation: blink 1s infinite;
+                      }
+                    
+                      .led-green {
+                        background-color: #00ff00;
+                        box-shadow: 0 0 10px #00ff00;
+                      }
+                    
+                      .led-red {
+                        background-color: #ff0000;
+                        box-shadow: 0 0 10px #ff0000;
+                        animation-delay: 0.5s;
+                      }
+                    
+                      @keyframes blink {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0.2; }
+                      }
+                    </style>
+                    
+                    
+                    
 
 
                   </div>
@@ -124,12 +180,12 @@
           <button onclick="sendCommandAll()" style="padding: 5px 10px;">execute to all</button>
           <button id="toggleBtn" onclick="toggleListbox()" style="padding: 5px 10px;">📂 Show Commands</button>
         </div>
-      
+        
         <!-- LISTBOX ABSOLUTE -->
         <div id="listboxContainer" style="
             display: none;
             position: absolute;
-            top: 70px; /* Ajuste selon ton layout */
+            top: 70px;
             left: 10px;
             z-index: 100;
             background: #1e1e1e;
@@ -137,16 +193,51 @@
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
-          ">
-          <label for="commandList" style="color: #fff;">Automated command</label><br>
-          <select id="commandList" size="5" style="width: 310px; padding: 5px;" onclick="selectAndClose()">
-            <option value="sfc /scannow">sfc /scannow -> check disk</option>
-            <option value="del /q /f /s %TEMP%\*">del /q /f /s %TEMP%\* -> Delete temp files</option>
-            <option value="chkdsk C: /F /R /X">chkdsk C: /F /R /X -> verify disk</option>
-            <option value="ipconfig /flushdns">ipconfig /flushdns -> clean network cache</option>
-            <option value="del /q /f /s C:\Windows\Temp\*">del /q /f /s C:\Windows\Temp\* -> clean system cache</option>
+        ">
+          <label for="commandList" style="color: #fff;">Command Categories</label><br>
+          <select id="commandList" size="10" style="width: 310px; padding: 5px;" onclick="selectAndClose()">
+            
+            <optgroup label="🖥️ System Commands">
+              <option value="sfc /scannow">sfc /scannow -> check disk</option>
+              <option value="del /q /f /s %TEMP%\*">del /q /f /s %TEMP%\* -> delete user temp files</option>
+              <option value="chkdsk C: /F /R /X">chkdsk C: /F /R /X -> verify disk</option>
+              <option value="del /q /f /s C:\Windows\Temp\*">del /q /f /s C:\Windows\Temp\* -> clean system cache</option>
+            </optgroup>
+<br>      
+            <optgroup label="🌐 Network Commands">
+              <option value="ipconfig /release">ipconfig /release -> Releases the current IP </option>
+              <option value="ipconfig /renew">ipconfig /renew -> Requests a new IP address </option>
+              <option value="netsh winsock reset">netsh winsock reset -> Resets the Winsock Catalog </option>
+              <option value="netsh int ip reset">netsh int ip reset -> Resets the TCP/IP stack</option>
+              
+              <!-- Tu peux en ajouter d'autres ici -->
+            </optgroup>
+<br>
+
+            <optgroup label="Firewall configuration">
+              <option value="netsh advfirewall set allprofiles state on">Enable firewall</option>
+              <option value="netsh advfirewall set allprofiles state off">Disable firewall</option>
+              <option value="netsh advfirewall show allprofiles">Show firewall rules</option>
+              <option value="netsh advfirewall reset">Reset firewall rules</option>
+
+              <option value='netsh advfirewall firewall add rule name="Allow_Chrome" dir=in program="C:\Program Files\Google\Chrome\Application\chrome.exe" action=allow'>Allow program</option>
+
+              
+              <!-- Tu peux en ajouter d'autres ici -->
+            </optgroup>
+
+
+
+            <optgroup label="Utilities">
+              <option value="shutdown /r /t 0">shutdown /r /t 0 -> restart computer</option>
+            </optgroup>
+
+
+
+        
           </select>
         </div>
+        
 
         <script>
           function toggleListbox() {
@@ -211,6 +302,9 @@
   </div>
   <script src="/static/js/multi.js"></script> 
   <script src="/static/js/output_js.js"></script>
+
+  <!-- MULTI CONFIGURATION PROCESS -->
+  <script src="/static/js/multi_process_conf.js"></script>
  
 </body>
 </html>

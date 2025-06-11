@@ -10,7 +10,7 @@ import socket
 import os
 
 import websockets
-from PIL import ImageGrab
+#from PIL import ImageGrab
 import tkinter as tk
 
 from threading import Thread
@@ -18,7 +18,7 @@ from threading import Thread
 import base64
 
 
-SERVER_URL = "ws://192.168.10.131:9000"
+SERVER_URL = "ws://192.168.10.232:9000"
 
 
 
@@ -31,7 +31,7 @@ async def send_register(websocket):
         "ip": agent_ip
     }
     await websocket.send(json.dumps(register_payload))
-    print(f"Agent Saved : {agent_ip}")
+    print(f">> Agent connected : {agent_ip}")
 
 
 
@@ -114,12 +114,12 @@ async def reconnect_with_backoff():
     
     while True:
         try:
-            print(f"RECONNECT TO SERVER {backoff_time}s...")
+            print(f">> RECONNECT TO SERVER {backoff_time}s...")
             await asyncio.sleep(backoff_time)  # Attente avant de tenter la reconnexion
             await send_data()  # Essaye de reconnecter et de renvoyer des données
             break  # Si la connexion réussit, sortir de la boucle
         except Exception as e:
-            print(f"ERROR WHEN CONNECT: {e}")
+            print(f">> ERROR WHEN CONNECT: {e}")
             backoff_time = min(backoff_time * 2, max_backoff)
 
 
@@ -146,8 +146,8 @@ async def resolve_ip(ip):
         # Erreur lors de la résolution de l'adresse IP (pas de nom d'hôte trouvé)
         return None
     except OSError as e:
-        # Si l'adresse IP est de type IPv6 et que le système ne supporte pas cette famille d'adresses
-        print(f"Erreur lors de la résolution de l'IP {ip}: {e}")
+
+        print(f"ERROR WHEN GET IP {ip}: {e}")
         return None
 
 
@@ -346,7 +346,7 @@ async def check_internet_connection():
 
 
         
-""" Tsy mandeha """
+""" Tsy mandeha NOT WORK"""
 async def get_temperature():
     # Vérification si le système supporte la récupération de la température
     sensors = psutil.sensors_temperatures()
@@ -372,7 +372,7 @@ async def get_uptime():
         return uptime_str
         
 
-
+"""
 import aiohttp
 async def fetch_allowed_processes():
     try:
@@ -385,17 +385,19 @@ async def fetch_allowed_processes():
                 else:
                     print(f"[X] Erreur HTTP {response.status}")
     except Exception as e:
-        print(f"[X] Erreur lors de la récupération des processus autorisés : {e}")
+        print(f"[X] ERROR WHEN FETCH CONFIGURATION PROCESS : {e}")
     return set()
+"""
 
 
+allowed_processes = set()
 
 
 async def allow_connection():
-    allowed_processes = await fetch_allowed_processes()
+    global allowed_processess
 
 
-    print(f"PROCESSUS ALLOWED DE CYBERGORAD : {allowed_processes}")
+    print(f"PROCESSUS ALLOWED  : {allowed_processes}")
 
     seen = set()
     unauthorized_processes = []
@@ -427,8 +429,6 @@ async def allow_connection():
 
 
           
-  
-
 
 
                 # Envoi async (attention : self.send doit être une coroutine fonctionnelle)
@@ -507,31 +507,53 @@ async def send_data(websocket):
 
 
 
+
+
+
+
 async def execute_command(command, timeout=10):
+    local_ip = get_local_ip()
+    output_lines = []
+
     try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+
+        async def read_output(stream, collector):
+            while True:
+                line = await stream.readline()
+                if line:
+                    decoded_line = line.decode().strip()
+                    collector.append(decoded_line)
+                else:
+                    break
+
         try:
-            stdout, stderr = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
+            # Exécution avec timeout global
+            await asyncio.wait_for(asyncio.gather(
+                read_output(process.stdout, output_lines),
+                read_output(process.stderr, output_lines),
+                process.wait()
+            ), timeout=timeout)
+
+        except asyncio.TimeoutError:
             process.kill()
-            return f"{get_local_ip()} >> [TIMEOUT] Command took too long (> {timeout}s) and was terminated."
+            output_lines.append(f"[TIMEOUT] Command took too long (> {timeout}s) and was terminated.")
 
-        output = stdout.decode('utf-8').strip()
-        error = stderr.decode('utf-8').strip()
-        local_ip = get_local_ip()
-
-        if output and error:
-            return f"{local_ip} >>  {output}  \n[stderr]\n  {error} "
-        elif output:
-            return f"{local_ip} >> \n {output} "
-        elif error:
-            return f"{local_ip} >> [stderr]\n  {error}" 
-        else:
-            return f"{local_ip} >> command executed (PID: {process.pid}), but no output returned "
+        # Affiche l'IP une seule fois en haut
+        result = f"[+] {local_ip} >>\n" + "\n".join(output_lines)
+        return result
 
     except Exception as e:
-        return f"{get_local_ip()} >> [ERROR] {str(e)} "
+        return f"[-]{local_ip} >> [ERROR] {str(e)}"
+
+
+
+
+
 
 
 # ======================
@@ -581,6 +603,7 @@ async def handle_text_message(data):
 # 📡 Réception de commandes
 # ======================
 async def receive_commands(websocket):
+    global allowed_processes
     try:
         while True:
             message = await websocket.recv()
@@ -603,16 +626,30 @@ async def receive_commands(websocket):
 
             elif data.get("type") == "message":
                 await handle_text_message(data)
+
+
+            elif data.get("type") == "process_config_broadcast":
+                print("[+]  Process allowed:")
+
+                allowed_list = data.get("allowed_processes", [])
+                
+                # 🔄 Convertir en set dynamique
+                allowed_processes = set(proc.lower() for proc in allowed_list)
+
+                print(allowed_processes)
+
+
+
                 
     except websockets.exceptions.ConnectionClosedOK:
-        print("[INFO] Connexion fermée proprement.")
+        print("[INFO] Connection forced to close.")
     except websockets.exceptions.ConnectionClosedError as e:
         print(f"[CLOSED ERROR] {e}")
     except Exception as e:
         print(f"[RECEIVE ERROR] {e}")
     finally:
         await websocket.close()
-        print("[INFO] Connexion WebSocket fermée.")
+        print("WEBSOCKET ERROR.")
 
 
 
@@ -644,7 +681,7 @@ async def main():
                     except:
                         pass
 
-                print("[INFO] Connection websocket closed .")
+                print("[INFO] >> Connection websocket closed .")
         except Exception as e:
             print(f"[MAIN ERROR] {e} | Reconnecting ...")
             await asyncio.sleep(5)

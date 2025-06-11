@@ -71,6 +71,27 @@ wss.on('connection', (ws, req) => {
           agents.set(ip, ws);
   
           console.log(`AGENT SAVED WITH IP: ${ip}`);
+
+
+
+          
+      } else if (data.type === 'upload_process_config') {
+          console.log("data configuration process received", data);
+                // 🔁 Broadcast à tous les clients (y compris l’émetteur si tu veux)
+          const payload = JSON.stringify({
+            type: 'process_config_broadcast',
+            allowed_processes: data.allowed_process
+          });
+
+          wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(payload);
+            }
+          });
+
+          console.log(`>> BROADCASTED CLIENT : ${wss.clients.size} ZOMBIES`);
+        
+
         
         
 

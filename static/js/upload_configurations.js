@@ -12,7 +12,7 @@ function sendPortConfig() {
                 type: "upload_port_config",
                 allowed_ports: data.allowed_ports
             }));
-            alert("Configuration upload successfully !");
+            alert("[Notice] Process Configuration updated success !");
         } catch (e) {
             alert("Error file not valid : " + e.message);
         }

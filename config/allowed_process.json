@@ -1,1 +1,1 @@
-{"allowed_process": ["firefox-esr","chrome","curl","daphne","node","python3","postgres"]}
+{"allowed_process": ["firefox-esr","chrome","curl","daphne","node","python3","postgres", "codium"]}
