@@ -1,1 +1,1 @@
-Aucune entrée d'historique de navigateur trouvée (ou erreurs rencontrées pour tous les navigateurs).
+Erreur lors de la récupération de l'historique : Aucun historique de navigateur n'a pu être récupéré.

