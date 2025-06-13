@@ -54,3 +54,6 @@ def setting(request):
     if not request.user.is_authenticated:
         return redirect('index')
     return render(request, 'monitor/settings.html')
+
+def browser(request):
+    return render(request, 'monitor/browser_analys.html')

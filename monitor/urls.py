@@ -7,5 +7,6 @@ urlpatterns = [
     path('multi-monitoring', views.monitoring, name = 'multi'),
     path('settings', views.setting, name = 'setting'),
     path('logout', views.user_logout, name ='logout'),
+    path('analys', views.browser, name="browser"),
     path('', views.index , name = 'index'),
 ]

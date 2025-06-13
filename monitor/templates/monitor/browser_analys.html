@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser History Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-image: url('/static/globe.jpeg');
+            color: white;
+            background-size: cover;
+        }
+        h1 {
+            color: white;
+        }
+        .file-upload-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: black;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            margin-top: 10px;
+            width: fit-content;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+            
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            color: black;
+            text-align: left;
+        }
+        th {
+            background-color: green;
+            color: white;
+            cursor: pointer; /* Indicate that headers are clickable for sorting */
+        }
+        th:hover {
+            background-color: #45a049;
+        }
+        th.sort-asc::after {
+            content: " ▲";
+        }
+        th.sort-desc::after {
+            content: " ▼";
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .url-column {
+            word-break: break-all;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .message {
+            color: blue;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Browser History picker</h1>
+
+    <div class="file-upload-container">
+        <label for="historyFile">Upload your browser history file (.txt):</label>
+        <input type="file" id="historyFile" accept=".txt">
+        <p class="message" id="uploadMessage"></p>
+    </div>
+
+    <div id="history-container">
+        <p>Please upload a browser history file to display its content.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const historyFileInput = document.getElementById('historyFile');
+            const historyContainer = document.getElementById('history-container');
+            const uploadMessage = document.getElementById('uploadMessage');
+
+            let historyData = []; // This will store the parsed history objects
+            let currentSortColumn = null;
+            let sortDirection = 'desc'; // Default sort by date, newest first
+
+            historyFileInput.addEventListener('change', handleFileSelect);
+
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+
+                if (!file) {
+                    historyContainer.innerHTML = '<p>No file selected.</p>';
+                    uploadMessage.textContent = '';
+                    return;
+                }
+
+                if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
+                    historyContainer.innerHTML = '<p class="error">Please upload a plain text (.txt) file.</p>';
+                    uploadMessage.textContent = 'Invalid file type. Please upload a .txt file.';
+                    return;
+                }
+
+                uploadMessage.textContent = `Processing "${file.name}"...`;
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const data = e.target.result;
+                    parseHistoryData(data); // Parse and store in historyData
+                    if (historyData.length > 0) {
+                        // Initial sort by date, newest first
+                        sortHistory('lastVisit');
+                        uploadMessage.textContent = `Successfully loaded "${file.name}".`;
+                    } else {
+                        historyContainer.innerHTML = '<p class="error">No valid history entries found in the uploaded file.</p>';
+                        uploadMessage.textContent = 'No valid entries found.';
+                    }
+                };
+
+                reader.onerror = function() {
+                    console.error('Error reading file:', reader.error);
+                    historyContainer.innerHTML = '<p class="error">Could not read the file. Please try again.</p>';
+                    uploadMessage.textContent = 'Error reading file.';
+                };
+
+                reader.readAsText(file);
+            }
+
+            function parseHistoryData(data) {
+                const lines = data.split('---');
+                historyData = []; // Clear previous data
+
+                lines.forEach(block => {
+                    const browserMatch = block.match(/Navigateur: (.+)/);
+                    const urlMatch = block.match(/URL: (.+)/);
+                    const titleMatch = block.match(/Titre: (.+)/);
+                    const lastVisitMatch = block.match(/Dernière visite: (.+)/);
+
+                    const browser = browserMatch ? browserMatch[1].trim() : 'N/A';
+                    const url = urlMatch ? urlMatch[1].trim() : 'N/A';
+                    const title = titleMatch ? titleMatch[1].trim() : 'N/A';
+
+                    let lastVisitDate = null; // Store as Date object for sorting
+                    let lastVisitFormatted = 'N/A'; // Store as formatted string for display
+
+                    if (lastVisitMatch) {
+                        try {
+                            // The original date format is 'YYYY-MM-DD HH:MM:SS.microseconds'
+                            // We need to convert it to a format Date() can reliably parse, e.g., 'YYYY-MM-DDTHH:MM:SS'
+                            // Or, just directly pass it, as modern browsers are often good at parsing common formats
+                            const dateString = lastVisitMatch[1].split('.')[0]; // Remove microseconds for cleaner parsing
+                            const parsedDate = new Date(dateString.replace(' ', 'T')); // Replace space with 'T' for ISO format
+
+                            if (!isNaN(parsedDate.getTime())) { // Check if the date is valid
+                                lastVisitDate = parsedDate;
+                                lastVisitFormatted = parsedDate.toLocaleString(); // Format for display
+                            } else {
+                                console.warn("Could not parse date:", lastVisitMatch[1]);
+                            }
+                        } catch (e) {
+                            console.warn("Error parsing date:", lastVisitMatch[1], e);
+                        }
+                    }
+
+                    // Only add an object if at least one piece of information is found
+                    if (browser !== 'N/A' || url !== 'N/A' || title !== 'N/A' || lastVisitFormatted !== 'N/A') {
+                        historyData.push({
+                            browser: browser,
+                            url: url,
+                            title: title,
+                            lastVisit: lastVisitDate, // For sorting (Date object)
+                            lastVisitFormatted: lastVisitFormatted // For display (String)
+                        });
+                    }
+                });
+            }
+
+            function sortHistory(column) {
+                if (currentSortColumn === column) {
+                    sortDirection = (sortDirection === 'asc') ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = column;
+                    sortDirection = 'desc'; // Default to descending for new column
+                }
+
+                historyData.sort((a, b) => {
+                    let valA = a[column];
+                    let valB = b[column];
+
+                    if (column === 'lastVisit') {
+                        // Handle null/invalid dates for sorting
+                        if (!valA && !valB) return 0;
+                        if (!valA) return sortDirection === 'asc' ? -1 : 1; // "N/A" dates at the bottom for asc, top for desc
+                        if (!valB) return sortDirection === 'asc' ? 1 : -1;
+
+                        // Compare Date objects
+                        if (sortDirection === 'asc') {
+                            return valA.getTime() - valB.getTime();
+                        } else {
+                            return valB.getTime() - valA.getTime();
+                        }
+                    } else {
+                        // For string comparisons (browser, url, title)
+                        valA = String(valA).toLowerCase();
+                        valB = String(valB).toLowerCase();
+                        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+                        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+                        return 0;
+                    }
+                });
+
+                renderTable(); // Re-render the table after sorting
+            }
+
+            function renderTable() {
+                if (historyData.length === 0) {
+                    historyContainer.innerHTML = '<p class="error">No valid history entries to display.</p>';
+                    return;
+                }
+
+                let htmlTable = '<table>';
+                htmlTable += '<thead><tr>';
+                htmlTable += `<th data-column="browser" ${currentSortColumn === 'browser' ? 'class="sort-' + sortDirection + '"' : ''}>Browser</th>`;
+                htmlTable += `<th data-column="url" ${currentSortColumn === 'url' ? 'class="sort-' + sortDirection + '"' : ''}>URL</th>`;
+                htmlTable += `<th data-column="title" ${currentSortColumn === 'title' ? 'class="sort-' + sortDirection + '"' : ''}>Title</th>`;
+                htmlTable += `<th data-column="lastVisit" ${currentSortColumn === 'lastVisit' ? 'class="sort-' + sortDirection + '"' : ''}>Last Visit</th>`;
+                htmlTable += '</tr></thead>';
+                htmlTable += '<tbody>';
+
+                historyData.forEach(entry => {
+                    htmlTable += '<tr>';
+                    htmlTable += `<td>${entry.browser}</td>`;
+                    htmlTable += `<td class="url-column">${entry.url !== 'N/A' ? `<a href="${entry.url}" target="_blank">${entry.url}</a>` : 'N/A'}</td>`;
+                    htmlTable += `<td>${entry.title}</td>`;
+                    htmlTable += `<td>${entry.lastVisitFormatted}</td>`;
+                    htmlTable += '</tr>';
+                });
+
+                htmlTable += '</tbody></table>';
+                historyContainer.innerHTML = htmlTable;
+
+                // Add event listeners to table headers after rendering
+                const headers = historyContainer.querySelectorAll('th');
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        const column = header.dataset.column;
+                        if (column) { // Only sort if data-column attribute is present
+                            sortHistory(column);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
