@@ -139,3 +139,5 @@
 [2025-06-11 08:02:49] {"type": "unauthorized_processes_alert", "processes": [{"pid": 1055, "name": "chronyd", "status": "unauthorized"}, {"pid": 2929, "name": "codium", "status": "unauthorized"}, {"pid": 979, "name": "networkmanager", "status": "unauthorized"}]}
 [2025-06-11 08:03:39] {"type": "unauthorized_processes_alert", "processes": [{"pid": 90776, "name": "nc", "status": "unauthorized"}]}
 [2025-06-11 08:48:09] {"type": "unauthorized_processes_alert", "processes": [{"pid": 95008, "name": "pagekite", "status": "unauthorized"}, {"pid": 2929, "name": "codium", "status": "unauthorized"}, {"pid": 1055, "name": "chronyd", "status": "unauthorized"}, {"pid": 979, "name": "networkmanager", "status": "unauthorized"}]}
+[2023-12-24 15:43:58] {"type": "unauthorized_processes_alert", "processes": [{"pid": 2450, "name": "codium", "status": "unauthorized"}, {"pid": 1028, "name": "chronyd", "status": "unauthorized"}]}
+[2023-12-24 15:44:51] {"type": "unauthorized_processes_alert", "processes": [{"pid": 3806, "name": "codium", "status": "unauthorized"}]}

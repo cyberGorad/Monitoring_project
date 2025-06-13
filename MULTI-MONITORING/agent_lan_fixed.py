@@ -18,7 +18,7 @@ from threading import Thread
 import base64
 
 
-SERVER_URL = "ws://192.168.10.131:9000"
+SERVER_URL = "ws://192.168.43.226:9000"
 
 
 async def send_register(websocket):

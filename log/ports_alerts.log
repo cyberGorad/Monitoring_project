@@ -75,3 +75,5 @@
 [2025-06-11 08:03:39] Alerte : Port non autorisé détecté - Port: 9999, Processus: nc
 [2025-06-11 08:48:04] Alerte : Port non autorisé détecté - Port: 40225, Processus: codium
 [2025-06-11 08:48:09] Alerte : Port non autorisé détecté - Port: 9000, Processus: node
+[2023-12-24 15:43:53] Alerte : Port non autorisé détecté - Port: 44231, Processus: codium
+[2023-12-24 15:44:51] Alerte : Port non autorisé détecté - Port: 34377, Processus: codium
